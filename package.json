@@ -1,0 +1,10 @@
+{
+  "name": "todorant-backend",
+  "version": "1.0.0",
+  "description": "Todorant backend",
+  "main": "dist/app.js",
+  "repository": "https://github.com/backmeupplz/todorant-backend",
+  "author": "backmeupplz <backmeupplz@gmail.com>",
+  "license": "GNU GPLv3",
+  "private": true
+}
