@@ -5,8 +5,11 @@ import {
   Typegoose,
   InstanceType,
   instanceMethod,
+  arrayProp,
+  Ref,
 } from 'typegoose'
 import { omit } from 'lodash'
+import { Todo } from './todo'
 
 export class User extends Typegoose {
   @prop({ index: true, lowercase: true })
@@ -21,13 +24,12 @@ export class User extends Typegoose {
   @prop({ required: true, index: true, unique: true })
   token: string
 
+  @arrayProp({ required: true, itemsRef: Todo, default: [] })
+  orders: Ref<Todo>[]
+
   @instanceMethod
-  strippedAndFilled(withExtra = false, withToken = true) {
-    const stripFields = [
-      'createdAt',
-      'updatedAt',
-      '__v',
-    ]
+  stripped(withExtra = false, withToken = true) {
+    const stripFields = ['createdAt', 'updatedAt', '__v', 'todos']
     if (!withExtra) {
       stripFields.push('token')
       stripFields.push('email')

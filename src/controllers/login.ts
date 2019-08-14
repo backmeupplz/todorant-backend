@@ -18,7 +18,7 @@ export default class {
       email: fbProfile.email,
       facebookId: fbProfile.id,
     })
-    ctx.body = user.strippedAndFilled(true)
+    ctx.body = user.stripped(true)
   }
 
   @Post('/telegram')
@@ -33,7 +33,7 @@ export default class {
       name: `${data.first_name}${data.last_name ? ` ${data.last_name}` : ''}`,
       telegramId: data.id,
     })
-    ctx.body = user.strippedAndFilled(true)
+    ctx.body = user.stripped(true)
   }
 
   @Post('/google')
@@ -49,7 +49,7 @@ export default class {
 
       email: userData.email,
     })
-    ctx.body = user.strippedAndFilled(true)
+    ctx.body = user.stripped(true)
   }
 }
 
