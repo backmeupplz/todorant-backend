@@ -25,7 +25,7 @@ export class User extends Typegoose {
   token: string
 
   @arrayProp({ required: true, itemsRef: Todo, default: [] })
-  orders: Ref<Todo>[]
+  todos: Ref<Todo>[]
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {

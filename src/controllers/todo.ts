@@ -70,7 +70,7 @@ export default class {
   @Get('/', authenticate)
   async get(ctx: Context) {
     // Parameters
-    const completed = ctx.request.body.completed || false
+    const completed = ctx.params.completed || false
     // Find todos
     const todos = (await UserModel.findById(ctx.state.user.id).populate(
       'todos'
