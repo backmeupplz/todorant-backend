@@ -12,17 +12,16 @@ import { UserModel } from '../models'
 export default class {
   @Post('/', authenticate)
   async create(ctx: Context) {
-    // Parameters
-    const { text, completed, frog, monthAndYear, date } = ctx.request.body
-    // Create and save
-    const todo = new Todo() as InstanceType<Todo>
-    todo.user = ctx.state.user
-    todo.text = text
-    todo.completed = completed
-    todo.frog = frog
-    todo.monthAndYear = monthAndYear
-    todo.date = date
-    await todo.save()
+    const addedTodoIds = []
+    for (const todo of ctx.request.body) {
+      // Create and save
+      addedTodoIds.push(
+        (await new TodoModel({ ...todo, user: ctx.state.user._id }).save())._id
+      )
+    }
+    // Add todos to user
+    ctx.state.user.todos = ctx.state.user.todos.concat(addedTodoIds)
+    await ctx.state.user.save()
     // Respond
     ctx.status = 200
   }
