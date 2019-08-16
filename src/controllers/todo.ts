@@ -1,9 +1,7 @@
 // Dependencies
-import axios from 'axios'
 import { Context } from 'koa'
-import { Controller, Post, Put, Get } from 'koa-router-ts'
+import { Controller, Post, Put, Get, Delete } from 'koa-router-ts'
 import { Todo, TodoModel } from '../models/todo'
-import { InstanceType } from 'typegoose'
 import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
 import { UserModel } from '../models'
@@ -34,11 +32,10 @@ export default class {
     // Find todo
     const todo = await TodoModel.findById(id)
     // Check ownership
-    if (!todo || todo.user !== ctx.state.user.id) {
+    if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
       return ctx.throw(404, errors.noTodo)
     }
     // Edit and save
-    todo.user = ctx.state.user
     todo.text = text
     todo.completed = completed
     todo.frog = frog
@@ -56,7 +53,7 @@ export default class {
     // Find todo
     const todo = await TodoModel.findById(id)
     // Check ownership
-    if (!todo || todo.user !== ctx.state.user.id) {
+    if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
       return ctx.throw(404, errors.noTodo)
     }
     // Edit and save
@@ -66,10 +63,43 @@ export default class {
     ctx.status = 200
   }
 
+  @Put('/:id/undone', authenticate)
+  async undone(ctx: Context) {
+    // Parameters
+    const id = ctx.params.id
+    // Find todo
+    const todo = await TodoModel.findById(id)
+    // Check ownership
+    if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
+      return ctx.throw(404, errors.noTodo)
+    }
+    // Edit and save
+    todo.completed = false
+    await todo.save()
+    // Respond
+    ctx.status = 200
+  }
+
+  @Delete('/:id', authenticate)
+  async delete(ctx: Context) {
+    // Parameters
+    const id = ctx.params.id
+    // Find todo
+    const todo = await TodoModel.findById(id)
+    // Check ownership
+    if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
+      return ctx.throw(404, errors.noTodo)
+    }
+    // Edit and save
+    await todo.remove()
+    // Respond
+    ctx.status = 200
+  }
+
   @Get('/', authenticate)
   async get(ctx: Context) {
     // Parameters
-    const completed = ctx.params.completed || false
+    const completed = ctx.query.completed === 'true'
     // Find todos
     const todos = (await UserModel.findById(ctx.state.user.id).populate(
       'todos'
