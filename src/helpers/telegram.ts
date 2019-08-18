@@ -58,9 +58,13 @@ bot.command('todo', async ctx => {
   }
   // Add todos to user
   try {
+    const month = new Date().getMonth() + 1
+
     const todo = {
       text: todoText,
-      monthAndYear: `${new Date().getFullYear()}-${new Date().getMonth()}`,
+      monthAndYear: `${new Date().getFullYear()}-${
+        month > 9 ? month : `0${month}`
+      }`,
       date: `${new Date().getDate()}`,
     }
     user.todos = user.todos.concat([
