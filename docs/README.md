@@ -1,7 +1,7 @@
 # General notes
 
-- Docs are available at https://backend.todorant.com (HTML) and https://backend.todorant.com/md (Markdown)
-- API runs at https://backend.todorant.com
+- Docs are available in [HTML](https://backend.todorant.com) and [Markdown](https://backend.todorant.com/md)
+- API runs at [https://backend.todorant.com](https://backend.todorant.com)
 - [Insomnia](https://insomnia.rest/) schema is in this folder as well
 - After obtaining `token` at `/login` you should sign all private requests with it putting it into `token` header
 
