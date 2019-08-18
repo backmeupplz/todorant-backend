@@ -38,12 +38,12 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
   let date = undefined
   if (/^\d{4}-\d{2}-\d{2}$/.test(full)) {
     const components = full.split('-')
-    monthAndYear = `${components[1]}-${components[0]}`
+    monthAndYear = `${components[0]}-${components[1]}`
     date = components[2]
     todoText = todoText.substr(11).trim()
   } else if (/^\d{4}-\d{2}$/.test(short)) {
     const components = short.split('-')
-    monthAndYear = `${components[1]}-${components[0]}`
+    monthAndYear = short
     todoText = todoText.substr(8).trim()
   }
   // Check text

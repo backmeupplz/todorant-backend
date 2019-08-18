@@ -20,11 +20,11 @@ export class Todo extends Typegoose {
     minlength: 7,
     maxlength: 7,
     validate: [
-      /^\d{2}-\d{4}$/,
+      /^\d{4}-\d{2}$/,
       v => {
         const components = v.split('-')
-        const date = +components[0]
-        const year = +components[1]
+        const date = +components[1]
+        const year = +components[0]
         return date <= 31 && date > 0 && year > 2018
       },
     ],
