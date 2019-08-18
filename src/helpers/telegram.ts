@@ -29,8 +29,24 @@ bot.start(ctx => {
 })
 
 bot.command(['todo', 'frog', 'done'], async ctx => {
+  // Get text
+  let todoText = ctx.message.text.substr(6).trim()
+  // Check if it has timestamp
+  const full = todoText.substr(0, 10) // 2018-08-31
+  const short = todoText.substr(0, 7) // 2018-08
+  let monthAndYear = undefined
+  let date = undefined
+  if (/^\d{4}-\d{2}-\d{2}$/.test(full)) {
+    const components = monthAndYear.split('-')
+    monthAndYear = `${components[1]}-${components[0]}`
+    date = components[2]
+    todoText = todoText.substr(11).trim()
+  } else if (/^\d{4}-\d{2}-\d{2}$/.test(short)) {
+    const components = monthAndYear.split('-')
+    monthAndYear = `${components[1]}-${components[0]}`
+    todoText = todoText.substr(8).trim()
+  }
   // Check text
-  const todoText = ctx.message.text.substr(6).trim()
   if (!todoText) {
     return ctx.reply(`Please, provide text for this todo as shown below.
 
@@ -63,10 +79,10 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
 
     const todo = {
       text: todoText,
-      monthAndYear: `${new Date().getFullYear()}-${
-        month > 9 ? month : `0${month}`
-      }`,
-      date: `${new Date().getDate()}`,
+      monthAndYear: monthAndYear
+        ? monthAndYear
+        : `${new Date().getFullYear()}-${month > 9 ? month : `0${month}`}`,
+      date: date ? date : `${new Date().getDate()}`,
       frog: ctx.message.text.substr(1, 4) === 'frog',
       completed: ctx.message.text.substr(1, 4) === 'done',
     }
