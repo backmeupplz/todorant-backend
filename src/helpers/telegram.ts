@@ -30,7 +30,7 @@ bot.start(ctx => {
 
 bot.command(['todo', 'frog', 'done'], async ctx => {
   // Check text
-  const todoText = ctx.message.text.substr(5).trim()
+  const todoText = ctx.message.text.substr(6).trim()
   if (!todoText) {
     return ctx.reply(`Please, provide text for this todo as shown below.
 
@@ -67,8 +67,8 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
         month > 9 ? month : `0${month}`
       }`,
       date: `${new Date().getDate()}`,
-      frog: ctx.message.text.substr(0, 4) === 'frog',
-      completed: ctx.message.text.substr(0, 4) === 'done',
+      frog: ctx.message.text.substr(1, 4) === 'frog',
+      completed: ctx.message.text.substr(1, 4) === 'done',
     }
     user.todos = user.todos.concat([
       (await new TodoModel({ ...todo, user: user._id }).save())._id,
