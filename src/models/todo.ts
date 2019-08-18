@@ -13,6 +13,8 @@ export class Todo extends Typegoose {
   completed: boolean
   @prop({ required: true, default: false, index: true })
   frog: boolean
+  @prop({ required: true, default: false, index: true })
+  skipped: boolean
 
   @prop({
     required: true,
@@ -41,7 +43,7 @@ export class Todo extends Typegoose {
   @instanceMethod
   stripped() {
     const stripFields = ['__v', 'user']
-    return omit(this._doc, stripFields)
+    return omit(this._doc, stripFields) as Todo
   }
 
   // Mongo property

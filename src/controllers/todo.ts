@@ -63,6 +63,23 @@ export default class {
     ctx.status = 200
   }
 
+  @Put('/:id/skip', authenticate)
+  async skip(ctx: Context) {
+    // Parameters
+    const id = ctx.params.id
+    // Find todo
+    const todo = await TodoModel.findById(id)
+    // Check ownership
+    if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
+      return ctx.throw(404, errors.noTodo)
+    }
+    // Edit and save
+    todo.skipped = true
+    await todo.save()
+    // Respond
+    ctx.status = 200
+  }
+
   @Put('/:id/undone', authenticate)
   async undone(ctx: Context) {
     // Parameters
@@ -110,17 +127,31 @@ export default class {
       .filter((todo: Todo) => {
         const day = date.substr(8)
         const monthAndYear = date.substr(0, 7)
-        return (
-          !todo.completed &&
-          todo.date === day &&
-          todo.monthAndYear === monthAndYear
-        )
+        return todo.date === day && todo.monthAndYear === monthAndYear
       })
       .map((todo: Todo) => todo.stripped())
+    const incompleteTodos = todos
+      .filter(t => !t.completed)
+      .sort((a, b) => {
+        if (a.frog) {
+          return -1
+        }
+        if (b.frog) {
+          return 1
+        }
+        if (a.skipped) {
+          return 1
+        }
+        if (b.skipped) {
+          return -1
+        }
+        return 0
+      })
     // Respond
     ctx.body = {
       todosCount: todos.length,
-      todo: todos.length ? todos[0] : undefined,
+      incompleteTodosCount: incompleteTodos.length,
+      todo: incompleteTodos.length ? incompleteTodos[0] : undefined,
     }
   }
 
@@ -134,6 +165,21 @@ export default class {
     )).todos
       .filter((todo: Todo) => todo.completed === completed)
       .map((todo: Todo) => todo.stripped())
+      .sort((a, b) => {
+        if (a.frog) {
+          return -1
+        }
+        if (b.frog) {
+          return 1
+        }
+        if (a.skipped) {
+          return 1
+        }
+        if (b.skipped) {
+          return -1
+        }
+        return 0
+      })
     // Respond
     ctx.body = todos
   }

@@ -7,7 +7,8 @@ import * as Koa from 'koa'
 import bodyParser from 'koa-bodyparser-ts'
 import { loadControllers } from 'koa-router-ts'
 import * as cors from '@koa/cors'
-import './helpers/telegram'
+import { bot } from './helpers/telegram'
+import * as GracefulShutdown from 'http-graceful-shutdown'
 
 const app = new Koa()
 const router = loadControllers(`${__dirname}/controllers`, { recurse: true })
@@ -20,3 +21,9 @@ app.use(router.allowedMethods())
 app.listen(1337)
 
 console.log('Koa application is up and running on port 1337')
+
+GracefulShutdown(app, {
+  onShutdown: async signal => {
+    bot.stop()
+  },
+})

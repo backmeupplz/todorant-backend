@@ -2,7 +2,7 @@
 import Telegraf, { Markup, Extra } from 'telegraf'
 import { UserModel, TodoModel } from '../models'
 
-const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
+export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
 bot.start(ctx => {
   ctx.replyWithHTML(

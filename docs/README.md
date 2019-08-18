@@ -85,6 +85,16 @@ Marks todo as done
 | ----- | -------- | -------- | --------------------------- |
 | id    | ObjectId | Yes      | ID of the todo to mark done |
 
+### POST `/:id/skip`
+
+Skips todo
+
+### Parameters
+
+| field | type     | Required | description            |
+| ----- | -------- | -------- | ---------------------- |
+| id    | ObjectId | Yes      | ID of the todo to skip |
+
 # Data models
 
 ### User
