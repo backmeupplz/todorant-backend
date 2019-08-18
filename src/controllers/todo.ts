@@ -96,6 +96,34 @@ export default class {
     ctx.status = 200
   }
 
+  @Get('/current', authenticate)
+  async getCurrent(ctx: Context) {
+    // Parameters
+    const date = ctx.query.date
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      ctx.throw(403, errors.invalidFormat)
+    }
+    // Find todos
+    const todos = (await UserModel.findById(ctx.state.user.id).populate(
+      'todos'
+    )).todos
+      .filter((todo: Todo) => {
+        const day = date.substr(8)
+        const monthAndYear = date.substr(0, 7)
+        return (
+          !todo.completed &&
+          todo.date === day &&
+          todo.monthAndYear === monthAndYear
+        )
+      })
+      .map((todo: Todo) => todo.stripped())
+    // Respond
+    ctx.body = {
+      todosCount: todos.length,
+      todo: todos.length ? todos[0] : undefined,
+    }
+  }
+
   @Get('/', authenticate)
   async get(ctx: Context) {
     // Parameters

@@ -65,6 +65,16 @@ Returns a list of todos
 | --------- | ------- | -------- | ---------------------------------------------------------------------------- |
 | completed | boolean | Optional | Whether to return a list of completed or upcoming todos, defaults to `false` |
 
+### GET `/current`
+
+Returns current todo and count of today's todos
+
+### Parameters
+
+| field | type   | Required | description                                       |
+| ----- | ------ | -------- | ------------------------------------------------- |
+| date  | string | Yes      | Current date on the client in format `2020-01-20` |
+
 ### POST `/:id/done`
 
 Marks todo as done

@@ -11,4 +11,8 @@ export const errors = {
     en: 'Authentication failed',
     ru: 'Аутентификация провалилась',
   },
+  invalidFormat: {
+    en: 'Invalid format',
+    ru: 'Неправильный формат',
+  },
 }
