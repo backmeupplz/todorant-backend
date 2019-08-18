@@ -1,5 +1,6 @@
 // Dependencies
 import Telegraf, { Markup, Extra } from 'telegraf'
+import { UserModel, TodoModel } from '../models'
 
 const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
@@ -24,6 +25,59 @@ bot.start(ctx => {
       ])
     )
   )
+})
+
+bot.command('todo', async ctx => {
+  // Check text
+  const todoText = ctx.message.text.substr(5).trim()
+  if (!todoText) {
+    return ctx.reply(`Please, provide text for this todo as shown below.
+
+Пожалуйста, добавьте к этой задаче текст, как показано ниже.
+
+/todo Buy milk`)
+  }
+  // Get user
+  const user = await UserModel.findOne({ telegramId: `${ctx.from.id}` })
+  if (!user) {
+    return ctx.replyWithHTML(
+      `Please, login with the button below first.
+
+Пожалуйста, сначала войдите на сайт, используя кнопку ниже.`,
+      Extra.markdown().markup(
+        Markup.inlineKeyboard([
+          {
+            text: 'Todorant login',
+            login_url: {
+              url: 'https://todorant.com',
+            },
+          } as any,
+        ])
+      )
+    )
+  }
+  // Add todos to user
+  try {
+    const todo = {
+      text: todoText,
+      monthAndYear: `${new Date().getFullYear()}-${new Date().getMonth()}`,
+      date: `${new Date().getDate()}`,
+    }
+    user.todos = user.todos.concat([
+      (await new TodoModel({ ...todo, user: user._id }).save())._id,
+    ])
+    await user.save()
+    // Respond
+    ctx.reply('👍', {
+      reply_to_message_id: ctx.message.message_id,
+    })
+  } catch (err) {
+    ctx.reply(`Oopsie, something went wrong!
+    
+Упс! Что-то пошло не так.
+
+${err.message}`)
+  }
 })
 
 bot.launch()
