@@ -1,6 +1,5 @@
 {
   "events": {
-    "restart": "yarn killServer",
-    "start": "yarn killServer"
+    "restart": "yarn killServer"
   }
 }
