@@ -168,7 +168,7 @@ export default class {
     let planning = false
     const todos = (await UserModel.findById(ctx.state.user.id).populate(
       'todos'
-    )).todos as Todo[]
+    )).todos.filter((todo: Todo) => !todo.completed) as Todo[]
     for (const todo of todos) {
       if (!todo.date && todo.monthAndYear === monthAndYear) {
         planning = true
