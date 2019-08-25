@@ -121,12 +121,12 @@ export default class {
       ctx.throw(403, errors.invalidFormat)
     }
     // Find todos
+    const day = date.substr(8)
+    const monthAndYear = date.substr(0, 7)
     const todos = (await UserModel.findById(ctx.state.user.id).populate(
       'todos'
     )).todos
       .filter((todo: Todo) => {
-        const day = date.substr(8)
-        const monthAndYear = date.substr(0, 7)
         return todo.date === day && todo.monthAndYear === monthAndYear
       })
       .map((todo: Todo) => todo.stripped())
@@ -153,6 +153,34 @@ export default class {
       incompleteTodosCount: incompleteTodos.length,
       todo: incompleteTodos.length ? incompleteTodos[0] : undefined,
     }
+  }
+
+  @Get('/planning', authenticate)
+  async getPlanning(ctx: Context) {
+    // Parameters
+    const date = ctx.query.date
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      ctx.throw(403, errors.invalidFormat)
+    }
+    const day = date.substr(8)
+    const monthAndYear = date.substr(0, 7)
+    // Find todos
+    let planning = false
+    const todos = (await UserModel.findById(ctx.state.user.id).populate(
+      'todos'
+    )).todos as Todo[]
+    for (const todo of todos) {
+      if (!todo.date && todo.monthAndYear === monthAndYear) {
+        planning = true
+        break
+      }
+      if (todo.monthAndYear === monthAndYear && +todo.date < +day) {
+        planning = true
+        break
+      }
+    }
+    // Respond
+    ctx.body = { planning }
   }
 
   @Get('/', authenticate)

@@ -75,6 +75,16 @@ Returns current todo and count of today's todos
 | ----- | ------ | -------- | ------------------------------------------------- |
 | date  | string | Yes      | Current date on the client in format `2020-01-20` |
 
+### GET `/planning`
+
+Returns whether planning should be done or not
+
+### Parameters
+
+| field | type   | Required | description                                       |
+| ----- | ------ | -------- | ------------------------------------------------- |
+| date  | string | Yes      | Current date on the client in format `2020-01-20` |
+
 ### POST `/:id/done`
 
 Marks todo as done
