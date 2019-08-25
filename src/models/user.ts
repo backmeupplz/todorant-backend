@@ -42,6 +42,9 @@ export class User extends Typegoose {
     return omit(this._doc, stripFields)
   }
 
+  @prop({ required: true, default: 0 })
+  timezone: number
+
   // Mongo property
   _doc: any
 }

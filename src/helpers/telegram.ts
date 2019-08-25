@@ -1,20 +1,24 @@
 // Dependencies
 import Telegraf, { Markup, Extra } from 'telegraf'
 import { UserModel, TodoModel } from '../models'
+import * as moment from 'moment'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
 bot.start(ctx => {
   ctx.replyWithHTML(
-    `Hi there! You can use this bot to quickly add new todos to todorant.com with /todo or /done commands. Make sure you login with the button below. Find the commands examples at the end of this message. Cheers!
+    `Hi there! You can use this bot to quickly add new todos to todorant.com with /todo or /done commands. Make sure you login with the button below and set your timezone with /timezone command. Find the commands examples at the end of this message. Cheers!
 
-Привет! Используйте этого бота для быстрого добавления задач в todorant.com при помощи команд /todo и /done. Обязательно убедитесь, что вы вошли на сайт при помощи кнопки ниже. Примеры использования команд в конце этого сообщения. Удачи!
+Привет! Используйте этого бота для быстрого добавления задач в todorant.com при помощи команд /todo и /done. Обязательно убедитесь, что вы вошли на сайт при помощи кнопки ниже и что вы установили свой часовой пояс при помощи команды /timezone. Примеры использования команд в конце этого сообщения. Удачи!
 
 /frog Answer the gym membership email
 /todo Buy milk
 /todo 2025-01 Celebrate New Year on my private island
 /todo 2020-04-20 Buy cookies
-/done Procrastinate for 20 minutes`,
+/done Procrastinate for 20 minutes
+/timezone +3
+/timezone -8
+/timezone 0`,
     Extra.markdown().markup(
       Markup.inlineKeyboard([
         {
@@ -101,6 +105,62 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
 
 ${err.message}`)
   }
+})
+
+bot.command('timezone', async ctx => {
+  // Get and check timezone
+  const timezone = ctx.message.text.substr(10).replace('+', '')
+  if (
+    isNaN(+timezone) ||
+    timezone === '' ||
+    +timezone > 12 ||
+    +timezone < -12
+  ) {
+    return ctx.reply(`Please, use this command like shown below. Thank you!
+
+Пожалуйста, используйте эту команду, как показано ниже. Спасибо!
+
+/timezone +3
+/timezone -8
+/timezone 0`)
+  }
+  // Get user
+  const user = await UserModel.findOne({ telegramId: `${ctx.from.id}` })
+  if (!user) {
+    return ctx.replyWithHTML(
+      `Please, login with the button below first.
+
+Пожалуйста, сначала войдите на сайт, используя кнопку ниже.`,
+      Extra.markdown().markup(
+        Markup.inlineKeyboard([
+          {
+            text: 'Todorant login',
+            login_url: {
+              url: 'https://todorant.com',
+            },
+          } as any,
+        ])
+      )
+    )
+  }
+  // Set timezone
+  user.timezone = +timezone
+  await user.save()
+  // Respond
+  const now = new Date()
+  const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000)
+
+  return ctx.reply(`Your timezone was set to UTC${
+    timezone === '0' ? '+0' : timezone
+  }. Please, check if the time below is your current time.
+
+Ваш часовой пояс был установлен на UTC${
+    timezone === '0' ? '+0' : timezone
+  }. Пожалуйста, проверьте, что время ниже — это ваше текущее время.
+
+${moment(new Date(utc.getTime() + 3600000 * +timezone)).format(
+  'YYYY-MM-DD HH:mm:ss'
+)}`)
 })
 
 bot.launch()
