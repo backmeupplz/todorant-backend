@@ -80,13 +80,17 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
   // Add todos to user
   try {
     const month = new Date().getMonth() + 1
-
+    const now = new Date()
+    const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000)
+    const nowWithOffset = new Date(
+      utc.getTime() + 3600000 * (user.timezone || 0)
+    )
     const todo = {
       text: todoText,
       monthAndYear: monthAndYear
         ? monthAndYear
-        : `${new Date().getFullYear()}-${month > 9 ? month : `0${month}`}`,
-      date: monthAndYear ? date : `${new Date().getDate()}`,
+        : `${nowWithOffset.getFullYear()}-${month > 9 ? month : `0${month}`}`,
+      date: monthAndYear ? date : `${nowWithOffset.getDate()}`,
       frog: ctx.message.text.substr(1, 4) === 'frog',
       completed: ctx.message.text.substr(1, 4) === 'done',
     }
