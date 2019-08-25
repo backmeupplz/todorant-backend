@@ -46,7 +46,6 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
     date = components[2]
     todoText = todoText.substr(11).trim()
   } else if (/^\d{4}-\d{2}$/.test(short)) {
-    const components = short.split('-')
     monthAndYear = short
     todoText = todoText.substr(8).trim()
   }
@@ -77,14 +76,41 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
       )
     )
   }
-  // Add todos to user
+  // Add todo to user
   try {
-    const month = new Date().getMonth() + 1
+    // Get todo date
     const now = new Date()
     const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000)
     const nowWithOffset = new Date(
       utc.getTime() + 3600000 * (user.timezone || 0)
     )
+    const month = nowWithOffset.getMonth() + 1
+    // Check dates
+    if (monthAndYear) {
+      const pastError = `Date cannot be in the past.
+
+Дата не может быть в прошлом.`
+      const components = monthAndYear.split('-')
+      const year = +components[0]
+      const month = +components[1]
+
+      const yearNow = nowWithOffset.getFullYear()
+      if (year < yearNow) {
+        return ctx.reply(pastError)
+      }
+      const monthNow = nowWithOffset.getMonth() + 1
+      if (year === yearNow && month < monthNow) {
+        return ctx.reply(pastError)
+      }
+      if (year === yearNow && !date && month === monthNow) {
+        return ctx.reply(pastError)
+      }
+      const dateNow = nowWithOffset.getDate()
+      if (year === yearNow && month === monthNow && date && +date < dateNow) {
+        return ctx.reply(pastError)
+      }
+    }
+    // Create todo
     const todo = {
       text: todoText,
       monthAndYear: monthAndYear
