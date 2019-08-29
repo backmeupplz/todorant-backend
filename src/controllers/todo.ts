@@ -5,6 +5,7 @@ import { Todo, TodoModel } from '../models/todo'
 import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
 import { UserModel } from '../models'
+import { InstanceType } from 'typegoose'
 
 @Controller('/todo')
 export default class {
@@ -210,5 +211,64 @@ export default class {
       })
     // Respond
     ctx.body = todos
+  }
+
+  @Post('/rearrange', authenticate)
+  async rearrange(ctx: Context) {
+    // Find user and populate todos
+    const user = await UserModel.findById(ctx.state.user.id).populate('todos')
+    // Split completed and uncompleted todos
+    const completed = user.todos.filter(
+      (todo: InstanceType<Todo>) => todo.completed
+    )
+    const uncompleted = user.todos.filter(
+      (todo: InstanceType<Todo>) => !todo.completed
+    )
+    const uncompletedMap = uncompleted.reduce(
+      (prev: any, cur: InstanceType<Todo>) => {
+        prev[cur.id.toString()] = cur
+        return prev
+      },
+      {}
+    )
+    // Sort uncompleted
+    const tempUncompleted = []
+    const todoSections = ctx.request.body.todos as {
+      title: String
+      todos: InstanceType<Todo>[]
+    }[]
+    for (const todoSection of todoSections) {
+      const monthAndYear = todoSection.title.substr(0, 7)
+      let date = todoSection.title.substr(8)
+      if (!date) {
+        date = undefined
+      }
+      for (const todo of todoSection.todos) {
+        const userTodo = uncompletedMap[todo._id]
+        uncompletedMap[todo._id] = undefined
+        if (!userTodo) {
+          continue
+        }
+        if (todo.monthAndYear !== monthAndYear || todo.date !== date) {
+          userTodo.monthAndYear = monthAndYear
+          userTodo.date = date
+          await userTodo.save()
+        }
+        tempUncompleted.push(todo._id)
+      }
+    }
+    // Merge the completed and uncompleted toods
+    const merged = tempUncompleted
+      .concat(
+        Object.values(uncompletedMap)
+          .filter(v => !!v)
+          .map((v: InstanceType<Todo>) => v._id)
+      )
+      .concat(completed.map((v: InstanceType<Todo>) => v._id))
+    // Save the todos
+    user.todos = merged
+    await user.save()
+    // Respond
+    ctx.status = 200
   }
 }

@@ -105,6 +105,14 @@ Skips todo
 | ----- | -------- | -------- | ---------------------- |
 | id    | ObjectId | Yes      | ID of the todo to skip |
 
+### POST `/rearrange` (incomplete specs, please, ask developers)
+
+### Parameters
+
+| field | type             | Required | description         |
+| ----- | ---------------- | -------- | ------------------- |
+| todos | [String: Todo[]] | Yes      | rearranged todo map |
+
 # Data models
 
 ### User
