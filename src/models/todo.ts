@@ -13,6 +13,8 @@ export class Todo extends Typegoose {
   completed: boolean
   @prop({ required: true, default: false, index: true })
   frog: boolean
+  @prop({ required: true, default: 0 })
+  frogFails: number
   @prop({ required: true, default: false, index: true })
   skipped: boolean
 

@@ -55,6 +55,23 @@ Creates a todo
 | monthAndYear | string  | Yes      | Assigned month and year of this todo            |
 | date         | string  | Optional | Assigned date of the todo                       |
 
+### PUT `/`
+
+Edits the todo
+
+### Parameters
+
+| field        | type     | Required | description                                     |
+| ------------ | -------- | -------- | ----------------------------------------------- |
+| id           | ObjectId | Yes      | ID of the todo to edit                          |
+| text         | string   | Yes      | Text of the todo                                |
+| monthAndYear | string   | Yes      | Assigned month and year of this todo            |
+| today        | string   | Yes      | today's date in format `2019-01-31`             |
+| completed    | boolean  | Optional | Whether the todo was done, defaults to `false`  |
+| frog         | boolean  | Optional | Whether the todo is a frog, defaults to `false` |
+| date         | string   | Optional | Assigned date of the todo                       |
+| todat        | string   | Yes      | Today's date in format `2019-01-31`             |
+
 ### GET `/`
 
 Returns a list of todos

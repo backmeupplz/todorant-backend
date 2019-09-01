@@ -6,6 +6,7 @@ import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
 import { UserModel } from '../models'
 import { InstanceType } from 'typegoose'
+import { isTodoOld } from '../helpers/isTodoOld'
 
 @Controller('/todo')
 export default class {
@@ -29,7 +30,14 @@ export default class {
   async edit(ctx: Context) {
     // Parameters
     const id = ctx.params.id
-    const { text, completed, frog, monthAndYear, date } = ctx.request.body
+    const {
+      text,
+      completed,
+      frog,
+      monthAndYear,
+      date,
+      today,
+    } = ctx.request.body
     // Find todo
     const todo = await TodoModel.findById(id)
     // Check ownership
@@ -37,12 +45,18 @@ export default class {
       return ctx.throw(404, errors.noTodo)
     }
     // Edit and save
+    todo.frog = frog
+    if (isTodoOld(todo, today)) {
+      todo.frogFails += 1
+      if (todo.frogFails >= 2) {
+        todo.frog = true
+      }
+    }
     if (todo.monthAndYear !== monthAndYear && todo.date !== date) {
       todo.skipped = false
     }
     todo.text = text
     todo.completed = completed
-    todo.frog = frog
     todo.monthAndYear = monthAndYear
     todo.date = date
     await todo.save()
@@ -166,19 +180,13 @@ export default class {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       ctx.throw(403, errors.invalidFormat)
     }
-    const day = date.substr(8)
-    const monthAndYear = date.substr(0, 7)
     // Find todos
     let planning = false
     const todos = (await UserModel.findById(ctx.state.user.id).populate(
       'todos'
     )).todos.filter((todo: Todo) => !todo.completed) as Todo[]
     for (const todo of todos) {
-      if (!todo.date && todo.monthAndYear === monthAndYear) {
-        planning = true
-        break
-      }
-      if (todo.monthAndYear === monthAndYear && +todo.date < +day) {
+      if (isTodoOld(todo, date)) {
         planning = true
         break
       }
