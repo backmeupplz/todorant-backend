@@ -37,6 +37,9 @@ export default class {
       return ctx.throw(404, errors.noTodo)
     }
     // Edit and save
+    if (todo.monthAndYear !== monthAndYear && todo.date !== date) {
+      todo.skipped = false
+    }
     todo.text = text
     todo.completed = completed
     todo.frog = frog
@@ -252,6 +255,7 @@ export default class {
         if (todo.monthAndYear !== monthAndYear || todo.date !== date) {
           userTodo.monthAndYear = monthAndYear
           userTodo.date = date
+          userTodo.skipped = false
           await userTodo.save()
         }
         tempUncompleted.push(todo._id)
