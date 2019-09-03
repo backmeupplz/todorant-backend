@@ -116,7 +116,13 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
       monthAndYear: monthAndYear
         ? monthAndYear
         : `${nowWithOffset.getFullYear()}-${month > 9 ? month : `0${month}`}`,
-      date: monthAndYear ? date : `${nowWithOffset.getDate()}`,
+      date: monthAndYear
+        ? date
+        : `${
+            nowWithOffset.getDate() > 9
+              ? nowWithOffset.getDate()
+              : `0${nowWithOffset.getDate()}`
+          }`,
       frog: ctx.message.text.substr(1, 4) === 'frog',
       completed: ctx.message.text.substr(1, 4) === 'done',
     }
