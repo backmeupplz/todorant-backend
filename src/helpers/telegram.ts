@@ -193,9 +193,9 @@ bot.command('current', async ctx => {
     )
   } else {
     ctx.reply(
-      `👍 You did it! All the tasks for today are done, go get rest or maybe dance a little.
+      `👍 You did it! All the tasks for today are done, go get rest or maybe dance a little 💃
       
-👍 Вы это сделали! Все задачи на сегодня выполнены, идите отдохните — ну или потанцуйте немного.`
+👍 Вы это сделали! Все задачи на сегодня выполнены, идите отдохните — ну или потанцуйте немного 💃`
     )
   }
 })
@@ -262,9 +262,9 @@ async function update(ctx: ContextMessageUpdate, user: InstanceType<User>) {
       ]).extra()
     )
   } else {
-    ctx.editMessageText(`👍 You did it! All the tasks for today are done, go get rest or maybe dance a little.
+    ctx.editMessageText(`👍 You did it! All the tasks for today are done, go get rest or maybe dance a little 💃
       
-👍 Вы это сделали! Все задачи на сегодня выполнены, идите отдохните — ну или потанцуйте немного.`)
+👍 Вы это сделали! Все задачи на сегодня выполнены, идите отдохните — ну или потанцуйте немного 💃`)
   }
 }
 
