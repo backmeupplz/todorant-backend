@@ -1,15 +1,16 @@
 // Dependencies
-import Telegraf, { Markup, Extra } from 'telegraf'
-import { UserModel, TodoModel } from '../models'
+import Telegraf, { Markup, Extra, ContextMessageUpdate } from 'telegraf'
+import { UserModel, TodoModel, Todo, User } from '../models'
 import * as moment from 'moment'
+import { InstanceType } from 'typegoose'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
 bot.start(ctx => {
   ctx.replyWithHTML(
-    `Hi there! You can use this bot to quickly add new todos to todorant.com with /todo or /done commands. Make sure you login with the button below and set your timezone with /timezone command. Find the commands examples at the end of this message. Cheers!
+    `Hi there! You can use this bot to quickly add new todos to todorant.com with /todo or /done commands. Make sure you login with the button below and set your timezone with /timezone command. Use /current to see your current task and complete it. Find the commands examples at the end of this message. Cheers!
 
-Привет! Используйте этого бота для быстрого добавления задач в todorant.com при помощи команд /todo и /done. Обязательно убедитесь, что вы вошли на сайт при помощи кнопки ниже и что вы установили свой часовой пояс при помощи команды /timezone. Примеры использования команд в конце этого сообщения. Удачи!
+Привет! Используйте этого бота для быстрого добавления задач в todorant.com при помощи команд /todo и /done. Обязательно убедитесь, что вы вошли на сайт при помощи кнопки ниже и что вы установили свой часовой пояс при помощи команды /timezone. Используйте команду /current для того, чтобы увидеть и завершить текущую задачу. Примеры использования команд в конце этого сообщения. Удачи!
 
 /frog Answer the gym membership email
 /todo Buy milk
@@ -18,7 +19,8 @@ bot.start(ctx => {
 /done Procrastinate for 20 minutes
 /timezone +3
 /timezone -8
-/timezone 0`,
+/timezone 0
+/current`,
     Extra.markdown().markup(
       Markup.inlineKeyboard([
         {
@@ -58,23 +60,9 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
 /todo Buy milk`)
   }
   // Get user
-  const user = await UserModel.findOne({ telegramId: `${ctx.from.id}` })
+  const user = await getUser(ctx)
   if (!user) {
-    return ctx.replyWithHTML(
-      `Please, login with the button below first.
-
-Пожалуйста, сначала войдите на сайт, используя кнопку ниже.`,
-      Extra.markdown().markup(
-        Markup.inlineKeyboard([
-          {
-            text: 'Todorant login',
-            login_url: {
-              url: 'https://todorant.com',
-            },
-          } as any,
-        ])
-      )
-    )
+    return
   }
   // Add todo to user
   try {
@@ -161,23 +149,9 @@ bot.command('timezone', async ctx => {
 /timezone 0`)
   }
   // Get user
-  const user = await UserModel.findOne({ telegramId: `${ctx.from.id}` })
+  const user = await getUser(ctx)
   if (!user) {
-    return ctx.replyWithHTML(
-      `Please, login with the button below first.
-
-Пожалуйста, сначала войдите на сайт, используя кнопку ниже.`,
-      Extra.markdown().markup(
-        Markup.inlineKeyboard([
-          {
-            text: 'Todorant login',
-            login_url: {
-              url: 'https://todorant.com',
-            },
-          } as any,
-        ])
-      )
-    )
+    return
   }
   // Set timezone
   user.timezone = +timezone
@@ -198,5 +172,172 @@ ${moment(new Date(utc.getTime() + 3600000 * +timezone)).format(
   'YYYY-MM-DD HH:mm:ss'
 )}`)
 })
+
+bot.command('current', async ctx => {
+  // Get user
+  const user = await getUser(ctx)
+  if (!user) {
+    return
+  }
+  // Get current
+  const current = await findCurrentForUser(user)
+  // Respond
+  if (current) {
+    ctx.reply(
+      current.frog ? `🐸 ${current.text}` : current.text,
+      Markup.inlineKeyboard([
+        Markup.callbackButton('✅', 'done'),
+        Markup.callbackButton('⏩', 'skip', current.skipped || current.frog),
+        Markup.callbackButton('🔄', 'refresh'),
+      ]).extra()
+    )
+  } else {
+    ctx.reply(
+      `🥳 You did it! All the tasks for today are done, go get rest or maybe dance a little 💃
+      
+🥳 Вы это сделали! Все задачи на сегодня выполнены, идите отдохните — ну или потанцуйте немного 💃`
+    )
+  }
+})
+
+bot.action('done', async ctx => {
+  // Get user
+  const user = await getUser(ctx)
+  if (!user) {
+    return
+  }
+  // Get current
+  const current = await findCurrentForUser(user)
+  if (current) {
+    current.completed = true
+    await current.save()
+  }
+  // Respond
+  ctx.answerCbQuery()
+  // Update message
+  return update(ctx, user)
+})
+
+bot.action('skip', async ctx => {
+  // Get user
+  const user = await getUser(ctx)
+  if (!user) {
+    return
+  }
+  // Get current
+  const current = await findCurrentForUser(user)
+  if (current) {
+    current.skipped = true
+    await current.save()
+  }
+  // Respond
+  ctx.answerCbQuery()
+  // Update message
+  return update(ctx, user)
+})
+
+bot.action('refresh', async ctx => {
+  // Get user
+  const user = await getUser(ctx)
+  if (!user) {
+    return
+  }
+  // Respond
+  ctx.answerCbQuery()
+  // Update message
+  return update(ctx, user)
+})
+
+async function update(ctx: ContextMessageUpdate, user: InstanceType<User>) {
+  // Get current
+  const current = await findCurrentForUser(user)
+  // Update message
+  if (current) {
+    ctx.editMessageText(
+      current.frog ? `🐸 ${current.text}` : current.text,
+      Markup.inlineKeyboard([
+        Markup.callbackButton('✅', 'done'),
+        Markup.callbackButton('⏩', 'skip', current.skipped || current.frog),
+        Markup.callbackButton('🔄', 'refresh'),
+      ]).extra()
+    )
+  } else {
+    ctx.editMessageText(`🥳 You did it! All the tasks for today are done, go get rest or maybe dance a little 💃
+      
+🥳 Вы это сделали! Все задачи на сегодня выполнены, идите отдохните — ну или потанцуйте немного 💃`)
+  }
+}
+
+async function getUser(
+  ctx: ContextMessageUpdate
+): Promise<InstanceType<User> | undefined> {
+  // Get user
+  const user = await UserModel.findOne({ telegramId: `${ctx.from.id}` })
+  if (!user) {
+    await ctx.replyWithHTML(
+      `Please, login with the button below first.
+
+Пожалуйста, сначала войдите на сайт, используя кнопку ниже.`,
+      Extra.markdown().markup(
+        Markup.inlineKeyboard([
+          {
+            text: 'Todorant login',
+            login_url: {
+              url: 'https://todorant.com',
+            },
+          } as any,
+        ])
+      )
+    )
+  }
+  // Return user
+  return user
+}
+
+async function findCurrentForUser(
+  user: InstanceType<User>
+): Promise<InstanceType<Todo>> {
+  // Get date
+  const now = new Date()
+  const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000)
+  const nowWithOffset = new Date(utc.getTime() + 3600000 * (user.timezone || 0))
+  const month = nowWithOffset.getMonth() + 1
+  const monthAndYear = `${nowWithOffset.getFullYear()}-${
+    month > 9 ? month : `0${month}`
+  }`
+  const day =
+    nowWithOffset.getDate() < 10
+      ? `0${nowWithOffset.getDate()}`
+      : nowWithOffset.getDate()
+  // Find todos
+  const todos = (await UserModel.findById(user.id).populate(
+    'todos'
+  )).todos.filter((todo: Todo) => {
+    return todo.date === day && todo.monthAndYear === monthAndYear
+  }) as InstanceType<Todo>[]
+  const incompleteTodos = todos
+    .filter(t => !t.completed)
+    .sort((a, b) => {
+      if (a.frog) {
+        return -1
+      }
+      if (b.frog) {
+        return 1
+      }
+      if (a.skipped) {
+        return 1
+      }
+      if (b.skipped) {
+        return -1
+      }
+      return 0
+    })
+  // Return current
+  return (incompleteTodos.length ? incompleteTodos[0] : undefined) as
+    | InstanceType<Todo>
+    | undefined
+}
+
+bot.catch(err => console.log(err))
 
 bot.launch()
