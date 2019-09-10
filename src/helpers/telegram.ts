@@ -313,7 +313,7 @@ async function findCurrentForUser(
   const todos = (await UserModel.findById(user.id).populate(
     'todos'
   )).todos.filter((todo: Todo) => {
-    return todo.date === day && todo.monthAndYear === monthAndYear
+    return +todo.date === +day && todo.monthAndYear === monthAndYear
   }) as InstanceType<Todo>[]
   const incompleteTodos = todos
     .filter(t => !t.completed)
