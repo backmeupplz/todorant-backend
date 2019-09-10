@@ -81,6 +81,7 @@ Returns a list of todos
 | field     | type    | Required | description                                                                  |
 | --------- | ------- | -------- | ---------------------------------------------------------------------------- |
 | completed | boolean | Optional | Whether to return a list of completed or upcoming todos, defaults to `false` |
+| hash      | string  | Optional | Search over the list                                                         |
 
 ### GET `/current`
 

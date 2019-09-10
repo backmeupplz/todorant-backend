@@ -199,11 +199,13 @@ export default class {
   async get(ctx: Context) {
     // Parameters
     const completed = ctx.query.completed === 'true'
+    const hash = decodeURI(ctx.query.hash)
     // Find todos
     const todos = (await UserModel.findById(ctx.state.user.id).populate(
       'todos'
     )).todos
       .filter((todo: Todo) => todo.completed === completed)
+      .filter((todo: Todo) => !hash || todo.text.includes(hash))
       .map((todo: Todo) => todo.stripped())
       .sort((a, b) => {
         if (a.frog) {
