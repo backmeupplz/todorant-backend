@@ -35,12 +35,12 @@ export default class {
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
     originalUser.facebookId = fbProfile.id
-    // Save it
-    await originalUser.save()
     // Delete the existing user if it exists
     if (existingUser) {
       await existingUser.remove()
     }
+    // Save it
+    await originalUser.save()
     // Respond
     ctx.status = 200
   }
@@ -71,12 +71,12 @@ export default class {
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
     originalUser.telegramId = data.id
-    // Save it
-    await originalUser.save()
     // Delete the existing user if it exists
     if (existingUser) {
       await existingUser.remove()
     }
+    // Save it
+    await originalUser.save()
     // Respond
     ctx.status = 200
   }
@@ -107,12 +107,12 @@ export default class {
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
     originalUser.email = userData.email
-    // Save it
-    await originalUser.save()
     // Delete the existing user if it exists
     if (existingUser) {
       await existingUser.remove()
     }
+    // Save it
+    await originalUser.save()
     // Respond
     ctx.status = 200
   }
