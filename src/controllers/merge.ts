@@ -6,12 +6,13 @@ import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { InstanceType } from 'typegoose'
 import { errors } from '../helpers/errors'
+import { authenticate } from '../middlewares/authenticate'
 const TelegramLogin = require('node-telegram-login')
 const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
 
 @Controller('/merge')
 export default class {
-  @Post('/facebook')
+  @Post('/facebook', authenticate)
   async facebook(ctx: Context) {
     // Get original user
     const originalUser = ctx.state.user as InstanceType<User>
@@ -40,7 +41,7 @@ export default class {
     ctx.status = 200
   }
 
-  @Post('/telegram')
+  @Post('/telegram', authenticate)
   async telegram(ctx: Context) {
     const data = ctx.request.body
     // verify the data
@@ -72,7 +73,7 @@ export default class {
     ctx.status = 200
   }
 
-  @Post('/google')
+  @Post('/google', authenticate)
   async google(ctx: Context) {
     const accessToken = ctx.request.body.accessToken
 
