@@ -25,12 +25,15 @@ export default class {
     // Get existing user if exists
     const existingUser:
       | InstanceType<User>
-      | undefined = await UserModel.findOne({ facebookId: fbProfile.id })
+      | undefined = await UserModel.findOne({
+      facebookId: fbProfile.id,
+    }).populate('todos')
     // Add data if required
     if (existingUser) {
-      existingUser.todos.forEach(async (todo: InstanceType<Todo>) => {
+      existingUser.todos.map(async (todo: InstanceType<Todo>) => {
         todo.user = originalUser.id
         await todo.save()
+        return todo.id
       })
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
@@ -61,12 +64,15 @@ export default class {
     // Get existing user if exists
     const existingUser:
       | InstanceType<User>
-      | undefined = await UserModel.findOne({ telegramId: data.id })
+      | undefined = await UserModel.findOne({ telegramId: data.id }).populate(
+      'todos'
+    )
     // Add data if required
     if (existingUser) {
-      existingUser.todos.forEach(async (todo: InstanceType<Todo>) => {
+      existingUser.todos.map(async (todo: InstanceType<Todo>) => {
         todo.user = originalUser.id
         await todo.save()
+        return todo.id
       })
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
@@ -97,12 +103,15 @@ export default class {
     // Get existing user if exists
     const existingUser:
       | InstanceType<User>
-      | undefined = await UserModel.findOne({ email: userData.email })
+      | undefined = await UserModel.findOne({ email: userData.email }).populate(
+      'todos'
+    )
     // Add data if required
     if (existingUser) {
-      existingUser.todos.forEach(async (todo: InstanceType<Todo>) => {
+      existingUser.todos.map(async (todo: InstanceType<Todo>) => {
         todo.user = originalUser.id
         await todo.save()
+        return todo.id
       })
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
