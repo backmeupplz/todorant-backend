@@ -1,7 +1,7 @@
 // Dependencies
 import axios from 'axios'
 import { Context } from 'koa'
-import { UserModel, User } from '../models'
+import { UserModel, User, Todo } from '../models'
 import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { InstanceType } from 'typegoose'
@@ -28,6 +28,10 @@ export default class {
       | undefined = await UserModel.findOne({ facebookId: fbProfile.id })
     // Add data if required
     if (existingUser) {
+      existingUser.todos.forEach(async (todo: InstanceType<Todo>) => {
+        todo.user = originalUser.id
+        await todo.save()
+      })
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
     originalUser.facebookId = fbProfile.id
@@ -60,6 +64,10 @@ export default class {
       | undefined = await UserModel.findOne({ telegramId: data.id })
     // Add data if required
     if (existingUser) {
+      existingUser.todos.forEach(async (todo: InstanceType<Todo>) => {
+        todo.user = originalUser.id
+        await todo.save()
+      })
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
     originalUser.telegramId = data.id
@@ -92,6 +100,10 @@ export default class {
       | undefined = await UserModel.findOne({ email: userData.email })
     // Add data if required
     if (existingUser) {
+      existingUser.todos.forEach(async (todo: InstanceType<Todo>) => {
+        todo.user = originalUser.id
+        await todo.save()
+      })
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
     originalUser.email = userData.email
