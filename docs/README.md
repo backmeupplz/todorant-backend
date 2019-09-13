@@ -2,7 +2,6 @@
 
 - Docs are available in [HTML](https://backend.todorant.com) and [Markdown](https://backend.todorant.com/md)
 - API runs at [https://backend.todorant.com](https://backend.todorant.com)
-- [Insomnia](https://insomnia.rest/) schema is in this folder as well
 - After obtaining `token` at `/login` you should sign all private requests with it putting it into `token` header
 
 # API documentation
@@ -32,6 +31,38 @@ Signs up with google, returns [User](#user).
 ### [Public] POST `/telegram`
 
 Signs up with telegram, returns [User](#user).
+
+#### Parameters
+
+| field    | type   | Required | description                      |
+| -------- | ------ | -------- | -------------------------------- |
+| userData | object | Yes      | User data obatined from Telegram |
+
+## `/merge`
+
+### POST `/facebook`
+
+Merges facebook account to this account.
+
+#### Parameters
+
+| field       | type   | Required | description                         |
+| ----------- | ------ | -------- | ----------------------------------- |
+| accessToken | string | Yes      | Access token obatined from Facebook |
+
+### POST `/google`
+
+Merges google account to this account.
+
+#### Parameters
+
+| field       | type   | Required | description                       |
+| ----------- | ------ | -------- | --------------------------------- |
+| accessToken | string | Yes      | Access token obatined from Google |
+
+### POST `/telegram`
+
+Merges telegram account to this account.
 
 #### Parameters
 
