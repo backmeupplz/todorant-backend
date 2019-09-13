@@ -15,4 +15,16 @@ export const errors = {
     en: 'Invalid format',
     ru: 'Неправильный формат',
   },
+  facebookAlreadyConnected: {
+    en: 'Facebook is already connected',
+    ru: 'Фейсбук уже подключен',
+  },
+  googleAlreadyConnected: {
+    en: 'Google is already connected',
+    ru: 'Гугл уже подключен',
+  },
+  telegramAlreadyConnected: {
+    en: 'Telegram is already connected',
+    ru: 'Телеграм уже подключен',
+  },
 }
