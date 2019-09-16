@@ -7,10 +7,11 @@ import { errors } from '../helpers/errors'
 import { UserModel } from '../models'
 import { InstanceType } from 'typegoose'
 import { isTodoOld } from '../helpers/isTodoOld'
+import { checkSubscription } from '../middlewares/checkSubscription'
 
 @Controller('/todo')
 export default class {
-  @Post('/', authenticate)
+  @Post('/', authenticate, checkSubscription)
   async create(ctx: Context) {
     const addedTodoIds = []
     for (const todo of ctx.request.body) {
@@ -171,28 +172,6 @@ export default class {
       incompleteTodosCount: incompleteTodos.length,
       todo: incompleteTodos.length ? incompleteTodos[0] : undefined,
     }
-  }
-
-  @Get('/planning', authenticate)
-  async getPlanning(ctx: Context) {
-    // Parameters
-    const date = ctx.query.date
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      ctx.throw(403, errors.invalidFormat)
-    }
-    // Find todos
-    let planning = false
-    const todos = (await UserModel.findById(ctx.state.user.id).populate(
-      'todos'
-    )).todos.filter((todo: Todo) => !todo.completed) as Todo[]
-    for (const todo of todos) {
-      if (isTodoOld(todo, date)) {
-        planning = true
-        break
-      }
-    }
-    // Respond
-    ctx.body = { planning }
   }
 
   @Get('/', authenticate)

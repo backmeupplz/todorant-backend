@@ -27,4 +27,8 @@ export const errors = {
     en: 'Telegram is already connected',
     ru: 'Телеграм уже подключен',
   },
+  subscription: {
+    en: 'You have to buy the subscription',
+    ru: 'Вам нужно приобрести подписку',
+  },
 }

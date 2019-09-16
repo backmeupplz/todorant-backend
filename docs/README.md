@@ -38,6 +38,22 @@ Signs up with telegram, returns [User](#user).
 | -------- | ------ | -------- | -------------------------------- |
 | userData | object | Yes      | User data obatined from Telegram |
 
+## `/state`
+
+### GET `/`
+
+Returns state of the user:
+
+- Whether planning should be done or not
+- Subscription status [`earlyAdopter`|`active`|`trial`|`inactive`]
+- User created date
+
+### Parameters
+
+| field | type   | Required | description                                       |
+| ----- | ------ | -------- | ------------------------------------------------- |
+| date  | string | Yes      | Current date on the client in format `2020-01-20` |
+
 ## `/merge`
 
 ### POST `/facebook`
@@ -124,16 +140,6 @@ Returns current todo and count of today's todos
 | ----- | ------ | -------- | ------------------------------------------------- |
 | date  | string | Yes      | Current date on the client in format `2020-01-20` |
 
-### GET `/planning`
-
-Returns whether planning should be done or not
-
-### Parameters
-
-| field | type   | Required | description                                       |
-| ----- | ------ | -------- | ------------------------------------------------- |
-| date  | string | Yes      | Current date on the client in format `2020-01-20` |
-
 ### POST `/:id/done`
 
 Marks todo as done
@@ -162,7 +168,23 @@ Skips todo
 | ----- | ---------------- | -------- | ------------------- |
 | todos | [String: Todo[]] | Yes      | rearranged todo map |
 
+## `/subscription`
+
+### GET `/session/:plan`
+
+Get a session for stripe
+
+### Parameters
+
+| field | type   | Required | description           |
+| ----- | ------ | -------- | --------------------- |
+| plan  | string | Yes      | `monthly` or `yearly` |
+
 # Data models
+
+### POST `/cancel`
+
+Cancel subscription for this user
 
 ### User
 

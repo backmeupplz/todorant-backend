@@ -11,6 +11,13 @@ import {
 import { omit } from 'lodash'
 import { Todo } from './todo'
 
+export enum SubscriptionStatus {
+  earlyAdopter = 'earlyAdopter',
+  active = 'active',
+  trial = 'trieal',
+  inactive = 'inactive',
+}
+
 export class User extends Typegoose {
   @prop({ index: true, lowercase: true })
   email?: string
@@ -44,6 +51,16 @@ export class User extends Typegoose {
 
   @prop({ required: true, default: 0 })
   timezone: number
+
+  @prop({
+    index: true,
+    required: true,
+    enum: SubscriptionStatus,
+    default: 'earlyAdopter',
+  })
+  subscriptionStatus: SubscriptionStatus
+  @prop({ index: true })
+  subscriptionId?: String
 
   // Mongo property
   _doc: any
@@ -95,6 +112,7 @@ export async function getOrCreateUser(loginOptions: LoginOptions) {
     }
     const params = {
       name: loginOptions.name,
+      subscriptionStatus: SubscriptionStatus.trial,
     } as any
     if (loginOptions.email) {
       params.email = loginOptions.email

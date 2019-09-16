@@ -3,6 +3,7 @@ import Telegraf, { Markup, Extra, ContextMessageUpdate } from 'telegraf'
 import { UserModel, TodoModel, Todo, User } from '../models'
 import * as moment from 'moment'
 import { InstanceType } from 'typegoose'
+import { isUserSubscribed } from './isUserSubscribed'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
@@ -63,6 +64,12 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
   const user = await getUser(ctx)
   if (!user) {
     return
+  }
+  // Check subscription
+  if (!isUserSubscribed(user)) {
+    return ctx.reply(`Please, subscribe at todorant.com to keep using the service.
+    
+Пожалуйста, подпишитесь на todorant.com, чтобы продолжить пользование сервисом.`)
   }
   // Add todo to user
   try {

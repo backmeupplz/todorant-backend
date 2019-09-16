@@ -29,6 +29,7 @@
     "@types/moment": "^2.13.0",
     "@types/mongoose": "^5.3.26",
     "@types/node": "^11.13.4",
+    "@types/stripe": "^6.32.1",
     "axios": "^0.18.0",
     "dotenv": "^7.0.0",
     "facebook-node-sdk": "^0.2.0",
@@ -44,6 +45,7 @@
     "momen": "^0.0.1-security",
     "mongoose": "^5.5.2",
     "node-telegram-login": "^1.0.0",
+    "stripe": "^7.9.0",
     "telegraf": "^3.32.0",
     "typegoose": "^5.6.0",
     "typescript": "^3.4.3"
