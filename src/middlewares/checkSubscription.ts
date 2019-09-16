@@ -12,10 +12,9 @@ export async function checkSubscription(ctx: Context, next: Function) {
     if (!isUserSubscribed(user)) {
       return ctx.throw(403, JSON.stringify(errors.subscription))
     }
-    next()
+    await next()
   } catch (err) {
     await report(err)
     return ctx.throw(403, JSON.stringify(errors.authentication))
   }
-  await next()
 }
