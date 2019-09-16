@@ -325,11 +325,17 @@ async function findCurrentForUser(
   const incompleteTodos = todos
     .filter(t => !t.completed)
     .sort((a, b) => {
+      if (a.frog && b.frog) {
+        return 0
+      }
       if (a.frog) {
         return -1
       }
       if (b.frog) {
         return 1
+      }
+      if (a.skipped && b.skipped) {
+        return 0
       }
       if (a.skipped) {
         return 1
