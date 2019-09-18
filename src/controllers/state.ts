@@ -32,6 +32,7 @@ export default class {
       subscriptionStatus: ctx.state.user.subscriptionStatus,
       createdAt: ctx.state.user.createdAt,
       subscriptionIdExists: !!ctx.state.user.subscriptionId,
+      settings: ctx.state.user.settings,
     }
   }
 }

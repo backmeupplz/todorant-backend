@@ -18,6 +18,10 @@ export enum SubscriptionStatus {
   inactive = 'inactive',
 }
 
+class Settings {
+  showTodayOnAddTodo?: boolean
+}
+
 export class User extends Typegoose {
   @prop({ index: true, lowercase: true })
   email?: string
@@ -61,6 +65,9 @@ export class User extends Typegoose {
   subscriptionStatus: SubscriptionStatus
   @prop({ index: true })
   subscriptionId?: String
+
+  @prop({ required: true, default: {} })
+  settings: Settings
 
   // Mongo property
   _doc: any

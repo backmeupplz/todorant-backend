@@ -47,6 +47,7 @@ Returns state of the user:
 - Whether planning should be done or not
 - Subscription status [`earlyAdopter`|`active`|`trial`|`inactive`]
 - User created date
+  — User settings
 
 ### Parameters
 
@@ -179,6 +180,18 @@ Get a session for stripe
 | field | type   | Required | description           |
 | ----- | ------ | -------- | --------------------- |
 | plan  | string | Yes      | `monthly` or `yearly` |
+
+## `/settings`
+
+### POST `/`
+
+Set settings
+
+### Parameters
+
+| field              | type    | Required | description                                                     |
+| ------------------ | ------- | -------- | --------------------------------------------------------------- |
+| showTodayOnAddTodo | boolean | Yes      | whether to show today date as default on the todo screen or not |
 
 # Data models
 
