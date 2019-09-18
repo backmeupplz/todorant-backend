@@ -11,6 +11,10 @@ export const errors = {
     en: 'Authentication failed',
     ru: 'Аутентификация провалилась',
   },
+  noTokenProvided: {
+    en: 'No authentication token provided',
+    ru: 'Нет токена авторизации',
+  },
   invalidFormat: {
     en: 'Invalid format',
     ru: 'Неправильный формат',
