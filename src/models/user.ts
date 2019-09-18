@@ -14,7 +14,7 @@ import { Todo } from './todo'
 export enum SubscriptionStatus {
   earlyAdopter = 'earlyAdopter',
   active = 'active',
-  trial = 'trieal',
+  trial = 'trial',
   inactive = 'inactive',
 }
 
