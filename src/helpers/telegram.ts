@@ -96,7 +96,7 @@ bot.command('zen', async ctx => {
       : `You turned off zen mode.
   
 Вы выключили дзен-режим.`,
-    Extra.markdown(true) as ExtraReplyMessage
+    Extra.HTML(true) as ExtraReplyMessage
   )
 })
 
