@@ -31,12 +31,28 @@ export class User extends Typegoose {
   telegramId?: string
   @prop({ required: true, index: true })
   name: string
+  @prop({ required: true, default: {} })
+  settings: Settings
+  @arrayProp({ required: true, itemsRef: Todo, default: [] })
+  todos: Ref<Todo>[]
 
   @prop({ required: true, index: true, unique: true })
   token: string
 
-  @arrayProp({ required: true, itemsRef: Todo, default: [] })
-  todos: Ref<Todo>[]
+  @prop({ required: true, default: 0 })
+  timezone: number
+  @prop({ required: true, default: false })
+  telegramZen: boolean
+
+  @prop({
+    index: true,
+    required: true,
+    enum: SubscriptionStatus,
+    default: 'earlyAdopter',
+  })
+  subscriptionStatus: SubscriptionStatus
+  @prop({ index: true })
+  subscriptionId?: String
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
@@ -52,22 +68,6 @@ export class User extends Typegoose {
     }
     return omit(this._doc, stripFields)
   }
-
-  @prop({ required: true, default: 0 })
-  timezone: number
-
-  @prop({
-    index: true,
-    required: true,
-    enum: SubscriptionStatus,
-    default: 'earlyAdopter',
-  })
-  subscriptionStatus: SubscriptionStatus
-  @prop({ index: true })
-  subscriptionId?: String
-
-  @prop({ required: true, default: {} })
-  settings: Settings
 
   // Mongo property
   _doc: any

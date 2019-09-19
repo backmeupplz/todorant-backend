@@ -4,14 +4,15 @@ import { UserModel, TodoModel, Todo, User } from '../models'
 import * as moment from 'moment'
 import { InstanceType } from 'typegoose'
 import { isUserSubscribed } from './isUserSubscribed'
+import { ExtraReplyMessage } from 'telegraf/typings/telegram-types'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
 bot.start(ctx => {
   ctx.replyWithHTML(
-    `Hi there! You can use this bot to quickly add new todos to todorant.com with /todo or /done commands. Make sure you login with the button below and set your timezone with /timezone command. Use /current to see your current task and complete it. Find the commands examples at the end of this message. Cheers!
+    `Hi there! You can use this bot to quickly add new todos to todorant.com with /todo or /done commands. Make sure you login with the button below and set your timezone with /timezone command. Use /current to see your current task and complete it. Use /zen command to enter the zen mode. Find the commands examples at the end of this message. Cheers!
 
-Привет! Используйте этого бота для быстрого добавления задач в todorant.com при помощи команд /todo и /done. Обязательно убедитесь, что вы вошли на сайт при помощи кнопки ниже и что вы установили свой часовой пояс при помощи команды /timezone. Используйте команду /current для того, чтобы увидеть и завершить текущую задачу. Примеры использования команд в конце этого сообщения. Удачи!
+Привет! Используйте этого бота для быстрого добавления задач в todorant.com при помощи команд /todo и /done. Обязательно убедитесь, что вы вошли на сайт при помощи кнопки ниже и что вы установили свой часовой пояс при помощи команды /timezone. Используйте команду /current для того, чтобы увидеть и завершить текущую задачу. Используйте команду /zen, чтобы войти в дзен-режим. Примеры использования команд в конце этого сообщения. Удачи!
 
 /frog Answer the gym membership email
 /todo Buy milk
@@ -20,8 +21,7 @@ bot.start(ctx => {
 /done Procrastinate for 20 minutes
 /timezone +3
 /timezone -8
-/timezone 0
-/current`,
+/timezone 0`,
     Extra.markdown().markup(
       Markup.inlineKeyboard([
         {
@@ -34,6 +34,8 @@ bot.start(ctx => {
     )
   )
 })
+
+bot.use(attachUser)
 
 bot.command(['todo', 'frog', 'done'], async ctx => {
   // Get text
@@ -61,10 +63,7 @@ bot.command(['todo', 'frog', 'done'], async ctx => {
 /todo Buy milk`)
   }
   // Get user
-  const user = await getUser(ctx)
-  if (!user) {
-    return
-  }
+  const user = ctx.dbuser
   // Check subscription
   if (!isUserSubscribed(user)) {
     return ctx.reply(`Please, subscribe at todorant.com to keep using the service.
@@ -156,10 +155,7 @@ bot.command('timezone', async ctx => {
 /timezone 0`)
   }
   // Get user
-  const user = await getUser(ctx)
-  if (!user) {
-    return
-  }
+  const user = ctx.dbuser
   // Set timezone
   user.timezone = +timezone
   await user.save()
@@ -180,12 +176,27 @@ ${moment(new Date(utc.getTime() + 3600000 * +timezone)).format(
 )}`)
 })
 
+bot.command('zen', async ctx => {
+  // Get user
+  const user = ctx.dbuser
+  user.telegramZen = !user.telegramZen
+  await user.save()
+  // Respond
+  ctx.reply(
+    user.telegramZen
+      ? `Welcome to the zen mode! Anything you send me will be handled as if you had <code>/todo</code> command prepended. So don't bother sending <code>/todo Clean fridge</code> or <code>/todo 2020 Watch all of the House MD</code>, just do <code>Clean fridge</code> and <code>2020 Watch all of the House MD</code>. Use /zen to turn this mode off.
+  
+Добро пожаловать в дзен-режим! Все, что вы мне пошлете, будет обрабатываться, как будто вы написали перед этим <code>/todo</code>. Не нужно присылать <code>/todo Почистить холодильник</code> или <code>/todo 2020 Посмотреть всего Доктора Хауса</code>, просто пришлите <code>Почистить холодильник</code> или <code>2020 Посмотреть всего Доктора Хауса</code>. Воспользуйтесь командой /zen, чтобы отключить этот режим.`
+      : `You turned off zen mode.
+  
+Вы выключили дзен-режим.`,
+    Extra.markdown(true) as ExtraReplyMessage
+  )
+})
+
 bot.command('current', async ctx => {
   // Get user
-  const user = await getUser(ctx)
-  if (!user) {
-    return
-  }
+  const user = ctx.dbuser
   // Get current
   const current = await findCurrentForUser(user)
   // Respond
@@ -209,10 +220,7 @@ bot.command('current', async ctx => {
 
 bot.action('done', async ctx => {
   // Get user
-  const user = await getUser(ctx)
-  if (!user) {
-    return
-  }
+  const user = ctx.dbuser
   // Get current
   const current = await findCurrentForUser(user)
   if (current) {
@@ -227,10 +235,7 @@ bot.action('done', async ctx => {
 
 bot.action('skip', async ctx => {
   // Get user
-  const user = await getUser(ctx)
-  if (!user) {
-    return
-  }
+  const user = ctx.dbuser
   // Get current
   const current = await findCurrentForUser(user)
   if (current) {
@@ -245,10 +250,7 @@ bot.action('skip', async ctx => {
 
 bot.action('refresh', async ctx => {
   // Get user
-  const user = await getUser(ctx)
-  if (!user) {
-    return
-  }
+  const user = ctx.dbuser
   // Respond
   ctx.answerCbQuery()
   // Update message
@@ -275,9 +277,7 @@ async function update(ctx: ContextMessageUpdate, user: InstanceType<User>) {
   }
 }
 
-async function getUser(
-  ctx: ContextMessageUpdate
-): Promise<InstanceType<User> | undefined> {
+async function attachUser(ctx: ContextMessageUpdate, next: Function) {
   // Get user
   const user = await UserModel.findOne({ telegramId: `${ctx.from.id}` })
   if (!user) {
@@ -297,8 +297,9 @@ async function getUser(
       )
     )
   }
-  // Return user
-  return user
+  // Attach user and continue
+  ctx.dbuser = user
+  return next()
 }
 
 async function findCurrentForUser(
