@@ -20,6 +20,7 @@ export enum SubscriptionStatus {
 
 class Settings {
   showTodayOnAddTodo?: boolean
+  firstDayOfWeek?: number
 }
 
 export class User extends Typegoose {
