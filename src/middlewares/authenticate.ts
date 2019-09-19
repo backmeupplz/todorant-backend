@@ -10,7 +10,7 @@ export async function authenticate(ctx: Context, next: Function) {
   try {
     const token = ctx.headers.token
     if (!token) {
-      return ctx.throw(403, JSON.stringify(errors.noTokenProvided))
+      return ctx.throw(403, errors.noTokenProvided)
     }
     const payload = (await verify(token)) as any
     let user: InstanceType<User>
@@ -29,7 +29,7 @@ export async function authenticate(ctx: Context, next: Function) {
     ctx.state.user = user
   } catch (err) {
     await report(err)
-    return ctx.throw(403, JSON.stringify(errors.authentication))
+    return ctx.throw(403, errors.authentication)
   }
   await next()
 }

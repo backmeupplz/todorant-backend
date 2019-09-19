@@ -10,11 +10,11 @@ export async function checkSubscription(ctx: Context, next: Function) {
   try {
     const user = ctx.state.user as InstanceType<User>
     if (!isUserSubscribed(user)) {
-      return ctx.throw(403, JSON.stringify(errors.subscription))
+      return ctx.throw(403, errors.subscription)
     }
     await next()
   } catch (err) {
     await report(err)
-    return ctx.throw(403, JSON.stringify(errors.authentication))
+    return ctx.throw(403, errors.authentication)
   }
 }
