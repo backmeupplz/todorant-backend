@@ -190,7 +190,10 @@ export default class {
       'todos'
     )).todos
       .filter((todo: Todo) => todo.completed === completed)
-      .filter((todo: Todo) => !hash || todo.text.includes(hash))
+      .filter(
+        (todo: Todo) =>
+          !hash || todo.text.toLowerCase().includes(hash.toLowerCase())
+      )
       .map((todo: Todo) => todo.stripped())
       .sort((a, b) => {
         if (a.frog && b.frog) {
