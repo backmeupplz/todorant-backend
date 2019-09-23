@@ -37,7 +37,7 @@ const errorsTemplate = {
   },
 }
 
-export const erorrs: { [index: string]: string } = Object.keys(
+export const errors: { [index: string]: string } = Object.keys(
   errorsTemplate
 ).reduce((prev, cur) => {
   prev[cur] = JSON.stringify(errorsTemplate[cur])
