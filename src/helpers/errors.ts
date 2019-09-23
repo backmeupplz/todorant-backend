@@ -1,4 +1,4 @@
-export const errors = {
+const errorsTemplate = {
   noUser: {
     en: 'No user found',
     ru: 'Пользователь не найден',
@@ -36,3 +36,10 @@ export const errors = {
     ru: 'Вам нужно приобрести подписку',
   },
 }
+
+export const erorrs: { [index: string]: string } = Object.keys(
+  errorsTemplate
+).reduce((prev, cur) => {
+  prev[cur] = JSON.stringify(errorsTemplate[cur])
+  return prev
+}, {})
