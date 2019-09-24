@@ -257,9 +257,15 @@ async function addTodo(todoText: string, ctx: ContextMessageUpdate) {
       frog: ctx.message.text.substr(1, 4) === 'frog',
       completed: ctx.message.text.substr(1, 4) === 'done',
     }
-    user.todos = user.todos.concat([
-      (await new TodoModel({ ...todo, user: user._id }).save())._id,
-    ])
+    if (user.settings.newTodosGoFirst) {
+      user.todos = [
+        (await new TodoModel({ ...todo, user: user._id }).save())._id,
+      ].concat(user.todos)
+    } else {
+      user.todos = user.todos.concat([
+        (await new TodoModel({ ...todo, user: user._id }).save())._id,
+      ])
+    }
     await user.save()
     // Respond
     ctx.reply('👍', {
