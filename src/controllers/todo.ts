@@ -21,7 +21,11 @@ export default class {
       )
     }
     // Add todos to user
-    ctx.state.user.todos = ctx.state.user.todos.concat(addedTodoIds)
+    if (ctx.state.user.settings.newTodosGoFirst) {
+      ctx.state.user.todos = addedTodoIds.concat(ctx.state.user.todos)
+    } else {
+      ctx.state.user.todos = ctx.state.user.todos.concat(addedTodoIds)
+    }
     await ctx.state.user.save()
     // Respond
     ctx.status = 200
