@@ -17,6 +17,14 @@ export default class {
   @Put('/', authenticate)
   async put(ctx: Context) {
     // Set settings
+    if (ctx.request.body.showTodayOnAddTodo instanceof String) {
+      ctx.request.body.showTodayOnAddTodo =
+        ctx.request.body.showTodayOnAddTodo === '1'
+    }
+    if (ctx.request.body.newTodosGoFirst instanceof String) {
+      ctx.request.body.newTodosGoFirst =
+        ctx.request.body.newTodosGoFirst === '1'
+    }
     ctx.state.user.settings = {
       ...ctx.state.user.settings,
       ...ctx.request.body,
