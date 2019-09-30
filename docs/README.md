@@ -185,7 +185,17 @@ Get a session for stripe
 
 ### POST `/`
 
-Set settings
+Set all settings
+
+### Parameters
+
+| field              | type    | Required | description                                                     |
+| ------------------ | ------- | -------- | --------------------------------------------------------------- |
+| showTodayOnAddTodo | boolean | Yes      | whether to show today date as default on the todo screen or not |
+
+### Put `/`
+
+Set specific settings
 
 ### Parameters
 
