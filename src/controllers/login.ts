@@ -51,6 +51,12 @@ export default class {
     })
     ctx.body = user.stripped(true)
   }
+
+  @Post('/apple')
+  async apple(ctx: Context) {
+    console.log(ctx.request.body)
+    ctx.throw(403)
+  }
 }
 
 function getFBUser(accessToken: string) {

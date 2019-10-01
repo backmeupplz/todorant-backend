@@ -14,7 +14,7 @@ export function isTodoOld(todo: Todo, date: string) {
       return true
     }
   } else {
-    if (todo.monthAndYear < monthAndYear) {
+    if (todo.monthAndYear <= monthAndYear) {
       return true
     }
   }
