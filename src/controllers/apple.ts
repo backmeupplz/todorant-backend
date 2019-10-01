@@ -6,7 +6,12 @@ import { Context } from 'koa'
 export default class {
   @Post('/')
   docs(ctx: Context) {
-    ctx.redirect('https://todorant.com')
+    if (ctx.request.body.error) {
+      ctx.redirect(`https://todorant.com?appleError=${ctx.request.body.error}`)
+    }
+    ctx.redirect(
+      `https://todorant.com?apple=${JSON.stringify(ctx.request.body)}`
+    )
     console.log(ctx.request.body)
   }
 }

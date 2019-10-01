@@ -38,6 +38,16 @@ Signs up with telegram, returns [User](#user).
 | -------- | ------ | -------- | -------------------------------- |
 | userData | object | Yes      | User data obatined from Telegram |
 
+### [Public] POST `/apple`
+
+Signs up with apple, returns [User](#user).
+
+#### Parameters
+
+| field    | type   | Required | description                   |
+| -------- | ------ | -------- | ----------------------------- |
+| userData | object | Yes      | User data obatined from Apple |
+
 ## `/state`
 
 ### GET `/`
