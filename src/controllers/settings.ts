@@ -17,11 +17,17 @@ export default class {
   @Put('/', authenticate)
   async put(ctx: Context) {
     // Set settings
-    if (ctx.request.body.showTodayOnAddTodo instanceof String) {
+    if (
+      typeof ctx.request.body.showTodayOnAddTodo === 'string' ||
+      ctx.request.body.showTodayOnAddTodo instanceof String
+    ) {
       ctx.request.body.showTodayOnAddTodo =
         ctx.request.body.showTodayOnAddTodo === '1'
     }
-    if (ctx.request.body.newTodosGoFirst instanceof String) {
+    if (
+      typeof ctx.request.body.newTodosGoFirst === 'string' ||
+      ctx.request.body.newTodosGoFirst instanceof String
+    ) {
       ctx.request.body.newTodosGoFirst =
         ctx.request.body.newTodosGoFirst === '1'
     }
