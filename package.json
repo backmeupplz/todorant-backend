@@ -30,6 +30,7 @@
     "@types/mongoose": "^5.3.26",
     "@types/node": "^11.13.4",
     "@types/stripe": "^6.32.1",
+    "apple-auth": "^1.0.4",
     "axios": "^0.18.0",
     "dotenv": "^7.0.0",
     "facebook-node-sdk": "^0.2.0",

@@ -1,11 +1,26 @@
 // Dependencies
 import axios from 'axios'
 import { Context } from 'koa'
-import { getOrCreateUser } from '../models'
+import { getOrCreateUser, UserModel, SubscriptionStatus } from '../models'
 import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
+import { decode } from 'jsonwebtoken'
+import { sign } from '../helpers/jwt'
+
 const TelegramLogin = require('node-telegram-login')
 const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
+const AppleAuth = require('apple-auth')
+
+const appleAuth = new AppleAuth(
+  {
+    client_id: 'com.todorant.web',
+    team_id: 'ACWP4F58HZ',
+    key_id: 'J75L72AKZX',
+    redirect_uri: 'https://backend.todorant.com/apple',
+    scope: 'name email',
+  },
+  `${__dirname}/../../assets/AppleAuth.p8`
+)
 
 @Controller('/login')
 export default class {
@@ -54,8 +69,37 @@ export default class {
 
   @Post('/apple')
   async apple(ctx: Context) {
-    console.log(ctx.request.body)
-    ctx.throw(403)
+    const response = await appleAuth.accessToken(ctx.request.body.code)
+    const idToken = decode(response.id_token) as any
+
+    const appleSubId = idToken.sub
+
+    // Check if it is first request
+    if (ctx.request.body.user) {
+      const email = idToken.email
+      const userJson = JSON.parse(ctx.request.body.user)
+      const name = `${userJson.name.firstName}${
+        userJson.name.lastName ? ` ${userJson.name.lastName}` : ''
+      }`
+      const params = {
+        name,
+        appleSubId,
+        subscriptionStatus: SubscriptionStatus.trial,
+        email,
+      } as any
+      const user = await new UserModel({
+        ...params,
+        token: await sign(params),
+      }).save()
+      ctx.body = user.stripped(true)
+    } else {
+      const user = await UserModel.findOne({ appleSubId })
+      if (!user) {
+        ctx.throw(404)
+      } else {
+        ctx.body = user.stripped(true)
+      }
+    }
   }
 }
 

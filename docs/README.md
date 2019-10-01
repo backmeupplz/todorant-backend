@@ -44,9 +44,9 @@ Signs up with apple, returns [User](#user).
 
 #### Parameters
 
-| field    | type   | Required | description                   |
-| -------- | ------ | -------- | ----------------------------- |
-| userData | object | Yes      | User data obatined from Apple |
+| field | type   | Required | description            |
+| ----- | ------ | -------- | ---------------------- |
+| code  | object | Yes      | Access code from Apple |
 
 ## `/state`
 

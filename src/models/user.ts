@@ -31,6 +31,8 @@ export class User extends Typegoose {
   facebookId?: string
   @prop({ index: true, lowercase: true })
   telegramId?: string
+  @prop({ index: true, lowercase: true })
+  appleSubId?: string
   @prop({ required: true, index: true })
   name: string
   @prop({ required: true, default: {} })
@@ -64,6 +66,7 @@ export class User extends Typegoose {
       stripFields.push('email')
       stripFields.push('facebookId')
       stripFields.push('telegramId')
+      stripFields.push('appleSubId')
     }
     if (!withToken) {
       stripFields.push('token')
