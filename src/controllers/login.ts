@@ -90,7 +90,13 @@ export default class {
         subscriptionStatus: SubscriptionStatus.trial,
         email,
       } as any
-      const user = await new UserModel({
+      // Try to find this user one
+      let user = await UserModel.findOne({ appleSubId })
+      if (user) {
+        ctx.body = user.stripped(true)
+        return
+      }
+      user = await new UserModel({
         ...params,
         token: await sign(params),
       }).save()
