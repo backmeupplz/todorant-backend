@@ -77,7 +77,10 @@ export default class {
     // Check if it is first request
     if (ctx.request.body.user) {
       const email = idToken.email
-      const userJson = JSON.parse(ctx.request.body.user)
+      const userJson =
+        typeof ctx.request.body.user === 'string'
+          ? JSON.parse(ctx.request.body.user)
+          : ctx.request.body.user
       const name = `${userJson.name.firstName}${
         userJson.name.lastName ? ` ${userJson.name.lastName}` : ''
       }`
