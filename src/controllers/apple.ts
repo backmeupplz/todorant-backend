@@ -12,6 +12,5 @@ export default class {
     ctx.redirect(
       `https://todorant.com?apple=${JSON.stringify(ctx.request.body)}`
     )
-    console.log(ctx.request.body)
   }
 }

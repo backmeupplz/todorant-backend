@@ -11,17 +11,6 @@ const TelegramLogin = require('node-telegram-login')
 const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
 const AppleAuth = require('apple-auth')
 
-const appleAuth = new AppleAuth(
-  {
-    client_id: 'com.todorant.web',
-    team_id: 'ACWP4F58HZ',
-    key_id: 'J75L72AKZX',
-    redirect_uri: 'https://backend.todorant.com/apple',
-    scope: 'name email',
-  },
-  `${__dirname}/../../assets/AppleAuth.p8`
-)
-
 @Controller('/login')
 export default class {
   @Post('/facebook')
@@ -69,11 +58,24 @@ export default class {
 
   @Post('/apple')
   async apple(ctx: Context) {
+    const appleAuth = new AppleAuth(
+      {
+        client_id:
+          ctx.request.body.client && ctx.request.body.client === 'ios'
+            ? 'com.todorant.app'
+            : 'com.todorant.web',
+        team_id: 'ACWP4F58HZ',
+        key_id: 'J75L72AKZX',
+        redirect_uri: 'https://backend.todorant.com/apple',
+        scope: 'name email',
+      },
+      `${__dirname}/../../assets/AppleAuth.p8`
+    )
+
     const response = await appleAuth.accessToken(ctx.request.body.code)
     const idToken = decode(response.id_token) as any
 
     const appleSubId = idToken.sub
-
     // Check if it is first request
     if (ctx.request.body.user) {
       const email = idToken.email
@@ -81,6 +83,16 @@ export default class {
         typeof ctx.request.body.user === 'string'
           ? JSON.parse(ctx.request.body.user)
           : ctx.request.body.user
+      if (userJson.name.firstName.includes('Optional')) {
+        userJson.name.firstName = userJson.name.firstName
+          .replace('Optional("', '')
+          .replace('")', '')
+      }
+      if (userJson.name.lastName.includes('Optional')) {
+        userJson.name.lastName = userJson.name.lastName
+          .replace('Optional("', '')
+          .replace('")', '')
+      }
       const name = `${userJson.name.firstName}${
         userJson.name.lastName ? ` ${userJson.name.lastName}` : ''
       }`
