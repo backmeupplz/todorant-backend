@@ -4,7 +4,7 @@ import { Controller, Post, Put, Get, Delete } from 'koa-router-ts'
 import { Todo, TodoModel } from '../models/todo'
 import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
-import { UserModel } from '../models'
+import { UserModel, User } from '../models'
 import { InstanceType } from 'typegoose'
 import { isTodoOld } from '../helpers/isTodoOld'
 import { checkSubscription } from '../middlewares/checkSubscription'
@@ -146,39 +146,19 @@ export default class {
     // Find todos
     const day = date.substr(8)
     const monthAndYear = date.substr(0, 7)
-    const todos = (await UserModel.findById(ctx.state.user.id).populate(
-      'todos'
-    )).todos
-      .filter((todo: Todo) => {
+    const incompleteTodos = (await getTodos(ctx.state.user, false, '')).filter(
+      todo => {
         return todo.date === day && todo.monthAndYear === monthAndYear
-      })
-      .map((todo: Todo) => todo.stripped())
-    const incompleteTodos = todos
-      .filter(t => !t.completed)
-      .sort((a, b) => {
-        if (a.frog && b.frog) {
-          return 0
-        }
-        if (a.frog) {
-          return -1
-        }
-        if (b.frog) {
-          return 1
-        }
-        if (a.skipped && b.skipped) {
-          return 0
-        }
-        if (a.skipped) {
-          return 1
-        }
-        if (b.skipped) {
-          return -1
-        }
-        return 0
-      })
+      }
+    )
+    const completeTodos = (await getTodos(ctx.state.user, true, '')).filter(
+      todo => {
+        return todo.date === day && todo.monthAndYear === monthAndYear
+      }
+    )
     // Respond
     ctx.body = {
-      todosCount: todos.length,
+      todosCount: completeTodos.length + incompleteTodos.length,
       incompleteTodosCount: incompleteTodos.length,
       todo: incompleteTodos.length ? incompleteTodos[0] : undefined,
     }
@@ -190,13 +170,7 @@ export default class {
     const completed = ctx.query.completed === 'true'
     const hash = decodeURI(ctx.query.hash)
     // Find todos
-    let todos = (await TodoModel.find({ user: ctx.state.user._id }))
-      .filter(todo => todo.completed === completed)
-      .filter(
-        todo => !hash || todo.text.toLowerCase().includes(hash.toLowerCase())
-      )
-      .map(todo => todo.stripped())
-      .sort(compareTodos(completed))
+    let todos = await getTodos(ctx.state.user, completed, hash)
     if (
       ctx.request.query.skip !== undefined &&
       ctx.request.query.limit !== undefined
@@ -214,20 +188,15 @@ export default class {
   async rearrange(ctx: Context) {
     // Find user and populate todos
     const user = await UserModel.findById(ctx.state.user.id).populate('todos')
+    // Get todos
+    const todos = user.todos as InstanceType<Todo>[]
     // Split completed and uncompleted todos
-    const completed = user.todos.filter(
-      (todo: InstanceType<Todo>) => todo.completed
-    )
-    const uncompleted = user.todos.filter(
-      (todo: InstanceType<Todo>) => !todo.completed
-    )
-    const uncompletedMap = uncompleted.reduce(
-      (prev: any, cur: InstanceType<Todo>) => {
-        prev[cur.id.toString()] = cur
-        return prev
-      },
-      {}
-    )
+    const completed = todos.filter(todo => todo.completed)
+    const uncompleted = todos.filter(todo => !todo.completed)
+    const uncompletedMap = uncompleted.reduce((prev, cur) => {
+      prev[cur._id] = cur
+      return prev
+    }, {})
     // Sort uncompleted
     const tempUncompleted = []
     const todoSections = ctx.request.body.todos as {
@@ -236,10 +205,7 @@ export default class {
     }[]
     for (const todoSection of todoSections) {
       const monthAndYear = todoSection.title.substr(0, 7)
-      let date = todoSection.title.substr(8)
-      if (!date) {
-        date = undefined
-      }
+      const date = todoSection.title.substr(8) || undefined
       for (const todo of todoSection.todos) {
         const userTodo = uncompletedMap[todo._id]
         uncompletedMap[todo._id] = undefined
@@ -271,12 +237,34 @@ export default class {
   }
 }
 
-function compareTodos(completed: Boolean) {
+async function getTodos(
+  user: InstanceType<User>,
+  completed: Boolean,
+  hash: string
+) {
+  // Get priorities
+  const priorities = user.todos.reduce((prev, cur, i) => {
+    prev[cur.toString()] = i
+    return prev
+  }, {}) as { [index: string]: number }
+  return (await TodoModel.find({ user: user._id }))
+    .filter(todo => todo.completed === completed)
+    .filter(
+      todo => !hash || todo.text.toLowerCase().includes(hash.toLowerCase())
+    )
+    .map(todo => todo.stripped())
+    .sort(compareTodos(completed, priorities))
+}
+
+function compareTodos(
+  completed: Boolean,
+  priorities: { [index: string]: number }
+) {
   return (a: InstanceType<Todo>, b: InstanceType<Todo>) => {
     // Check if dates are different
     if (a.date === b.date && a.monthAndYear === b.monthAndYear) {
       if (a.frog && b.frog) {
-        return 0
+        return (priorities[a._id] || 0) < (priorities[b._id] || 0) ? -1 : 1
       }
       if (a.frog) {
         return -1
@@ -285,7 +273,7 @@ function compareTodos(completed: Boolean) {
         return 1
       }
       if (a.skipped && b.skipped) {
-        return 0
+        return (priorities[a._id] || 0) < (priorities[b._id] || 0) ? -1 : 1
       }
       if (a.skipped) {
         return 1
@@ -293,7 +281,7 @@ function compareTodos(completed: Boolean) {
       if (b.skipped) {
         return -1
       }
-      return 0
+      return (priorities[a._id] || 0) < (priorities[b._id] || 0) ? -1 : 1
     } else {
       if (!a.date || !b.date) {
         if (a.monthAndYear < b.monthAndYear) {
