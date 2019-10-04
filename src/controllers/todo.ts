@@ -190,36 +190,22 @@ export default class {
     const completed = ctx.query.completed === 'true'
     const hash = decodeURI(ctx.query.hash)
     // Find todos
-    const todos = (await UserModel.findById(ctx.state.user.id).populate(
-      'todos'
-    )).todos
-      .filter((todo: Todo) => todo.completed === completed)
+    let todos = (await TodoModel.find({ user: ctx.state.user._id }))
+      .filter(todo => todo.completed === completed)
       .filter(
-        (todo: Todo) =>
-          !hash || todo.text.toLowerCase().includes(hash.toLowerCase())
+        todo => !hash || todo.text.toLowerCase().includes(hash.toLowerCase())
       )
-      .map((todo: Todo) => todo.stripped())
-      .sort((a, b) => {
-        if (a.frog && b.frog) {
-          return 0
-        }
-        if (a.frog) {
-          return -1
-        }
-        if (b.frog) {
-          return 1
-        }
-        if (a.skipped && b.skipped) {
-          return 0
-        }
-        if (a.skipped) {
-          return 1
-        }
-        if (b.skipped) {
-          return -1
-        }
-        return 0
-      })
+      .map(todo => todo.stripped())
+      .sort(compareTodos(completed))
+    if (
+      ctx.request.query.skip !== undefined &&
+      ctx.request.query.limit !== undefined
+    ) {
+      todos = todos.slice(
+        +ctx.request.query.skip,
+        +ctx.request.query.skip + +ctx.request.query.limit
+      )
+    }
     // Respond
     ctx.body = todos
   }
@@ -282,5 +268,46 @@ export default class {
     await user.save()
     // Respond
     ctx.status = 200
+  }
+}
+
+function compareTodos(completed: Boolean) {
+  return (a: InstanceType<Todo>, b: InstanceType<Todo>) => {
+    // Check if dates are different
+    if (a.date === b.date && a.monthAndYear === b.monthAndYear) {
+      if (a.frog && b.frog) {
+        return 0
+      }
+      if (a.frog) {
+        return -1
+      }
+      if (b.frog) {
+        return 1
+      }
+      if (a.skipped && b.skipped) {
+        return 0
+      }
+      if (a.skipped) {
+        return 1
+      }
+      if (b.skipped) {
+        return -1
+      }
+      return 0
+    } else {
+      if (!a.date || !b.date) {
+        if (a.monthAndYear < b.monthAndYear) {
+          return completed ? 1 : -1
+        } else {
+          return completed ? -1 : 1
+        }
+      } else {
+        if (`${a.monthAndYear}-${a.date}` < `${b.monthAndYear}-${b.date}`) {
+          return completed ? 1 : -1
+        } else {
+          return completed ? -1 : 1
+        }
+      }
+    }
   }
 }
