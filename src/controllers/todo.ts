@@ -13,6 +13,9 @@ import { checkSubscription } from '../middlewares/checkSubscription'
 export default class {
   @Post('/', authenticate, checkSubscription)
   async create(ctx: Context) {
+    if (!Array.isArray(ctx.request.body)) {
+      ctx.request.body = [ctx.request.body]
+    }
     const addedTodoIds = []
     for (const todo of ctx.request.body) {
       // Create and save
