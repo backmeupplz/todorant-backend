@@ -21,7 +21,7 @@ export default class {
       'todos'
     )).todos.filter((todo: Todo) => !todo.completed) as Todo[]
     for (const todo of todos) {
-      if (isTodoOld(todo, date)) {
+      if (todo.hasOwnProperty('text') && isTodoOld(todo, date)) {
         planning = true
         break
       }
