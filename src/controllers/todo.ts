@@ -133,6 +133,11 @@ export default class {
     if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
       return ctx.throw(404, errors.noTodo)
     }
+    // Remove from user
+    ctx.state.user.todos = ctx.state.user.todos.filter(
+      id => id.toString() !== id
+    )
+    await ctx.state.user.save()
     // Edit and save
     await todo.remove()
     // Respond
