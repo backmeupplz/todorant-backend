@@ -285,9 +285,9 @@ function compareTodos(
       }
       return (priorities[a._id] || 0) < (priorities[b._id] || 0) ? -1 : 1
     } else {
-      if (!a.date && b.date) {
+      if (!a.date && b.date && a.monthAndYear === b.monthAndYear) {
         return -1
-      } else if (!a.date && b.date) {
+      } else if (!a.date && b.date && a.monthAndYear === b.monthAndYear) {
         return 1
       } else if (!a.date || !b.date) {
         if (a.monthAndYear < b.monthAndYear) {
