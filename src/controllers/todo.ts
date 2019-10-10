@@ -264,7 +264,6 @@ function compareTodos(
   priorities: { [index: string]: number }
 ) {
   return (a: InstanceType<Todo>, b: InstanceType<Todo>) => {
-    // Check if dates are different
     if (a.date === b.date && a.monthAndYear === b.monthAndYear) {
       if (a.frog && b.frog) {
         return (priorities[a._id] || 0) < (priorities[b._id] || 0) ? -1 : 1
@@ -286,7 +285,11 @@ function compareTodos(
       }
       return (priorities[a._id] || 0) < (priorities[b._id] || 0) ? -1 : 1
     } else {
-      if (!a.date || !b.date) {
+      if (!a.date && b.date) {
+        return -1
+      } else if (!a.date && b.date) {
+        return 1
+      } else if (!a.date || !b.date) {
         if (a.monthAndYear < b.monthAndYear) {
           return completed ? 1 : -1
         } else {
