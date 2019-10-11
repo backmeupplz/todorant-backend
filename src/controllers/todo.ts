@@ -66,7 +66,7 @@ export default class {
     todo.text = text
     todo.completed = completed
     todo.monthAndYear = monthAndYear
-    todo.date = date
+    todo.date = date || undefined
     await todo.save()
     // Respond
     ctx.status = 200
