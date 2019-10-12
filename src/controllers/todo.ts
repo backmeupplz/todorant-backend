@@ -18,6 +18,15 @@ export default class {
     }
     const addedTodoIds = []
     for (const todo of ctx.request.body) {
+      if (typeof todo.frog === 'string' || todo.frog instanceof String) {
+        todo.frog = todo.frog === '1'
+      }
+      if (
+        typeof todo.completed === 'string' ||
+        todo.completed instanceof String
+      ) {
+        todo.completed = todo.completed === '1'
+      }
       // Create and save
       addedTodoIds.push(
         (await new TodoModel({ ...todo, user: ctx.state.user._id }).save())._id
@@ -53,7 +62,11 @@ export default class {
       return ctx.throw(404, errors.noTodo)
     }
     // Edit and save
-    todo.frog = !!frog
+    if (typeof frog === 'string' || frog instanceof String) {
+      todo.frog = frog === '1'
+    } else {
+      todo.frog = frog
+    }
     if (isTodoOld(todo, today)) {
       todo.frogFails += 1
       if (todo.frogFails >= 2) {
@@ -64,7 +77,11 @@ export default class {
       todo.skipped = false
     }
     todo.text = text
-    todo.completed = !!completed
+    if (typeof completed === 'string' || completed instanceof String) {
+      todo.completed = completed === '1'
+    } else {
+      todo.completed = completed
+    }
     todo.monthAndYear = monthAndYear
     todo.date = date || undefined
     await todo.save()
