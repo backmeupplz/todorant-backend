@@ -13,6 +13,9 @@ import { checkSubscription } from '../middlewares/checkSubscription'
 export default class {
   @Post('/', authenticate, checkSubscription)
   async create(ctx: Context) {
+    if (ctx.request.body.todos) {
+      ctx.request.body = ctx.request.body.todos
+    }
     if (!Array.isArray(ctx.request.body)) {
       ctx.request.body = [ctx.request.body]
     }
