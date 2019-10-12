@@ -53,7 +53,7 @@ export default class {
       return ctx.throw(404, errors.noTodo)
     }
     // Edit and save
-    todo.frog = frog
+    todo.frog = !!frog
     if (isTodoOld(todo, today)) {
       todo.frogFails += 1
       if (todo.frogFails >= 2) {
@@ -64,7 +64,7 @@ export default class {
       todo.skipped = false
     }
     todo.text = text
-    todo.completed = completed
+    todo.completed = !!completed
     todo.monthAndYear = monthAndYear
     todo.date = date || undefined
     await todo.save()
