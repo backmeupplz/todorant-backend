@@ -1,6 +1,7 @@
 // Dependencies
 import { Controller, Post } from 'koa-router-ts'
 import { Context } from 'koa'
+import { authenticate } from '../middlewares/authenticate'
 
 @Controller('/apple')
 export default class {
@@ -12,5 +13,11 @@ export default class {
     ctx.redirect(
       `https://todorant.com?apple=${JSON.stringify(ctx.request.body)}`
     )
+  }
+
+  @Post('/subscription', authenticate)
+  subscription(ctx: Context) {
+    console.log(ctx.body)
+    ctx.status = 200
   }
 }
