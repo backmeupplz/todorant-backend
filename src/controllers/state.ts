@@ -3,8 +3,14 @@ import { Controller, Get } from 'koa-router-ts'
 import { Context } from 'koa'
 import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
-import { UserModel, Todo } from '../models'
+import { UserModel, Todo, SubscriptionStatus } from '../models'
 import { isTodoOld } from '../helpers/isTodoOld'
+
+enum SubscriptionType {
+  none = 'none',
+  apple = 'apple',
+  web = 'web',
+}
 
 @Controller('/state')
 export default class {
@@ -27,11 +33,18 @@ export default class {
       }
     }
     // Respond
+    const subscriptionIdExists =
+      !!ctx.state.user.subscriptionId || !!ctx.state.user.appleReceipt
     ctx.body = {
       planning,
       subscriptionStatus: ctx.state.user.subscriptionStatus,
       createdAt: ctx.state.user.createdAt,
-      subscriptionIdExists: !!ctx.state.user.subscriptionId,
+      subscriptionIdExists,
+      subscriptionType: subscriptionIdExists
+        ? SubscriptionType.none
+        : !ctx.state.user.subscriptionId
+        ? SubscriptionType.apple
+        : SubscriptionType.web,
       settings: ctx.state.user.settings,
     }
   }
