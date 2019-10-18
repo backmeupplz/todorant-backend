@@ -5,6 +5,7 @@ import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
 import { UserModel, Todo, SubscriptionStatus } from '../models'
 import { isTodoOld } from '../helpers/isTodoOld'
+import { getTodos } from './todo'
 
 enum SubscriptionType {
   none = 'none',
@@ -23,9 +24,8 @@ export default class {
     }
     // Find todos
     let planning = false
-    const todos = (await UserModel.findById(ctx.state.user.id).populate(
-      'todos'
-    )).todos.filter((todo: Todo) => !todo.completed) as Todo[]
+    const todos = await getTodos(ctx.state.user, false, '')
+
     for (const todo of todos) {
       if (todo.hasOwnProperty('text') && isTodoOld(todo, date)) {
         planning = true

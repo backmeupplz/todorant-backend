@@ -265,7 +265,7 @@ export default class {
   }
 }
 
-async function getTodos(
+export async function getTodos(
   user: InstanceType<User>,
   completed: Boolean,
   hash: string
