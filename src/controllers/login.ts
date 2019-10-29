@@ -97,7 +97,7 @@ export default class {
         userJson.name.lastName ? ` ${userJson.name.lastName}` : ''
       }`
       const params = {
-        name,
+        name: name || 'Unidentified Apple',
         appleSubId,
         subscriptionStatus: SubscriptionStatus.trial,
         email,
