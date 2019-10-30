@@ -83,26 +83,30 @@ export default class {
         typeof ctx.request.body.user === 'string'
           ? JSON.parse(ctx.request.body.user)
           : ctx.request.body.user
-      if (userJson.name.firstName.includes('Optional')) {
-        userJson.name.firstName = userJson.name.firstName
-          .replace('Optional("', '')
-          .replace('")', '')
+      if (userJson.name) {
+        if (userJson.name.firstName.includes('Optional')) {
+          userJson.name.firstName = userJson.name.firstName
+            .replace('Optional("', '')
+            .replace('")', '')
+        }
+        if (userJson.name.lastName.includes('Optional')) {
+          userJson.name.lastName = userJson.name.lastName
+            .replace('Optional("', '')
+            .replace('")', '')
+        }
       }
-      if (userJson.name.lastName.includes('Optional')) {
-        userJson.name.lastName = userJson.name.lastName
-          .replace('Optional("', '')
-          .replace('")', '')
-      }
-      const name = `${userJson.name.firstName}${
-        userJson.name.lastName ? ` ${userJson.name.lastName}` : ''
-      }`
+      const name = userJson.name
+        ? `${userJson.name.firstName}${
+            userJson.name.lastName ? ` ${userJson.name.lastName}` : ''
+          }`
+        : undefined
       const params = {
         name: name || 'Unidentified Apple',
         appleSubId,
         subscriptionStatus: SubscriptionStatus.trial,
         email,
       } as any
-      // Try to find this user one
+      // Try to find this user
       let user = await UserModel.findOne({ appleSubId })
       if (user) {
         ctx.body = user.stripped(true)
@@ -114,12 +118,19 @@ export default class {
       }).save()
       ctx.body = user.stripped(true)
     } else {
-      const user = await UserModel.findOne({ appleSubId })
+      let user = await UserModel.findOne({ appleSubId })
       if (!user) {
-        ctx.throw(404)
-      } else {
-        ctx.body = user.stripped(true)
+        const params = {
+          name: 'Unidentified Apple',
+          appleSubId,
+          subscriptionStatus: SubscriptionStatus.trial,
+        } as any
+        user = await new UserModel({
+          ...params,
+          token: await sign(params),
+        }).save()
       }
+      ctx.body = user.stripped(true)
     }
   }
 }
