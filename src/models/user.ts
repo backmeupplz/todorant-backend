@@ -31,6 +31,8 @@ export class User extends Typegoose {
   facebookId?: string
   @prop({ index: true, lowercase: true })
   telegramId?: string
+  @prop({ index: true })
+  anonymousToken?: string
   @prop({ index: true, lowercase: true })
   appleSubId?: string
   @prop({ required: true, index: true })
@@ -88,6 +90,7 @@ interface LoginOptions {
   email?: string
   facebookId?: string
   telegramId?: string
+  anonymousToken?: string
 
   name: string
 }
@@ -119,7 +122,8 @@ export async function getOrCreateUser(loginOptions: LoginOptions) {
       !(
         loginOptions.email ||
         loginOptions.facebookId ||
-        loginOptions.telegramId
+        loginOptions.telegramId ||
+        loginOptions.anonymousToken
       )
     ) {
       throw new Error()
@@ -136,6 +140,9 @@ export async function getOrCreateUser(loginOptions: LoginOptions) {
     }
     if (loginOptions.telegramId) {
       params.telegramId = loginOptions.telegramId
+    }
+    if (loginOptions.anonymousToken) {
+      params.anonymousToken = loginOptions.anonymousToken
     }
     user = await new UserModel({
       ...params,

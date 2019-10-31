@@ -22,6 +22,10 @@ export async function authenticate(ctx: Context, next: Function) {
       user = await UserModel.findOne({ telegramId: `${payload.telegramId}` })
     } else if (payload.vkId) {
       user = await UserModel.findOne({ vkId: `${payload.vkId}` })
+    } else if (payload.anonymousToken) {
+      user = await UserModel.findOne({
+        anonymousToken: `${payload.anonymousToken}`,
+      })
     }
     if (!user) {
       return ctx.throw(403, errors.noUser)

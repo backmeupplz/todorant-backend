@@ -46,6 +46,7 @@
     "momen": "^0.0.1-security",
     "mongoose": "^5.5.2",
     "node-telegram-login": "^1.0.0",
+    "rand-token": "^0.4.0",
     "stripe": "^7.9.0",
     "telegraf": "^3.32.0",
     "typegoose": "^5.6.0",

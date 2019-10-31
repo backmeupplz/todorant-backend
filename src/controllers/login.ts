@@ -6,6 +6,7 @@ import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { decode } from 'jsonwebtoken'
 import { sign } from '../helpers/jwt'
+import * as randToken from 'rand-token'
 
 const TelegramLogin = require('node-telegram-login')
 const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
@@ -52,6 +53,15 @@ export default class {
       name: userData.name,
 
       email: userData.email,
+    })
+    ctx.body = user.stripped(true)
+  }
+
+  @Post('/anonymous')
+  async anonymous(ctx: Context) {
+    const user = await getOrCreateUser({
+      name: 'Anonymous user',
+      anonymousToken: randToken.generate(16),
     })
     ctx.body = user.stripped(true)
   }
