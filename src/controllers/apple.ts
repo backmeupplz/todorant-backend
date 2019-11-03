@@ -42,6 +42,7 @@ export default class {
     if (subscriptionIsActive) {
       ctx.state.user.subscriptionStatus = SubscriptionStatus.active
     }
+    console.log(subscriptionIsActive)
     ctx.state.user.appleReceipt = latestReceipt
     await ctx.state.user.save()
     ctx.status = 200

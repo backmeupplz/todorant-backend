@@ -1,7 +1,7 @@
 // Dependencies
 import axios from 'axios'
 import { Context } from 'koa'
-import { UserModel, User, Todo } from '../models'
+import { UserModel, User, Todo, SubscriptionStatus } from '../models'
 import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { InstanceType } from 'typegoose'
@@ -38,6 +38,10 @@ export default class {
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
     originalUser.facebookId = fbProfile.id
+    // Check if early adopter
+    if (existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter) {
+      originalUser.subscriptionStatus = SubscriptionStatus.earlyAdopter
+    }
     // Delete the existing user if it exists
     if (existingUser) {
       await existingUser.remove()
@@ -77,6 +81,10 @@ export default class {
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
     originalUser.telegramId = data.id
+    // Check if early adopter
+    if (existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter) {
+      originalUser.subscriptionStatus = SubscriptionStatus.earlyAdopter
+    }
     // Delete the existing user if it exists
     if (existingUser) {
       await existingUser.remove()
@@ -116,6 +124,10 @@ export default class {
       originalUser.todos = originalUser.todos.concat(existingUser.todos)
     }
     originalUser.email = userData.email
+    // Check if early adopter
+    if (existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter) {
+      originalUser.subscriptionStatus = SubscriptionStatus.earlyAdopter
+    }
     // Delete the existing user if it exists
     if (existingUser) {
       await existingUser.remove()
