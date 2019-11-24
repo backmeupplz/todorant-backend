@@ -18,7 +18,7 @@ export async function report(err: Error) {
   try {
     let text = `Todorant Error:\n${err.message || JSON.stringify(err)}`
     if (err.stack) {
-      text = `${text}\n\n${err.stack}`
+      text = `${text}`
     }
     for (const errorText of dismissableErrors) {
       if (text.indexOf(errorText) > -1) {
