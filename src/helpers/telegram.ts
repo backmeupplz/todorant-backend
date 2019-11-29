@@ -8,7 +8,7 @@ import { ExtraReplyMessage } from 'telegraf/typings/telegram-types'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
-bot.start(ctx => {
+bot.command(['start', 'help'], ctx => {
   ctx.replyWithHTML(
     `Hi there! You can use this bot to quickly add new todos to todorant.com with /todo or /done commands. Make sure you login with the button below and set your timezone with /timezone command. Use /current to see your current task and complete it. Use /zen command to enter the zen mode. Find the commands examples at the end of this message. Cheers!
 
@@ -341,9 +341,9 @@ async function findCurrentForUser(
       ? `0${nowWithOffset.getDate()}`
       : nowWithOffset.getDate()
   // Find todos
-  const todos = (await UserModel.findById(user.id).populate(
-    'todos'
-  )).todos.filter((todo: Todo) => {
+  const todos = (
+    await UserModel.findById(user.id).populate('todos')
+  ).todos.filter((todo: Todo) => {
     return +todo.date === +day && todo.monthAndYear === monthAndYear
   }) as InstanceType<Todo>[]
   const incompleteTodos = todos
