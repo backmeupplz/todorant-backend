@@ -43,11 +43,14 @@ export default class {
 
   @Post('/google')
   async google(ctx: Context) {
+    console.log('got google request', ctx.request.body.accessToken)
     const accessToken = ctx.request.body.accessToken
 
-    const userData: any = (await axios(
-      `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
-    )).data
+    const userData: any = (
+      await axios(
+        `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
+      )
+    ).data
 
     const user = await getOrCreateUser({
       name: userData.name,
