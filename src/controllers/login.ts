@@ -43,7 +43,6 @@ export default class {
 
   @Post('/google')
   async google(ctx: Context) {
-    console.log('got google request', ctx.request.body.accessToken)
     const accessToken = ctx.request.body.accessToken
 
     const userData: any = (
