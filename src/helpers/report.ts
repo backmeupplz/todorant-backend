@@ -14,7 +14,7 @@ export async function tryReport<T>(fun: (() => T) | Promise<T>) {
 }
 
 export async function report(err: Error) {
-  const dismissableErrors = []
+  const dismissableErrors = ['No authentication token provided']
   try {
     let text = `Todorant Error:\n${err.message || JSON.stringify(err)}`
     if (err.stack) {
