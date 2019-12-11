@@ -19,7 +19,8 @@ export default class {
     if (!Array.isArray(ctx.request.body)) {
       ctx.request.body = [ctx.request.body]
     }
-    const addedTodoIds = []
+    const addedToTopTodoIds = []
+    const addedToBottomTodoIds = []
     for (const todo of ctx.request.body) {
       if (typeof todo.frog === 'string' || todo.frog instanceof String) {
         todo.frog = todo.frog === '1'
@@ -30,17 +31,27 @@ export default class {
       ) {
         todo.completed = todo.completed === '1'
       }
-      // Create and save
-      addedTodoIds.push(
-        (await new TodoModel({ ...todo, user: ctx.state.user._id }).save())._id
-      )
+      if (
+        (ctx.state.user.settings.newTodosGoFirst &&
+          todo.goFirst === undefined) ||
+        todo.goFirst === true
+      ) {
+        // Create and save
+        addedToTopTodoIds.push(
+          (await new TodoModel({ ...todo, user: ctx.state.user._id }).save())
+            ._id
+        )
+      } else {
+        // Create and save
+        addedToBottomTodoIds.push(
+          (await new TodoModel({ ...todo, user: ctx.state.user._id }).save())
+            ._id
+        )
+      }
     }
     // Add todos to user
-    if (ctx.state.user.settings.newTodosGoFirst) {
-      ctx.state.user.todos = addedTodoIds.concat(ctx.state.user.todos)
-    } else {
-      ctx.state.user.todos = ctx.state.user.todos.concat(addedTodoIds)
-    }
+    ctx.state.user.todos = addedToTopTodoIds.concat(ctx.state.user.todos)
+    ctx.state.user.todos = ctx.state.user.todos.concat(addedToBottomTodoIds)
     await ctx.state.user.save()
     // Respond
     ctx.status = 200
