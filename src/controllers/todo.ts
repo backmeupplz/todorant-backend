@@ -211,13 +211,23 @@ export default class {
     // Find todos
     let todos = await getTodos(ctx.state.user, completed, hash)
     if (
-      ctx.request.query.skip !== undefined &&
-      ctx.request.query.limit !== undefined
+      !ctx.request.query.calendarView ||
+      ctx.request.query.calendarView === 'false' ||
+      !ctx.request.query.today ||
+      ctx.request.query.today === 'false'
     ) {
-      todos = todos.slice(
-        +ctx.request.query.skip,
-        +ctx.request.query.skip + +ctx.request.query.limit
-      )
+      if (
+        ctx.request.query.skip !== undefined &&
+        ctx.request.query.limit !== undefined
+      ) {
+        todos = todos.slice(
+          +ctx.request.query.skip,
+          +ctx.request.query.skip + +ctx.request.query.limit
+        )
+      }
+    } else {
+      const monthAndYear = ctx.request.query.today.substr(0, 7)
+      todos = todos.filter(todo => todo.monthAndYear === monthAndYear)
     }
     // Respond
     ctx.body = todos
