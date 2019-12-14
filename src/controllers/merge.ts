@@ -31,7 +31,7 @@ export default class {
     // Add data if required
     if (existingUser) {
       existingUser.todos.map(async (todo: InstanceType<Todo>) => {
-        todo.user = originalUser.id
+        todo.user = originalUser._id
         await todo.save()
         return todo.id
       })
@@ -74,7 +74,7 @@ export default class {
     // Add data if required
     if (existingUser) {
       existingUser.todos.map(async (todo: InstanceType<Todo>) => {
-        todo.user = originalUser.id
+        todo.user = originalUser._id
         await todo.save()
         return todo.id
       })
@@ -99,9 +99,11 @@ export default class {
   async google(ctx: Context) {
     const accessToken = ctx.request.body.accessToken
 
-    const userData: any = (await axios(
-      `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
-    )).data
+    const userData: any = (
+      await axios(
+        `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
+      )
+    ).data
     // Get original user
     const originalUser = ctx.state.user as InstanceType<User>
     // Check if original user has telegram
@@ -117,7 +119,7 @@ export default class {
     // Add data if required
     if (existingUser) {
       existingUser.todos.map(async (todo: InstanceType<Todo>) => {
-        todo.user = originalUser.id
+        todo.user = originalUser._id
         await todo.save()
         return todo.id
       })
