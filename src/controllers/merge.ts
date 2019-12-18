@@ -39,7 +39,10 @@ export default class {
     }
     originalUser.facebookId = fbProfile.id
     // Check if early adopter
-    if (existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter) {
+    if (
+      existingUser &&
+      existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter
+    ) {
       originalUser.subscriptionStatus = SubscriptionStatus.earlyAdopter
     }
     // Delete the existing user if it exists
@@ -82,7 +85,10 @@ export default class {
     }
     originalUser.telegramId = data.id
     // Check if early adopter
-    if (existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter) {
+    if (
+      existingUser &&
+      existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter
+    ) {
       originalUser.subscriptionStatus = SubscriptionStatus.earlyAdopter
     }
     // Delete the existing user if it exists
@@ -127,7 +133,10 @@ export default class {
     }
     originalUser.email = userData.email
     // Check if early adopter
-    if (existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter) {
+    if (
+      existingUser &&
+      existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter
+    ) {
       originalUser.subscriptionStatus = SubscriptionStatus.earlyAdopter
     }
     // Delete the existing user if it exists
