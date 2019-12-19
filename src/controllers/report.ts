@@ -11,7 +11,6 @@ export default class {
   async docs(ctx: Context) {
     const user = ctx.state.user as InstanceType<User>
     let todos = await TodoModel.find({ user: user._id, completed: true })
-    console.log(todos)
     todos = todos.filter(todo => !!todo.date)
     const completedTodosMap = {} as { [index: string]: number }
     for (const todo of todos) {
