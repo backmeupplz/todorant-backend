@@ -41,6 +41,13 @@ export class Todo extends Typegoose {
     validate: [/^\d{2}$/, v => +v <= 31 && +v > 0],
   })
   date?: string // e.g. "01" or "31"
+  @prop({
+    index: true,
+    minlength: 5,
+    maxlength: 5,
+    validate: [v => !v || /^\d{2}:\d{2}$/.test(v)],
+  })
+  time?: string // e.g. "01:01"
 
   @instanceMethod
   stripped() {

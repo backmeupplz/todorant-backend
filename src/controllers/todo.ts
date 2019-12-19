@@ -22,6 +22,9 @@ export default class {
     const addedToTopTodoIds = []
     const addedToBottomTodoIds = []
     for (const todo of ctx.request.body) {
+      if (!todo.time) {
+        todo.time = undefined
+      }
       if (typeof todo.frog === 'string' || todo.frog instanceof String) {
         todo.frog = todo.frog === '1'
       }
@@ -68,6 +71,7 @@ export default class {
       monthAndYear,
       date,
       today,
+      time,
     } = ctx.request.body
     // Find todo
     const todo = await TodoModel.findById(id)
@@ -98,6 +102,7 @@ export default class {
     }
     todo.monthAndYear = monthAndYear
     todo.date = date || undefined
+    todo.time = time || undefined
     await todo.save()
     // Respond
     ctx.status = 200
