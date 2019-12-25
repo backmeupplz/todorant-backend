@@ -8,6 +8,16 @@ import * as randToken from 'rand-token'
 
 @Controller('/report')
 export default class {
+  @Get('/public/:uuid')
+  async publicReport(ctx: Context) {
+    const uuid = ctx.params.uuid
+    const report = await ReportModel.findOne({ uuid })
+    if (!report) {
+      return ctx.throw(404)
+    }
+    ctx.body = await report.strippedAndFilled()
+  }
+
   @Get('/', authenticate)
   async report(ctx: Context) {
     const report = await getReport(ctx)
@@ -26,16 +36,6 @@ export default class {
     ctx.body = {
       uuid: dbreport.uuid,
     }
-  }
-
-  @Get('/:uuid')
-  async publicReport(ctx: Context) {
-    const uuid = ctx.params.uuid
-    const report = await ReportModel.findOne({ uuid })
-    if (!report) {
-      return ctx.throw(404)
-    }
-    ctx.body = await report.strippedAndFilled()
   }
 }
 
