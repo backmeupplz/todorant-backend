@@ -10,3 +10,4 @@ mongoose.set('useFindAndModify', false)
 // Export models
 export * from './user'
 export * from './todo'
+export * from './report'
