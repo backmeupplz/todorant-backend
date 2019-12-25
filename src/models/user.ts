@@ -62,9 +62,18 @@ export class User extends Typegoose {
   @prop({ index: true })
   appleReceipt?: String
 
+  @prop({ index: true, required: true, default: false })
+  bouncerNotified: boolean
+
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
-    const stripFields = ['createdAt', 'updatedAt', '__v', 'todos']
+    const stripFields = [
+      'createdAt',
+      'updatedAt',
+      '__v',
+      'todos',
+      'bouncerNotified',
+    ]
     if (!withExtra) {
       stripFields.push('token')
       stripFields.push('email')

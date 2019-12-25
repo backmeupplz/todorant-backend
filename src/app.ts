@@ -9,6 +9,7 @@ import { loadControllers } from 'koa-router-ts'
 import * as cors from '@koa/cors'
 import { bot } from './helpers/telegram'
 import * as GracefulShutdown from 'http-graceful-shutdown'
+import './helpers/bouncersMessage'
 
 const app = new Koa()
 const router = loadControllers(`${__dirname}/controllers`, { recurse: true })
