@@ -9,7 +9,7 @@ import * as randToken from 'rand-token'
 @Controller('/report')
 export default class {
   @Get('/', authenticate)
-  async docs(ctx: Context) {
+  async report(ctx: Context) {
     const report = await getReport(ctx)
     ctx.body = report
   }
@@ -27,7 +27,18 @@ export default class {
       uuid: dbreport.uuid,
     }
   }
+
+  @Get('/:uuid')
+  async publicReport(ctx: Context) {
+    const uuid = ctx.params.uuid
+    const report = await ReportModel.findOne({ uuid })
+    if (!report) {
+      return ctx.throw(404)
+    }
+    ctx.body = await report.strippedAndFilled()
+  }
 }
+
 async function getReport(ctx: Context) {
   const user = ctx.state.user as InstanceType<User>
   const hash = ctx.query.hash
