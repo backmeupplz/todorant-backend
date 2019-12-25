@@ -10,11 +10,15 @@ export default class {
   @Get('/', authenticate)
   async docs(ctx: Context) {
     const user = ctx.state.user as InstanceType<User>
-    const todos = await TodoModel.find({
+    const hash = ctx.query.hash
+    let todos = await TodoModel.find({
       user: user._id,
       completed: true,
       date: { $exists: true },
     })
+    if (!!hash) {
+      todos = todos.filter(t => t.text.includes(`#${hash}`))
+    }
     const completedTodosMap = {} as { [index: string]: number }
     for (const todo of todos) {
       const key = `${todo.monthAndYear}-${todo.date}`
@@ -24,12 +28,15 @@ export default class {
         completedTodosMap[key] = 1
       }
     }
-    const frogs = await TodoModel.find({
+    let frogs = await TodoModel.find({
       user: user._id,
       completed: true,
       frog: true,
       date: { $exists: true },
     })
+    if (!!hash) {
+      frogs = frogs.filter(t => t.text.includes(`#${hash}`))
+    }
     const completedFrogsMap = {} as { [index: string]: number }
     for (const todo of frogs) {
       const key = `${todo.monthAndYear}-${todo.date}`
