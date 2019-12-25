@@ -15,7 +15,6 @@ export default class {
       completed: true,
       date: { $exists: true },
     })
-    console.log(todos.length)
     const completedTodosMap = {} as { [index: string]: number }
     for (const todo of todos) {
       const key = `${todo.monthAndYear}-${todo.date}`
@@ -31,7 +30,6 @@ export default class {
       frog: true,
       date: { $exists: true },
     })
-    console.log(frogs.length)
     const completedFrogsMap = {} as { [index: string]: number }
     for (const todo of frogs) {
       const key = `${todo.monthAndYear}-${todo.date}`
@@ -41,10 +39,6 @@ export default class {
         completedFrogsMap[key] = 1
       }
     }
-    console.log({
-      completedTodosMap,
-      completedFrogsMap,
-    })
     ctx.body = {
       completedTodosMap,
       completedFrogsMap,
