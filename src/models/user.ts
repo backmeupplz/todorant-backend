@@ -24,6 +24,11 @@ class Settings {
   newTodosGoFirst?: boolean
 }
 
+export enum TelegramLanguage {
+  en = 'en',
+  ru = 'ru',
+}
+
 export class User extends Typegoose {
   @prop({ index: true, lowercase: true })
   email?: string
@@ -49,6 +54,8 @@ export class User extends Typegoose {
   timezone: number
   @prop({ required: true, default: false })
   telegramZen: boolean
+  @prop({ enum: TelegramLanguage, index: true })
+  telegramLanguage?: TelegramLanguage
 
   @prop({
     index: true,
