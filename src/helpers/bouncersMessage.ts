@@ -32,6 +32,10 @@ Hi there! It's @borodutch, the creator of Todorant. Can you please spend just 2 
 If you have any additional questions please contact me directly — @borodutch. Thank you!`,
         { disable_web_page_preview: true }
       )
+      await bot.telegram.sendMessage(
+        76104711,
+        `Sent bouncer message to ${telegramId}`
+      )
     } catch (err) {
       console.error(err)
     }
@@ -56,6 +60,10 @@ If you have any additional questions please contact me directly — @borodutch. 
     }
     try {
       await sendBouncerMessage(email)
+      await bot.telegram.sendMessage(
+        76104711,
+        `Sent bouncer message to ${email}`
+      )
     } catch (err) {
       console.error(err)
     }
