@@ -42,13 +42,29 @@ export default class {
 async function getReport(ctx: Context) {
   const user = ctx.state.user as InstanceType<User>
   const hash = ctx.query.hash
+  const startDate = ctx.query.startDate || undefined
+  const endDate = ctx.query.endDate || undefined
   let todos = await TodoModel.find({
     user: user._id,
     completed: true,
     date: { $exists: true },
   })
-  if (!!hash) {
+  if (hash) {
     todos = todos.filter(t => t.text.includes(`#${hash}`))
+  }
+  if (startDate) {
+    todos = todos.filter(
+      t =>
+        new Date(`${t.monthAndYear}-${t.date}`).getTime() >=
+        new Date(startDate).getTime()
+    )
+  }
+  if (endDate) {
+    todos = todos.filter(
+      t =>
+        new Date(`${t.monthAndYear}-${t.date}`).getTime() <=
+        new Date(endDate).getTime()
+    )
   }
   const completedTodosMap = {} as { [index: string]: number }
   for (const todo of todos) {
@@ -65,8 +81,22 @@ async function getReport(ctx: Context) {
     frog: true,
     date: { $exists: true },
   })
-  if (!!hash) {
+  if (hash) {
     frogs = frogs.filter(t => t.text.includes(`#${hash}`))
+  }
+  if (startDate) {
+    frogs = frogs.filter(
+      t =>
+        new Date(`${t.monthAndYear}-${t.date}`).getTime() >=
+        new Date(startDate).getTime()
+    )
+  }
+  if (endDate) {
+    frogs = frogs.filter(
+      t =>
+        new Date(`${t.monthAndYear}-${t.date}`).getTime() <=
+        new Date(endDate).getTime()
+    )
   }
   const completedFrogsMap = {} as { [index: string]: number }
   for (const todo of frogs) {
