@@ -63,9 +63,9 @@ export default class {
   @Delete('/all', authenticate)
   async deleteAll(ctx: Context) {
     // Find user and populate todos
-    const user = await UserModel.findById(ctx.state.user.id).populate('todos')
+    const user = await UserModel.findById(ctx.state.user.id)
     // Get todos
-    const todos = user.todos as InstanceType<Todo>[]
+    const todos = await TodoModel.find({ user: user._id })
     // Remove todos from user
     user.todos = []
     await user.save()
