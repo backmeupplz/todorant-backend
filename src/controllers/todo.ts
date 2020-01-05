@@ -71,7 +71,7 @@ export default class {
     await user.save()
     // Remove all todos
     for (const todo of todos) {
-      await TodoModel.findByIdAndRemove(todo.id)
+      await TodoModel.findByIdAndRemove(todo._id)
     }
     // Respond
     ctx.status = 200
