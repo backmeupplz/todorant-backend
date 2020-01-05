@@ -60,6 +60,23 @@ export default class {
     ctx.status = 200
   }
 
+  @Delete('/all', authenticate)
+  async deleteAll(ctx: Context) {
+    // Find user and populate todos
+    const user = await UserModel.findById(ctx.state.user.id).populate('todos')
+    // Get todos
+    const todos = user.todos as InstanceType<Todo>[]
+    // Remove todos from user
+    user.todos = []
+    await user.save()
+    // Remove all todos
+    for (const todo of todos) {
+      await TodoModel.findByIdAndRemove(todo.id)
+    }
+    // Respond
+    ctx.status = 200
+  }
+
   @Put('/:id', authenticate)
   async edit(ctx: Context) {
     // Parameters
