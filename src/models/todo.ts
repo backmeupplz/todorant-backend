@@ -18,6 +18,9 @@ export class Todo extends Typegoose {
   @prop({ required: true, default: false, index: true })
   skipped: boolean
 
+  @prop({ required: true, default: 0 })
+  order: number
+
   @prop({
     required: true,
     index: true,
@@ -57,6 +60,9 @@ export class Todo extends Typegoose {
 
   // Mongo property
   _doc: any
+  _id: string
+  // Temporary sync property
+  _tempSyncId?: string
 }
 
 export const TodoModel = new Todo().getModelForClass(Todo, {
