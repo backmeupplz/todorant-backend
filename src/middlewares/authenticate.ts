@@ -12,21 +12,7 @@ export async function authenticate(ctx: Context, next: Function) {
     if (!token) {
       return ctx.throw(403, errors.noTokenProvided)
     }
-    const payload = (await verify(token)) as any
-    let user: InstanceType<User>
-    if (payload.email) {
-      user = await UserModel.findOne({ email: payload.email })
-    } else if (payload.facebookId) {
-      user = await UserModel.findOne({ facebookId: `${payload.facebookId}` })
-    } else if (payload.telegramId) {
-      user = await UserModel.findOne({ telegramId: `${payload.telegramId}` })
-    } else if (payload.vkId) {
-      user = await UserModel.findOne({ vkId: `${payload.vkId}` })
-    } else if (payload.anonymousToken) {
-      user = await UserModel.findOne({
-        anonymousToken: `${payload.anonymousToken}`,
-      })
-    }
+    const user = await getUserFromToken(token)
     if (!user) {
       return ctx.throw(403, errors.noUser)
     }
@@ -36,4 +22,23 @@ export async function authenticate(ctx: Context, next: Function) {
     return ctx.throw(403, errors.authentication)
   }
   await next()
+}
+
+export async function getUserFromToken(token: string) {
+  const payload = (await verify(token)) as any
+  let user: InstanceType<User> | undefined
+  if (payload.email) {
+    user = await UserModel.findOne({ email: payload.email })
+  } else if (payload.facebookId) {
+    user = await UserModel.findOne({ facebookId: `${payload.facebookId}` })
+  } else if (payload.telegramId) {
+    user = await UserModel.findOne({ telegramId: `${payload.telegramId}` })
+  } else if (payload.vkId) {
+    user = await UserModel.findOne({ vkId: `${payload.vkId}` })
+  } else if (payload.anonymousToken) {
+    user = await UserModel.findOne({
+      anonymousToken: `${payload.anonymousToken}`,
+    })
+  }
+  return user
 }
