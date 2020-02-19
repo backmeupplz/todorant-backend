@@ -20,6 +20,8 @@ export class Todo extends Typegoose {
 
   @prop({ required: true, default: 0 })
   order: number
+  @prop({ required: true, default: false })
+  deleted: boolean
 
   @prop({
     required: true,

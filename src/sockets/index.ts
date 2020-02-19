@@ -76,6 +76,9 @@ io.on('connection', socket => {
         pushId,
         savedTodos.map(t => t.stripped())
       )
+      if (todos.length) {
+        socket.to(getUser(socket)._id).emit('sync_request')
+      }
     } catch (err) {
       socket.emit('todos_pushed_error', pushId, err)
     }
@@ -107,3 +110,7 @@ function getUser(socket: SocketIO.Socket): InstanceType<User> | undefined {
 server.listen(3000).on('listening', () => {
   console.log('Sockets are listening on 3000')
 })
+
+export function requestSync(userId: string) {
+  io.to(userId).emit('sync_request')
+}
