@@ -291,7 +291,7 @@ export default class {
     }, {} as { [index: string]: { title: string; todo: InstanceType<Todo> } })
     // Get new todo sections
     const newTodoSections = ctx.request.body.todos as {
-      title: String
+      title: string
       todos: InstanceType<Todo>[]
     }[]
     // Placeholder for modified todos
@@ -302,10 +302,8 @@ export default class {
     for (const section of newTodoSections) {
       let i = 0
       for (const newTodo of section.todos) {
-        const newTodoTitle = newTodo.date
-          ? `${newTodo.monthAndYear}-${newTodo.date}`
-          : newTodo.monthAndYear
-        const oldTodo = oldTodoMap[newTodo.id]
+        const newTodoTitle = section.title
+        const oldTodo = oldTodoMap[newTodo._id]
         if (!oldTodo) {
           i++
           continue
@@ -313,8 +311,9 @@ export default class {
         titlesToReorder.add(oldTodo.title)
         titlesToReorder.add(newTodoTitle)
         if (oldTodo.title !== newTodoTitle) {
-          oldTodo.todo.date = newTodo.date
-          oldTodo.todo.time = newTodo.time
+          oldTodo.todo.date =
+            newTodoTitle.length === 7 ? undefined : newTodoTitle.substr(8)
+          oldTodo.todo.monthAndYear = newTodoTitle.substr(0, 7)
           modifiedTodos.add(oldTodo.todo)
         }
         if (oldTodo.todo.order !== i) {
@@ -345,7 +344,7 @@ export default class {
       }
     }
     // Save
-    await TodoModel.create(modifiedTodos)
+    await TodoModel.create(Array.from(modifiedTodos.values()))
     // Respond
     ctx.status = 200
     // Trigger sync
