@@ -1,7 +1,6 @@
-// Dependencies
 import { Context } from 'koa'
 import { Controller, Post, Put, Get, Delete } from 'koa-router-ts'
-import { Todo, TodoModel } from '../models/todo'
+import { Todo, TodoModel, getTitle } from '../models/todo'
 import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
 import { UserModel, User } from '../models'
@@ -9,6 +8,7 @@ import { InstanceType } from 'typegoose'
 import { isTodoOld } from '../helpers/isTodoOld'
 import { checkSubscription } from '../middlewares/checkSubscription'
 import { requestSync } from '../sockets'
+import { fixOrder } from '../helpers/fixOrder'
 
 @Controller('/todo')
 export default class {
@@ -20,8 +20,8 @@ export default class {
     if (!Array.isArray(ctx.request.body)) {
       ctx.request.body = [ctx.request.body]
     }
-    const addedToTopTodoIds = []
-    const addedToBottomTodoIds = []
+    const todosGoingOnTop: Todo[] = []
+    const todosGoingToBottom: Todo[] = []
     for (const todo of ctx.request.body) {
       if (!todo.time) {
         todo.time = undefined
@@ -35,28 +35,33 @@ export default class {
       ) {
         todo.completed = todo.completed === '1'
       }
-      if (
+      const goingOnTop =
         (ctx.state.user.settings.newTodosGoFirst &&
           todo.goFirst === undefined) ||
         todo.goFirst === true
-      ) {
-        // Create and save
-        addedToTopTodoIds.push(
-          (await new TodoModel({ ...todo, user: ctx.state.user._id }).save())
-            ._id
+      if (goingOnTop) {
+        todosGoingOnTop.push(
+          await new TodoModel({ ...todo, user: ctx.state.user._id }).save()
         )
       } else {
-        // Create and save
-        addedToBottomTodoIds.push(
-          (await new TodoModel({ ...todo, user: ctx.state.user._id }).save())
-            ._id
+        todosGoingToBottom.push(
+          await new TodoModel({ ...todo, user: ctx.state.user._id }).save()
         )
       }
     }
-    // Add todos to user
-    ctx.state.user.todos = addedToTopTodoIds.concat(ctx.state.user.todos)
-    ctx.state.user.todos = ctx.state.user.todos.concat(addedToBottomTodoIds)
-    await ctx.state.user.save()
+    // Fix order
+    const titlesInvolved = Array.from(
+      todosGoingOnTop.concat(todosGoingToBottom).reduce((prev, cur) => {
+        prev.add(getTitle(cur))
+        return prev
+      }, new Set<string>())
+    )
+    await fixOrder(
+      ctx.state.user,
+      titlesInvolved,
+      todosGoingOnTop,
+      todosGoingToBottom
+    )
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -101,6 +106,8 @@ export default class {
     if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
       return ctx.throw(404, errors.noTodo)
     }
+    // Note previous title
+    const prevTitle = getTitle(todo)
     // Edit and save
     if (typeof frog === 'string' || frog instanceof String) {
       todo.frog = frog === '1'
@@ -126,6 +133,8 @@ export default class {
     todo.date = date || undefined
     todo.time = time || undefined
     await todo.save()
+    // Fix order
+    await fixOrder(ctx.state.user, [prevTitle, getTitle(todo)])
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -145,6 +154,8 @@ export default class {
     // Edit and save
     todo.completed = true
     await todo.save()
+    // Fix order
+    await fixOrder(ctx.state.user, [getTitle(todo)])
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -161,9 +172,41 @@ export default class {
     if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
       return ctx.throw(404, errors.noTodo)
     }
+    if (!todo.date || todo.completed) {
+      return ctx.throw(403)
+    }
+    // Find all neighbouring todos
+    const neighbours = (
+      await TodoModel.find({
+        monthAndYear: todo.monthAndYear,
+        date: todo.date,
+        completed: todo.completed,
+      })
+    ).sort(compareTodos(false))
+    let startOffseting = false
+    let offset = 0
+    const todosToSave = [todo]
+    for (const t of neighbours) {
+      if (t._id.toString() === todo._id.toString()) {
+        startOffseting = true
+        continue
+      }
+      if (startOffseting) {
+        offset++
+        if (!t.skipped) {
+          t.order -= offset
+          todosToSave.push(t)
+          break
+        }
+      }
+    }
+    todo.order += offset
     // Edit and save
     todo.skipped = true
-    await todo.save()
+    todo.order++
+    await TodoModel.create(todosToSave)
+    // Fix order
+    await fixOrder(ctx.state.user, [getTitle(todo)])
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -183,6 +226,8 @@ export default class {
     // Edit and save
     todo.completed = false
     await todo.save()
+    // Fix order
+    await fixOrder(ctx.state.user, [getTitle(todo)])
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -202,6 +247,8 @@ export default class {
     // Edit and save
     todo.deleted = true
     await todo.save()
+    // Fix order
+    await fixOrder(ctx.state.user, [getTitle(todo)])
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -378,15 +425,6 @@ function compareTodos(completed: Boolean) {
       }
       if (b.frog) {
         return 1
-      }
-      if (a.skipped && b.skipped) {
-        return a.order < b.order ? -1 : 1
-      }
-      if (a.skipped) {
-        return 1
-      }
-      if (b.skipped) {
-        return -1
       }
       return a.order < b.order ? -1 : 1
     } else {

@@ -67,6 +67,10 @@ export class Todo extends Typegoose {
   _tempSyncId?: string
 }
 
+export function getTitle(todo: { monthAndYear: string; date?: string }) {
+  return `${todo.monthAndYear}${todo.date ? `-${todo.date}` : ''}`
+}
+
 export const TodoModel = new Todo().getModelForClass(Todo, {
   schemaOptions: { timestamps: true },
 })
