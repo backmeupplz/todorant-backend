@@ -51,7 +51,10 @@ io.on('connection', socket => {
             new Promise<InstanceType<Todo>>(async (res, rej) => {
               try {
                 if (!todo._id) {
-                  const dbtodo = new TodoModel(todo)
+                  const dbtodo = new TodoModel({
+                    ...todo,
+                    user: getUser(socket)._id,
+                  })
                   const savedTodo = await dbtodo.save()
                   savedTodo._tempSyncId = todo._tempSyncId
                   res(savedTodo)
