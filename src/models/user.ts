@@ -18,10 +18,11 @@ export enum SubscriptionStatus {
   inactive = 'inactive',
 }
 
-class Settings {
+export class Settings {
   showTodayOnAddTodo?: boolean
   firstDayOfWeek?: number
   newTodosGoFirst?: boolean
+  updatedAt?: Date
 }
 
 export enum TelegramLanguage {

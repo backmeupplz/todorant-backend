@@ -3,11 +3,42 @@ import { createServer } from 'http'
 import SocketIO = require('socket.io')
 import { getUserFromToken } from '../middlewares/authenticate'
 import { report } from '../helpers/report'
-import { User, TodoModel, Todo } from '../models'
+import { User, TodoModel, Todo, Settings, UserModel } from '../models'
 import { InstanceType } from 'typegoose'
 
 const server = createServer()
 const io = SocketIO(server)
+
+function setupSync<T>(
+  socket: SocketIO.Socket,
+  name: string,
+  getObjects: (
+    user: InstanceType<User>,
+    lastSyncDate: Date | undefined
+  ) => Promise<T>,
+  onPushObjects: (
+    objects: T
+  ) => Promise<{ objectsToPushBack: T; needsSync: boolean }>
+) {
+  socket.on(`sync_${name}`, async (lastSyncDate: Date | undefined) => {
+    const user = getUser(socket)
+    if (!isAuthorized(socket) || !user) {
+      return
+    }
+    socket.emit(name, await getObjects(user, lastSyncDate))
+  })
+  socket.on(`push_${name}`, async (pushId: string, objects: T) => {
+    try {
+      const { objectsToPushBack, needsSync } = await onPushObjects(objects)
+      socket.emit(`${name}_pushed`, pushId, objectsToPushBack)
+      if (needsSync) {
+        socket.to(getUser(socket)._id).emit(`${name}_sync_request`)
+      }
+    } catch (err) {
+      socket.emit(`${name}_pushed_error`, pushId, err)
+    }
+  })
+}
 
 io.on('connection', socket => {
   socket.on('authorize', async (token: string) => {
@@ -28,23 +59,18 @@ io.on('connection', socket => {
   socket.on('logout', async () => {
     logout(socket)
   })
-  socket.on('sync', async (lastSyncDate: Date | undefined) => {
-    const user = getUser(socket)
-    if (!isAuthorized(socket) || !user) {
-      return
-    }
-    const query = { user: user._id } as any
-    if (lastSyncDate) {
-      query.updatedAt = { $gt: lastSyncDate }
-    }
-    const todos = await TodoModel.find(query)
-    socket.emit(
-      'todos',
-      todos.map(t => t.stripped())
-    )
-  })
-  socket.on('push', async (pushId: string, todos: Todo[]) => {
-    try {
+
+  setupSync<Todo[]>(
+    socket,
+    'todos',
+    async (user: InstanceType<User>, lastSyncDate: Date | undefined) => {
+      const query = { user: user._id } as any
+      if (lastSyncDate) {
+        query.updatedAt = { $gt: lastSyncDate }
+      }
+      return (await TodoModel.find(query)).map(t => t.stripped())
+    },
+    async todos => {
       const savedTodos = await Promise.all(
         todos.map(
           todo =>
@@ -74,16 +100,26 @@ io.on('connection', socket => {
             })
         )
       )
-      socket.emit(
-        'todos_pushed',
-        pushId,
-        savedTodos.map(t => t.stripped())
-      )
-      if (todos.length) {
-        socket.to(getUser(socket)._id).emit('sync_request')
+      return {
+        objectsToPushBack: savedTodos.map(t => t.stripped()),
+        needsSync: !!todos.length,
       }
+    }
+  )
+
+  socket.on('push_settings', async (pushId: string, settings: Settings) => {
+    try {
+      const user = await UserModel.findById(getUser(socket)._id)
+      if (!user) {
+        throw new Error('User not found')
+      }
+      user.settings = { ...(user.settings || {}), ...settings }
+      user.settings.updatedAt = new Date()
+      await user.save()
+      socket.emit('settings_pushed', pushId, user.settings)
+      socket.to(getUser(socket)._id).emit('sync_request')
     } catch (err) {
-      socket.emit('todos_pushed_error', pushId, err)
+      socket.emit('settings_pushed_error', pushId, err)
     }
   })
 })
