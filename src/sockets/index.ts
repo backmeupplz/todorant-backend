@@ -107,8 +107,11 @@ io.on('connection', socket => {
     }
   )
 
-  socket.on('push_settings', async (pushId: string, settings: Settings) => {
-    try {
+  setupSync<Settings>(
+    socket,
+    'settings',
+    async user => user.settings,
+    async settings => {
       const user = await UserModel.findById(getUser(socket)._id)
       if (!user) {
         throw new Error('User not found')
@@ -116,12 +119,12 @@ io.on('connection', socket => {
       user.settings = { ...(user.settings || {}), ...settings }
       user.settings.updatedAt = new Date()
       await user.save()
-      socket.emit('settings_pushed', pushId, user.settings)
-      socket.to(getUser(socket)._id).emit('sync_request')
-    } catch (err) {
-      socket.emit('settings_pushed_error', pushId, err)
+      return {
+        objectsToPushBack: user.settings,
+        needsSync: true,
+      }
     }
-  })
+  )
 })
 
 function logout(socket: SocketIO.Socket) {
