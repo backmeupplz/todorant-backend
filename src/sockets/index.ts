@@ -154,5 +154,6 @@ server.listen(3000).on('listening', () => {
 })
 
 export function requestSync(userId: string) {
-  io.to(userId).emit('sync_request')
+  io.to(userId).emit('todos_sync_request')
+  io.to(userId).emit('settings_sync_request')
 }
