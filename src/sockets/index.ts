@@ -110,7 +110,13 @@ io.on('connection', socket => {
   setupSync<Settings>(
     socket,
     'settings',
-    async user => user.settings,
+    async user => {
+      const dbuser = await UserModel.findById(user._id)
+      if (!dbuser) {
+        throw new Error('User not found')
+      }
+      return dbuser.settings
+    },
     async settings => {
       const user = await UserModel.findById(getUser(socket)._id)
       if (!user) {

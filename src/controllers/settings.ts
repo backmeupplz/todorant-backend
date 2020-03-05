@@ -11,8 +11,8 @@ export default class {
     // Set settings
     ctx.state.user.settings = {
       ...(ctx.state.user.settings || {}),
-      ...ctx.request.body,
-      updatedAd: new Date(),
+      ...(ctx.request.body || {}),
+      ...{ updatedAt: new Date() },
     }
     await ctx.state.user.save()
     // Respond
@@ -40,8 +40,8 @@ export default class {
     }
     ctx.state.user.settings = {
       ...(ctx.state.user.settings || {}),
-      ...ctx.request.body,
-      updatedAd: new Date(),
+      ...(ctx.request.body || {}),
+      ...{ updatedAt: new Date() },
     }
     await ctx.state.user.save()
     // Respond
