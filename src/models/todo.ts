@@ -57,7 +57,10 @@ export class Todo extends Typegoose {
   @instanceMethod
   stripped() {
     const stripFields = ['__v', 'user']
-    return omit(this._doc, stripFields) as Todo
+    return omit(
+      { ...this._doc, ...{ _tempSyncId: this._tempSyncId } },
+      stripFields
+    ) as Todo
   }
 
   // Mongo property
