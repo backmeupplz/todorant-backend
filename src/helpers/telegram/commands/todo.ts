@@ -1,6 +1,7 @@
 import { ContextMessageUpdate } from 'telegraf'
 import { isUserSubscribed } from '../../isUserSubscribed'
-import { TodoModel } from '../../../models'
+import { TodoModel, getTitle } from '../../../models'
+import { fixOrder } from '../../../helpers/fixOrder'
 
 export function addTodo(ctx: ContextMessageUpdate) {
   let todoText = ctx.message.text.substr(6).trim()
@@ -91,16 +92,14 @@ export async function addTodoWithText(
       frog: ctx.message.text.substr(1, 4) === 'frog',
       completed: ctx.message.text.substr(1, 4) === 'done',
     }
-    if (user.settings.newTodosGoFirst) {
-      user.todos = [
-        (await new TodoModel({ ...todo, user: user._id }).save())._id,
-      ].concat(user.todos)
-    } else {
-      user.todos = user.todos.concat([
-        (await new TodoModel({ ...todo, user: user._id }).save())._id,
-      ])
-    }
-    await user.save()
+    const dbtodo = await new TodoModel({ ...todo, user: user._id }).save()
+    // Fix order
+    fixOrder(
+      user,
+      [getTitle(dbtodo)],
+      user.settings.newTodosGoFirst ? [dbtodo] : [],
+      user.settings.newTodosGoFirst ? [] : [dbtodo]
+    )
     // Respond
     ctx.reply('👍', {
       reply_to_message_id: ctx.message.message_id,

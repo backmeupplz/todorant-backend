@@ -1,9 +1,10 @@
-import { User, Todo, UserModel } from '../../../models'
+import { User, Todo, UserModel, TodoModel } from '../../../models'
 import { InstanceType } from 'typegoose'
+import { getTodos } from '../../../controllers/todo'
 
 export async function findCurrentForUser(
   user: InstanceType<User>
-): Promise<InstanceType<Todo>> {
+): Promise<InstanceType<Todo> | undefined> {
   // Get date
   const now = new Date()
   const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000)
@@ -17,36 +18,13 @@ export async function findCurrentForUser(
       ? `0${nowWithOffset.getDate()}`
       : nowWithOffset.getDate()
   // Find todos
-  const todos = (
-    await UserModel.findById(user.id).populate('todos')
-  ).todos.filter((todo: Todo) => {
-    return +todo.date === +day && todo.monthAndYear === monthAndYear
-  }) as InstanceType<Todo>[]
-  const incompleteTodos = todos
-    .filter(t => !t.completed)
-    .sort((a, b) => {
-      if (a.frog && b.frog) {
-        return 0
-      }
-      if (a.frog) {
-        return -1
-      }
-      if (b.frog) {
-        return 1
-      }
-      if (a.skipped && b.skipped) {
-        return 0
-      }
-      if (a.skipped) {
-        return 1
-      }
-      if (b.skipped) {
-        return -1
-      }
-      return 0
-    })
+  const incompleteTodos = (
+    await getTodos(await UserModel.findById(user.id), false, '')
+  ).filter(todo => {
+    return todo.date === day && todo.monthAndYear === monthAndYear
+  })
   // Return current
-  return (incompleteTodos.length ? incompleteTodos[0] : undefined) as
-    | InstanceType<Todo>
-    | undefined
+  return incompleteTodos.length
+    ? await TodoModel.findById(incompleteTodos[0]._id)
+    : undefined
 }

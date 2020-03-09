@@ -1,7 +1,9 @@
 import { ContextMessageUpdate, Markup } from 'telegraf'
 import { findCurrentForUser } from '../helpers/findCurrent'
-import { User } from '../../../models'
+import { User, TodoModel, getTitle } from '../../../models'
 import { InstanceType } from 'typegoose'
+import { compareTodos } from '../../../controllers/todo'
+import { fixOrder } from '../../../helpers/fixOrder'
 
 export async function handleCurrent(ctx: ContextMessageUpdate) {
   // Get user
@@ -31,6 +33,8 @@ export async function handleDone(ctx: ContextMessageUpdate) {
   if (current) {
     current.completed = true
     await current.save()
+    // Fix order
+    await fixOrder(user, [getTitle(current)])
   }
   // Respond
   ctx.answerCbQuery()
@@ -42,10 +46,40 @@ export async function handleSkip(ctx: ContextMessageUpdate) {
   // Get user
   const user = ctx.dbuser
   // Get current
-  const current = await findCurrentForUser(user)
-  if (current) {
-    current.skipped = true
-    await current.save()
+  const todo = await findCurrentForUser(user)
+  if (todo) {
+    // Find all neighbouring todos
+    const neighbours = (
+      await TodoModel.find({
+        monthAndYear: todo.monthAndYear,
+        date: todo.date,
+        completed: todo.completed,
+      })
+    ).sort(compareTodos(false))
+    let startOffseting = false
+    let offset = 0
+    const todosToSave = [todo]
+    for (const t of neighbours) {
+      if (t._id.toString() === todo._id.toString()) {
+        startOffseting = true
+        continue
+      }
+      if (startOffseting) {
+        offset++
+        if (!t.skipped) {
+          t.order -= offset
+          todosToSave.push(t)
+          break
+        }
+      }
+    }
+    todo.order += offset
+    // Edit and save
+    todo.skipped = true
+    todo.order++
+    await TodoModel.create(todosToSave)
+    // Fix order
+    await fixOrder(user, [getTitle(todo)])
   }
   // Respond
   ctx.answerCbQuery()

@@ -75,7 +75,6 @@ export default class {
     // Get todos
     const todos = await TodoModel.find({ user: user._id })
     // Remove todos from user
-    user.todos = []
     await user.save()
     // Remove all todos
     for (const todo of todos) {
@@ -414,7 +413,7 @@ export async function getTodos(
     .sort(compareTodos(completed))
 }
 
-function compareTodos(completed: Boolean) {
+export function compareTodos(completed: Boolean) {
   return (a: InstanceType<Todo>, b: InstanceType<Todo>) => {
     if (a.date === b.date && a.monthAndYear === b.monthAndYear) {
       if (a.frog && b.frog) {

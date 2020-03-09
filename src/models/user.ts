@@ -45,8 +45,6 @@ export class User extends Typegoose {
   name: string
   @prop({ required: true, default: {} })
   settings: Settings
-  @arrayProp({ required: true, itemsRef: Todo, default: [] })
-  todos: Ref<Todo>[]
 
   @prop({ required: true, index: true, unique: true })
   token: string

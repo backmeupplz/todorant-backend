@@ -29,14 +29,6 @@ export default class {
       facebookId: fbProfile.id,
     }).populate('todos')
     // Add data if required
-    if (existingUser) {
-      existingUser.todos.map(async (todo: InstanceType<Todo>) => {
-        todo.user = originalUser._id
-        await todo.save()
-        return todo.id
-      })
-      originalUser.todos = originalUser.todos.concat(existingUser.todos)
-    }
     originalUser.facebookId = fbProfile.id
     // Check if early adopter
     if (
@@ -75,14 +67,6 @@ export default class {
       'todos'
     )
     // Add data if required
-    if (existingUser) {
-      existingUser.todos.map(async (todo: InstanceType<Todo>) => {
-        todo.user = originalUser._id
-        await todo.save()
-        return todo.id
-      })
-      originalUser.todos = originalUser.todos.concat(existingUser.todos)
-    }
     originalUser.telegramId = data.id
     // Check if early adopter
     if (
@@ -123,14 +107,6 @@ export default class {
       'todos'
     )
     // Add data if required
-    if (existingUser) {
-      existingUser.todos.map(async (todo: InstanceType<Todo>) => {
-        todo.user = originalUser._id
-        await todo.save()
-        return todo.id
-      })
-      originalUser.todos = originalUser.todos.concat(existingUser.todos)
-    }
     originalUser.email = userData.email
     // Check if early adopter
     if (
