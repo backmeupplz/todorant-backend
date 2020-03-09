@@ -2,6 +2,7 @@ import { ContextMessageUpdate } from 'telegraf'
 import { isUserSubscribed } from '../../isUserSubscribed'
 import { TodoModel, getTitle } from '../../../models'
 import { fixOrder } from '../../../helpers/fixOrder'
+import { requestSync } from '../../../sockets'
 
 export function addTodo(ctx: ContextMessageUpdate) {
   let todoText = ctx.message.text.substr(6).trim()
@@ -104,6 +105,8 @@ export async function addTodoWithText(
     ctx.reply('👍', {
       reply_to_message_id: ctx.message.message_id,
     })
+    // Trigger sync
+    requestSync(user._id)
   } catch (err) {
     ctx.reply(`Oopsie, something went wrong!
     

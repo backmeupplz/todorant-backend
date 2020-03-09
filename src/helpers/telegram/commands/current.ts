@@ -4,6 +4,7 @@ import { User, TodoModel, getTitle } from '../../../models'
 import { InstanceType } from 'typegoose'
 import { compareTodos } from '../../../controllers/todo'
 import { fixOrder } from '../../../helpers/fixOrder'
+import { requestSync } from '../../../sockets'
 
 export async function handleCurrent(ctx: ContextMessageUpdate) {
   // Get user
@@ -35,6 +36,8 @@ export async function handleDone(ctx: ContextMessageUpdate) {
     await current.save()
     // Fix order
     await fixOrder(user, [getTitle(current)])
+    // Trigger sync
+    requestSync(user._id)
   }
   // Respond
   ctx.answerCbQuery()
@@ -80,6 +83,8 @@ export async function handleSkip(ctx: ContextMessageUpdate) {
     await TodoModel.create(todosToSave)
     // Fix order
     await fixOrder(user, [getTitle(todo)])
+    // Trigger sync
+    requestSync(user._id)
   }
   // Respond
   ctx.answerCbQuery()
