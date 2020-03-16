@@ -78,7 +78,7 @@ io.on('connection', socket => {
               try {
                 if (!todo._id) {
                   const dbtodo = new TodoModel({
-                    ...todo,
+                    ...omit(todo, '_id'),
                     user: getUser(socket)._id,
                   })
                   const savedTodo = await dbtodo.save()
