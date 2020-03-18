@@ -131,6 +131,44 @@ io.on('connection', socket => {
       }
     }
   )
+
+  setupSync<Partial<User>>(
+    socket,
+    'user',
+    async user => {
+      const dbuser = await UserModel.findById(user._id)
+      if (!dbuser) {
+        throw new Error('User not found')
+      }
+      return dbuser.stripped(true, false)
+    },
+    async user => {
+      const dbuser = await UserModel.findById(getUser(socket)._id)
+      if (!dbuser) {
+        throw new Error('User not found')
+      }
+      Object.assign(
+        dbuser,
+        omit(user, [
+          'settings',
+          'id',
+          '_id',
+          'token',
+          'anonymousToken',
+          'subscriptionStatus',
+          'subscriptionId',
+          'appleReceipt',
+          'createdAt',
+          'updatedAt',
+        ])
+      )
+      await dbuser.save()
+      return {
+        objectsToPushBack: dbuser.stripped(true, false),
+        needsSync: true,
+      }
+    }
+  )
 })
 
 function logout(socket: SocketIO.Socket) {

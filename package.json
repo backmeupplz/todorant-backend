@@ -13,7 +13,7 @@
     "build-ts": "tsc --skipLibCheck",
     "watch-ts": "tsc -w --skipLibCheck",
     "watch-js": "nodemon dist/app.js -d 5",
-    "killServer": "lsof -ti:1337 | xargs kill"
+    "killServer": "lsof -ti:1337 | xargs kill && lsof -ti:3000 | xargs kill"
   },
   "devDependencies": {
     "concurrently": "^4.1.0",

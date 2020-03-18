@@ -73,13 +73,7 @@ export class User extends Typegoose {
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
-    const stripFields = [
-      'createdAt',
-      'updatedAt',
-      '__v',
-      'todos',
-      'bouncerNotified',
-    ]
+    const stripFields = ['__v', 'todos', 'bouncerNotified']
     if (!withExtra) {
       stripFields.push('token')
       stripFields.push('email')
@@ -89,6 +83,7 @@ export class User extends Typegoose {
     }
     if (!withToken) {
       stripFields.push('token')
+      stripFields.push('anonymousToken')
     }
     return omit(this._doc, stripFields)
   }
