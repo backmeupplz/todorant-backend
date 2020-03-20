@@ -158,6 +158,7 @@ io.on('connection', socket => {
           'subscriptionStatus',
           'subscriptionId',
           'appleReceipt',
+          'googleReceipt',
           'createdAt',
           'updatedAt',
         ])

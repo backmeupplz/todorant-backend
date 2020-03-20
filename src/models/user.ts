@@ -1,15 +1,7 @@
 // Dependencies
 import { sign } from '../helpers/jwt'
-import {
-  prop,
-  Typegoose,
-  InstanceType,
-  instanceMethod,
-  arrayProp,
-  Ref,
-} from 'typegoose'
+import { prop, Typegoose, InstanceType, instanceMethod } from 'typegoose'
 import { omit } from 'lodash'
-import { Todo } from './todo'
 
 export enum SubscriptionStatus {
   earlyAdopter = 'earlyAdopter',
@@ -67,6 +59,8 @@ export class User extends Typegoose {
   subscriptionId?: String
   @prop({ index: true })
   appleReceipt?: String
+  @prop({ index: true })
+  googleReceipt?: String
 
   @prop({ index: true, required: true, default: false })
   bouncerNotified: boolean
