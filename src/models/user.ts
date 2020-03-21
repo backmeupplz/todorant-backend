@@ -57,9 +57,9 @@ export class User extends Typegoose {
   subscriptionStatus: SubscriptionStatus
   @prop({ index: true })
   subscriptionId?: String
-  @prop({ index: true })
+  @prop()
   appleReceipt?: String
-  @prop({ index: true })
+  @prop()
   googleReceipt?: String
 
   @prop({ index: true, required: true, default: false })
