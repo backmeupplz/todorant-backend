@@ -16,7 +16,7 @@ const verifier = new Verifier({
 export default class {
   @Post('/subscription', authenticate)
   async subscription(ctx: Context) {
-    await verifier.verifyINAPP(ctx.request.body)
+    await verifier.verifySub(ctx.request.body)
     ctx.state.user.subscriptionStatus = SubscriptionStatus.active
     ctx.state.user.googleReceipt = ctx.request.body.purchaseToken
     await ctx.state.user.save()
