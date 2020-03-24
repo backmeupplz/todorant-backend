@@ -1,16 +1,25 @@
 // Dependencies
 import axios from 'axios'
 import { Context } from 'koa'
-import { getOrCreateUser, UserModel, SubscriptionStatus } from '../models'
+import { getOrCreateUser, UserModel, SubscriptionStatus, User } from '../models'
 import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { decode } from 'jsonwebtoken'
 import { sign } from '../helpers/jwt'
 import * as randToken from 'rand-token'
+import { bot } from '../helpers/telegram'
+import { Markup as m } from 'telegraf'
 
 const TelegramLogin = require('node-telegram-login')
 const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
 const AppleAuth = require('apple-auth')
+
+const telegramLoginRequests = {} as {
+  [index: string]: {
+    user: User
+    allowed?: boolean
+  }
+}
 
 @Controller('/login')
 export default class {
@@ -145,7 +154,81 @@ export default class {
       ctx.body = user.stripped(true)
     }
   }
+
+  @Post('/telegram_mobile')
+  async telegramMobile(ctx: Context) {
+    let { uuid, id } = ctx.request.body as {
+      uuid: string
+      id?: string
+    }
+    if (!uuid || !id) {
+      return ctx.throw(403, 'Invalid request')
+    }
+    try {
+      const user = await bot.telegram.getChat(id)
+      if (user.type !== 'private') {
+        throw new Error('Chat is not private')
+      }
+      const dbuser = await getOrCreateUser({
+        name: `${user.first_name}${user.last_name ? ` ${user.last_name}` : ''}`,
+        telegramId: `${user.id}`,
+      })
+      await bot.telegram.sendMessage(
+        id,
+        'Somebody wants to login to your account on Todorant. Do no press "Allow" if it wasn\'t you!',
+        {
+          reply_markup: m.inlineKeyboard([
+            m.callbackButton('Allow', `lta~${uuid}`),
+            m.callbackButton('Reject', `ltr~${uuid}`),
+          ]),
+        }
+      )
+      telegramLoginRequests[uuid] = {
+        user: dbuser.stripped(true) as User,
+      }
+      ctx.status = 200
+    } catch (err) {
+      return ctx.throw(404, 'Cannot send message')
+    }
+  }
+
+  @Post('/telegram_mobile_check')
+  async telegramMobileCheck(ctx: Context) {
+    let { uuid } = ctx.request.body as {
+      uuid: string
+    }
+    if (!uuid) {
+      return ctx.throw(403, 'Invalid request')
+    }
+    try {
+      const result = telegramLoginRequests[uuid]
+      if (!result) {
+        return ctx.throw(404, 'No request found')
+      }
+      ctx.body = {
+        allowed: result.allowed,
+        user: result.allowed ? result.user : undefined,
+      }
+      ctx.status = 200
+    } catch (err) {
+      return ctx.throw(new Error())
+    }
+  }
 }
+
+bot.action(/lta~.+/, async ctx => {
+  await ctx.deleteMessage()
+  telegramLoginRequests[
+    ctx.callbackQuery.data.replace('lta~', '')
+  ].allowed = true
+})
+
+bot.action(/ltr~.+/, async ctx => {
+  await ctx.deleteMessage()
+  telegramLoginRequests[
+    ctx.callbackQuery.data.replace('ltr~', '')
+  ].allowed = false
+})
 
 function getFBUser(accessToken: string) {
   return new Promise((res, rej) => {

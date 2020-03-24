@@ -17,6 +17,7 @@ import {
   handleSkip,
   handleRefresh,
 } from './commands/current'
+import { handleId } from './commands/id'
 
 // Create bot
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
@@ -41,6 +42,7 @@ bot.command(['todo', 'frog', 'done'], addTodo)
 bot.command('zen', handleZen)
 bot.command('timezone', handleTimezone)
 bot.command('current', handleCurrent)
+bot.command('id', handleId)
 // Actions
 bot.action('done', handleDone)
 bot.action('skip', handleSkip)
