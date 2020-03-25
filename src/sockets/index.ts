@@ -32,7 +32,7 @@ function setupSync<T>(
       const { objectsToPushBack, needsSync } = await onPushObjects(objects)
       socket.emit(`${name}_pushed`, pushId, objectsToPushBack)
       if (needsSync) {
-        socket.to(getUser(socket)._id).emit(`${name}_sync_request`)
+        socket.broadcast.to(getUser(socket)._id).emit(`${name}_sync_request`)
       }
     } catch (err) {
       socket.emit(`${name}_pushed_error`, pushId, err)
