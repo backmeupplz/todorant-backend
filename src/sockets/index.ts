@@ -47,6 +47,9 @@ io.on('connection', socket => {
         throw new Error('No token provided')
       }
       const user = await getUserFromToken(token)
+      if (!user) {
+        return
+      }
       socket.join(user._id)
       socket.emit('authorized')
       setAuthorized(socket, true)
