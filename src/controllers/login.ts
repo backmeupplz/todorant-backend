@@ -9,6 +9,7 @@ import { sign } from '../helpers/jwt'
 import * as randToken from 'rand-token'
 import { bot } from '../helpers/telegram'
 import { Markup as m } from 'telegraf'
+import { InstanceType } from 'typegoose'
 
 const TelegramLogin = require('node-telegram-login')
 const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
@@ -21,17 +22,52 @@ const telegramLoginRequests = {} as {
   }
 }
 
+async function tryPurchasingApple(user: InstanceType<User>, receipt: string) {
+  const appleUrl =
+    process.env.ENVIRONMENT === 'staging'
+      ? 'https://sandbox.itunes.apple.com/verifyReceipt'
+      : 'https://buy.itunes.apple.com/verifyReceipt'
+  const password = process.env.APPLE_SECRET
+  const response = await axios.post(appleUrl, {
+    'receipt-data': receipt,
+    password,
+  })
+  const latestReceipt = response.data.latest_receipt
+  const latestReceiptInfo = response.data.latest_receipt_info
+  // Get latest
+  let latestSubscription = 0
+  for (const info of latestReceiptInfo) {
+    if (info.expires_date_ms > latestSubscription) {
+      latestSubscription = info.expires_date_ms
+    }
+  }
+  // Check status
+  const subscriptionIsActive = new Date().getTime() < latestSubscription
+  if (subscriptionIsActive) {
+    user.subscriptionStatus = SubscriptionStatus.active
+  }
+  user.appleReceipt = latestReceipt
+  await user.save()
+}
+
 @Controller('/login')
 export default class {
   @Post('/facebook')
   async facebook(ctx: Context) {
     const fbProfile: any = await getFBUser(ctx.request.body.accessToken)
-    const user = await getOrCreateUser({
+    const { created, user } = await getOrCreateUser({
       name: fbProfile.name,
 
       email: fbProfile.email,
       facebookId: fbProfile.id,
     })
+    if (created && ctx.request.body.fromApple) {
+      user.createdOnApple = true
+      await user.save()
+    }
+    if (ctx.request.body.appleReceipt) {
+      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+    }
     ctx.body = user.stripped(true)
   }
 
@@ -43,10 +79,17 @@ export default class {
       return ctx.throw(403)
     }
 
-    const user = await getOrCreateUser({
+    const { created, user } = await getOrCreateUser({
       name: `${data.first_name}${data.last_name ? ` ${data.last_name}` : ''}`,
       telegramId: data.id,
     })
+    if (created && ctx.request.body.fromApple) {
+      user.createdOnApple = true
+      await user.save()
+    }
+    if (ctx.request.body.appleReceipt) {
+      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+    }
     ctx.body = user.stripped(true)
   }
 
@@ -60,20 +103,34 @@ export default class {
       )
     ).data
 
-    const user = await getOrCreateUser({
+    const { created, user } = await getOrCreateUser({
       name: userData.name,
 
       email: userData.email,
     })
+    if (created && ctx.request.body.fromApple) {
+      user.createdOnApple = true
+      await user.save()
+    }
+    if (ctx.request.body.appleReceipt) {
+      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+    }
     ctx.body = user.stripped(true)
   }
 
   @Post('/anonymous')
   async anonymous(ctx: Context) {
-    const user = await getOrCreateUser({
+    const { created, user } = await getOrCreateUser({
       name: 'Anonymous user',
       anonymousToken: randToken.generate(16),
     })
+    if (created && ctx.request.body.fromApple) {
+      user.createdOnApple = true
+      await user.save()
+    }
+    if (ctx.request.body.appleReceipt) {
+      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+    }
     ctx.body = user.stripped(true)
   }
 
@@ -137,6 +194,14 @@ export default class {
         ...params,
         token: await sign(params),
       }).save()
+      const created = true
+      if (created && ctx.request.body.fromApple) {
+        user.createdOnApple = true
+        await user.save()
+      }
+      if (ctx.request.body.appleReceipt) {
+        tryPurchasingApple(user, ctx.request.body.appleReceipt)
+      }
       ctx.body = user.stripped(true)
     } else {
       let user = await UserModel.findOne({ appleSubId })
@@ -150,6 +215,14 @@ export default class {
           ...params,
           token: await sign(params),
         }).save()
+        const created = true
+        if (created && ctx.request.body.fromApple) {
+          user.createdOnApple = true
+          await user.save()
+        }
+      }
+      if (ctx.request.body.appleReceipt) {
+        tryPurchasingApple(user, ctx.request.body.appleReceipt)
       }
       ctx.body = user.stripped(true)
     }
@@ -165,14 +238,18 @@ export default class {
       return ctx.throw(403, 'Invalid request')
     }
     try {
-      const user = await bot.telegram.getChat(id)
-      if (user.type !== 'private') {
+      const telegramUser = await bot.telegram.getChat(id)
+      if (telegramUser.type !== 'private') {
         throw new Error('Chat is not private')
       }
-      const dbuser = await getOrCreateUser({
-        name: `${user.first_name}${user.last_name ? ` ${user.last_name}` : ''}`,
-        telegramId: `${user.id}`,
+
+      const { user } = await getOrCreateUser({
+        name: `${telegramUser.first_name}${
+          telegramUser.last_name ? ` ${telegramUser.last_name}` : ''
+        }`,
+        telegramId: `${telegramUser.id}`,
       })
+      const dbuser = user
       await bot.telegram.sendMessage(
         id,
         'Somebody wants to login to your account on Todorant. Do no press "Allow" if it wasn\'t you!',

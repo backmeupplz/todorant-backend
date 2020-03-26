@@ -64,6 +64,8 @@ export class User extends Typegoose {
 
   @prop({ index: true, required: true, default: false })
   bouncerNotified: boolean
+  @prop({ required: true, default: false })
+  createdOnApple: boolean
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
@@ -120,7 +122,9 @@ export async function getOrCreateUser(loginOptions: LoginOptions) {
       telegramId: loginOptions.telegramId,
     })
   }
+  let created = false
   if (!user) {
+    created = true
     // Check if we have credentials
     if (
       !(
@@ -153,5 +157,5 @@ export async function getOrCreateUser(loginOptions: LoginOptions) {
       token: await sign(params),
     }).save()
   }
-  return user
+  return { created, user }
 }
