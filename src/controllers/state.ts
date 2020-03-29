@@ -3,7 +3,6 @@ import { Controller, Get } from 'koa-router-ts'
 import { Context } from 'koa'
 import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
-import { UserModel, Todo, SubscriptionStatus } from '../models'
 import { isTodoOld } from '../helpers/isTodoOld'
 import { getTodos } from './todo'
 
@@ -11,6 +10,7 @@ enum SubscriptionType {
   none = 'none',
   apple = 'apple',
   web = 'web',
+  google = 'google',
 }
 
 @Controller('/state')
@@ -44,7 +44,9 @@ export default class {
         ? SubscriptionType.none
         : !ctx.state.user.subscriptionId
         ? SubscriptionType.apple
-        : SubscriptionType.web,
+        : !ctx.state.user.googleReceipt
+        ? SubscriptionType.web
+        : SubscriptionType.google,
       settings: ctx.state.user.settings,
     }
   }
