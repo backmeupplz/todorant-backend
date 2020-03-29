@@ -14,6 +14,7 @@ export class Settings {
   showTodayOnAddTodo?: boolean
   firstDayOfWeek?: number
   newTodosGoFirst?: boolean
+  preserveOrderByTime?: boolean
   updatedAt?: Date
 }
 
@@ -35,7 +36,7 @@ export class User extends Typegoose {
   appleSubId?: string
   @prop({ required: true, index: true })
   name: string
-  @prop({ required: true, default: {} })
+  @prop({ required: true, default: { preserveOrderByTime: true } })
   settings: Settings
 
   @prop({ required: true, index: true, unique: true })

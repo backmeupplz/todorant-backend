@@ -6,7 +6,8 @@ export async function fixOrder(
   user: InstanceType<User>,
   titlesInvolved: string[],
   addTodosOnTop = [] as Todo[],
-  addTodosToBottom = [] as Todo[]
+  addTodosToBottom = [] as Todo[],
+  timeTodosToYield = [] as Todo[]
 ) {
   const allTodos = await TodoModel.find({ user: user._id, deleted: false })
   const completedTodos = allTodos.filter(t => t.completed)
@@ -35,6 +36,12 @@ export async function fixOrder(
     const orderedUncompleted = (uncompletedTodosMap[titleInvolved] || []).sort(
       sortTodos(addTodosOnTopIds, addTodosToBottomIds)
     )
+    // Fix exact times
+    if (user.settings.preserveOrderByTime) {
+      while (!isTimeSorted(orderedUncompleted)) {
+        fixOneTodoTime(orderedUncompleted, timeTodosToYield)
+      }
+    }
     orderedUncompleted.forEach((todo, i) => {
       if (todo.order !== i) {
         todo.order = i
@@ -56,6 +63,70 @@ function mapTodos(
     prev[getTitle(cur)] = [cur]
   }
   return prev
+}
+
+function isTimeSorted(todos: Todo[]) {
+  let result = true
+  let time: number | undefined
+  for (const todo of todos) {
+    if (todo.time) {
+      if (time !== undefined) {
+        const todoTime = minutesFromTime(todo.time)
+        if (todoTime < time) {
+          return false
+        } else {
+          time = todoTime
+        }
+      } else {
+        time = minutesFromTime(todo.time)
+      }
+    }
+  }
+  return result
+}
+
+function fixOneTodoTime(todos: Todo[], timeTodosToYield: Todo[]) {
+  const timeTodosToYieldIds = timeTodosToYield.map(t => t._id || t._tempSyncId)
+  let time: number | undefined
+  let prevTodoWithTimeIndex: number | undefined
+  let i = 0
+  for (const todo of todos) {
+    if (todo.time) {
+      if (time !== undefined && prevTodoWithTimeIndex != undefined) {
+        const todoTime = minutesFromTime(todo.time)
+        if (todoTime < time) {
+          const prevTodo = todos[prevTodoWithTimeIndex]
+          const curTodo = todo
+          // Fix
+          if (
+            timeTodosToYieldIds.indexOf(curTodo._id || curTodo._tempSyncId) > -1
+          ) {
+            // Current should be moved
+            todos.splice(i, 1)
+            todos.splice(prevTodoWithTimeIndex, 0, curTodo)
+          } else {
+            // Prev todo should be moved
+            todos.splice(prevTodoWithTimeIndex, 1)
+            todos.splice(i, 0, prevTodo)
+          }
+          // Halt this function
+          return
+        } else {
+          time = todoTime
+          prevTodoWithTimeIndex = i
+        }
+      } else {
+        time = minutesFromTime(todo.time)
+        prevTodoWithTimeIndex = i
+      }
+    }
+    i++
+  }
+}
+
+function minutesFromTime(time: string) {
+  const components = time.split(':').map(c => parseInt(c, 10))
+  return components[0] * 60 + components[1]
 }
 
 function sortTodos(todosOnTopIds: string[], todosOnBottomIds: string[]) {

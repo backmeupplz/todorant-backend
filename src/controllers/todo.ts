@@ -60,7 +60,8 @@ export default class {
       ctx.state.user,
       titlesInvolved,
       todosGoingOnTop,
-      todosGoingToBottom
+      todosGoingToBottom,
+      [...todosGoingOnTop, ...todosGoingToBottom]
     )
     // Respond
     ctx.status = 200
@@ -133,7 +134,13 @@ export default class {
     todo.time = time || undefined
     await todo.save()
     // Fix order
-    await fixOrder(ctx.state.user, [prevTitle, getTitle(todo)])
+    await fixOrder(
+      ctx.state.user,
+      [prevTitle, getTitle(todo)],
+      undefined,
+      undefined,
+      [todo]
+    )
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -205,7 +212,9 @@ export default class {
     todo.order++
     await TodoModel.create(todosToSave)
     // Fix order
-    await fixOrder(ctx.state.user, [getTitle(todo)])
+    await fixOrder(ctx.state.user, [getTitle(todo)], undefined, undefined, [
+      todo,
+    ])
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -226,7 +235,9 @@ export default class {
     todo.completed = false
     await todo.save()
     // Fix order
-    await fixOrder(ctx.state.user, [getTitle(todo)])
+    await fixOrder(ctx.state.user, [getTitle(todo)], undefined, undefined, [
+      todo,
+    ])
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -391,6 +402,10 @@ export default class {
     }
     // Save
     await TodoModel.create(Array.from(modifiedTodos.values()))
+    // Reorder if required
+    if (ctx.state.user.settings.preserveOrderByTime) {
+      fixOrder(ctx.state.user, Array.from(titlesToReorder))
+    }
     // Respond
     ctx.status = 200
     // Trigger sync
