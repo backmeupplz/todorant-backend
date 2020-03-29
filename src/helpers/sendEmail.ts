@@ -15,6 +15,7 @@ export async function sendBouncerMessage(email: string) {
   await transport.sendMail({
     from: '"Todorant Support" <support@todorant.com>',
     to: email,
+    replyTo: 'todorant@borodutch.com',
     subject: 'Todorant feedback request',
     text: `Привет! Это @borodutch, создатель Тудуранта. Можете, пожалуйста, потратить 2 минуты и ответить на несколько вопросов, почему вы больше не пользуетесь Тудурантом? Ответить можно по ссылке вот тут: https://forms.gle/nmP1RozzvAZmEUhw6. Всего пара минут — а гигантская польза всем людям, что продолжают добавлять задачи в Тудурант. Все вопросы там необязательны для ответа, а опрос анонимен. Спасибо огромное заранее!
 
