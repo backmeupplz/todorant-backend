@@ -317,7 +317,13 @@ export default class {
       }
     } else {
       const monthAndYear = ctx.request.query.today.substr(0, 7)
-      todos = todos.filter(todo => todo.monthAndYear === monthAndYear)
+      const monthAndYearMinusOne = monthAndYearPlus(monthAndYear, -1)
+      const monthAndYearPlusOne = monthAndYearPlus(monthAndYear, 1)
+      todos = todos.filter(todo =>
+        [monthAndYear, monthAndYearMinusOne, monthAndYearPlusOne].includes(
+          todo.monthAndYear
+        )
+      )
     }
     // Respond
     ctx.body = todos
@@ -461,4 +467,19 @@ export function compareTodos(completed: Boolean) {
       }
     }
   }
+}
+
+function monthAndYearPlus(monthAndYear: string, numberOfMonths: number) {
+  let year = parseInt(monthAndYear.substr(0, 4), 10)
+  let month = parseInt(monthAndYear.substr(5, 2), 10)
+  month += numberOfMonths
+  if (month <= 0) {
+    year--
+    month = 12 + month
+  }
+  if (month > 12) {
+    year++
+    month = month - 12
+  }
+  return `${year}-${month}`
 }
