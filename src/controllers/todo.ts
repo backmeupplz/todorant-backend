@@ -319,6 +319,7 @@ export default class {
       const monthAndYear = ctx.request.query.today.substr(0, 7)
       const monthAndYearMinusOne = monthAndYearPlus(monthAndYear, -1)
       const monthAndYearPlusOne = monthAndYearPlus(monthAndYear, 1)
+      console.log(monthAndYear, monthAndYearMinusOne, monthAndYearPlusOne)
       todos = todos.filter(todo =>
         [monthAndYear, monthAndYearMinusOne, monthAndYearPlusOne].includes(
           todo.monthAndYear
@@ -481,5 +482,5 @@ function monthAndYearPlus(monthAndYear: string, numberOfMonths: number) {
     year++
     month = month - 12
   }
-  return `${year}-${month}`
+  return `${year}-${month < 10 ? `0${month}` : month}`
 }
