@@ -35,6 +35,8 @@ export async function getUserFromToken(token: string) {
     user = await UserModel.findOne({ telegramId: `${payload.telegramId}` })
   } else if (payload.vkId) {
     user = await UserModel.findOne({ vkId: `${payload.vkId}` })
+  } else if (payload.appleSubId) {
+    user = await UserModel.findOne({ appleSubId: `${payload.appleSubId}` })
   } else if (payload.anonymousToken) {
     user = await UserModel.findOne({
       anonymousToken: `${payload.anonymousToken}`,
