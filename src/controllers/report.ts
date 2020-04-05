@@ -50,18 +50,20 @@ async function getReport(ctx: Context) {
     date: { $exists: true },
   })
   if (hash) {
-    todos = todos.filter(t => t.text.includes(`#${hash}`))
+    todos = todos.filter((t) =>
+      t.text.toLowerCase().includes(`#${hash}`.toLowerCase())
+    )
   }
   if (startDate) {
     todos = todos.filter(
-      t =>
+      (t) =>
         new Date(`${t.monthAndYear}-${t.date}`).getTime() >=
         new Date(startDate).getTime()
     )
   }
   if (endDate) {
     todos = todos.filter(
-      t =>
+      (t) =>
         new Date(`${t.monthAndYear}-${t.date}`).getTime() <=
         new Date(endDate).getTime()
     )
@@ -82,18 +84,18 @@ async function getReport(ctx: Context) {
     date: { $exists: true },
   })
   if (hash) {
-    frogs = frogs.filter(t => t.text.includes(`#${hash}`))
+    frogs = frogs.filter((t) => t.text.includes(`#${hash}`))
   }
   if (startDate) {
     frogs = frogs.filter(
-      t =>
+      (t) =>
         new Date(`${t.monthAndYear}-${t.date}`).getTime() >=
         new Date(startDate).getTime()
     )
   }
   if (endDate) {
     frogs = frogs.filter(
-      t =>
+      (t) =>
         new Date(`${t.monthAndYear}-${t.date}`).getTime() <=
         new Date(endDate).getTime()
     )
