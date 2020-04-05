@@ -6,7 +6,7 @@ help: |
   /todo — add a todo like <code>/todo Buy milk</code>
   /frog — add a frog like <code>/frog Buy milk</code>
   /done — log a task that is done like <code>/done Buy milk</code>
-  /timezont — set up timezone like <code>/timezone -8</code>
+  /timezone — set up timezone like <code>/timezone -8</code>
   /current — see the current task
   /zen — turn on zen mode
   /login — login to todorant.com

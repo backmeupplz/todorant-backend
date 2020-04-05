@@ -6,7 +6,7 @@ help: |
   /todo — добавить задачу в формате <code>/todo Купить молоко</code>
   /frog — добавить лягушку в формате <code>/frog Купить молоко</code>
   /done — добавить выполненную задачу в формате <code>/done Купить молоко</code>
-  /timezont — установить часовую зону в формате <code>/timezone -8</code>
+  /timezone — установить часовую зону в формате <code>/timezone -8</code>
   /current — посмотреть текущую задачу
   /zen — включить дзен режим
   /login — войти в todorant.com
