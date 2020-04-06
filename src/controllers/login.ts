@@ -175,8 +175,8 @@ export default class {
       }
       const name = userJson.name
         ? `${userJson.name.firstName}${
-            userJson.name.lastName ? ` ${userJson.name.lastName}` : ''
-          }`
+        userJson.name.lastName ? ` ${userJson.name.lastName}` : ''
+        }`
         : undefined
       const params = {
         name: name || 'Unidentified Apple',
@@ -246,17 +246,17 @@ export default class {
       const { user } = await getOrCreateUser({
         name: `${telegramUser.first_name}${
           telegramUser.last_name ? ` ${telegramUser.last_name}` : ''
-        }`,
+          }`,
         telegramId: `${telegramUser.id}`,
       })
       const dbuser = user
       await bot.telegram.sendMessage(
         id,
-        'Somebody wants to login to your account on Todorant. Do no press "Allow" if it wasn\'t you!',
+        user.telegramLanguage === 'ru' ? 'Кто-то пытается зайти через ваш Телеграм в Тудурант. Не нажимайте "Разрешить", если это не вы!' : 'Somebody wants to login to your account on Todorant. Do no press "Allow" if it wasn\'t you!',
         {
           reply_markup: m.inlineKeyboard([
-            m.callbackButton('Allow', `lta~${uuid}`),
-            m.callbackButton('Reject', `ltr~${uuid}`),
+            m.callbackButton(user.telegramLanguage === 'ru' ? 'Разрешить' : 'Allow', `lta~${uuid}`),
+            m.callbackButton(user.telegramLanguage === 'ru' ? 'Запретить' : 'Reject', `ltr~${uuid}`),
           ]),
         }
       )
