@@ -1,7 +1,7 @@
 // Dependencies
 import axios from 'axios'
 import { Context } from 'koa'
-import { UserModel, User, Todo, SubscriptionStatus } from '../models'
+import { UserModel, User, SubscriptionStatus, TodoModel } from '../models'
 import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { InstanceType } from 'typegoose'
@@ -26,8 +26,8 @@ export default class {
     const existingUser:
       | InstanceType<User>
       | undefined = await UserModel.findOne({
-      facebookId: fbProfile.id,
-    }).populate('todos')
+        facebookId: fbProfile.id,
+      })
     // Add data if required
     originalUser.facebookId = fbProfile.id
     // Check if early adopter
@@ -39,6 +39,13 @@ export default class {
     }
     // Delete the existing user if it exists
     if (existingUser) {
+      // Transition tasks
+      const todos = await TodoModel.find({ user: existingUser.id })
+      for (const todo of todos) {
+        todo.user = originalUser.id
+        await todo.save()
+      }
+      // Remove existing user
       await existingUser.remove()
     }
     // Save it
@@ -63,9 +70,7 @@ export default class {
     // Get existing user if exists
     const existingUser:
       | InstanceType<User>
-      | undefined = await UserModel.findOne({ telegramId: data.id }).populate(
-      'todos'
-    )
+      | undefined = await UserModel.findOne({ telegramId: data.id })
     // Add data if required
     originalUser.telegramId = data.id
     // Check if early adopter
@@ -77,6 +82,13 @@ export default class {
     }
     // Delete the existing user if it exists
     if (existingUser) {
+      // Transition tasks
+      const todos = await TodoModel.find({ user: existingUser.id })
+      for (const todo of todos) {
+        todo.user = originalUser.id
+        await todo.save()
+      }
+      // Remove existing user
       await existingUser.remove()
     }
     // Save it
@@ -103,9 +115,7 @@ export default class {
     // Get existing user if exists
     const existingUser:
       | InstanceType<User>
-      | undefined = await UserModel.findOne({ email: userData.email }).populate(
-      'todos'
-    )
+      | undefined = await UserModel.findOne({ email: userData.email })
     // Add data if required
     originalUser.email = userData.email
     // Check if early adopter
@@ -117,6 +127,13 @@ export default class {
     }
     // Delete the existing user if it exists
     if (existingUser) {
+      // Transition tasks
+      const todos = await TodoModel.find({ user: existingUser.id })
+      for (const todo of todos) {
+        todo.user = originalUser.id
+        await todo.save()
+      }
+      // Remove existing user
       await existingUser.remove()
     }
     // Save it
