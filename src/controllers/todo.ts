@@ -199,9 +199,9 @@ export default class {
       }
       if (startOffseting) {
         offset++
+        t.order -= 1
+        todosToSave.push(t)
         if (!t.skipped) {
-          t.order -= offset
-          todosToSave.push(t)
           break
         }
       }
@@ -209,7 +209,6 @@ export default class {
     todo.order += offset
     // Edit and save
     todo.skipped = true
-    todo.order++
     await TodoModel.create(todosToSave)
     // Fix order
     await fixOrder(ctx.state.user, [getTitle(todo)], undefined, undefined, [
