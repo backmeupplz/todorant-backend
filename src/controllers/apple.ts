@@ -1,5 +1,5 @@
 // Dependencies
-import { Controller, Post } from 'koa-router-ts'
+import { Controller, Post, Get } from 'koa-router-ts'
 import { Context } from 'koa'
 import { authenticate } from '../middlewares/authenticate'
 import axios from 'axios'
@@ -9,6 +9,18 @@ import { SubscriptionStatus } from '../models'
 export default class {
   @Post('/')
   login(ctx: Context) {
+    if (ctx.request.body.error) {
+      ctx.redirect(`https://todorant.com?appleError=${ctx.request.body.error}`)
+    }
+    ctx.redirect(
+      `https://todorant.com?apple=${JSON.stringify(ctx.request.body)}`
+    )
+  }
+
+  @Get('/')
+  loginGet(ctx: Context) {
+    console.log(ctx.request.body, ctx.request.query)
+    ctx.throw(403)
     if (ctx.request.body.error) {
       ctx.redirect(`https://todorant.com?appleError=${ctx.request.body.error}`)
     }
