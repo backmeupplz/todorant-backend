@@ -17,6 +17,13 @@ export default class {
     )
   }
 
+  @Get('/')
+  firefoxBug(ctx: Context) {
+    ctx.redirect(
+      `https://todorant.com/apple_firefox_error`
+    )
+  }
+
   @Post('/subscription', authenticate)
   async subscription(ctx: Context) {
     const appleUrl =
