@@ -56,7 +56,7 @@ export default class {
 
   @Post('/subscriptionNotification-FgA3JNgNy49dNnrVaQ9PCKGJ')
   async subscriptionNotification(ctx: Context) {
-    if (ctx.body.notification_type !== 'CANCEL') {
+    if (!ctx.body || ctx.body.notification_type !== 'CANCEL') {
       return
     }
     const statusChangeDate = new Date(ctx.body.auto_renew_status_change_date_ms)
