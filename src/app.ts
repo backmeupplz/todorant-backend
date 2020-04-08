@@ -11,11 +11,13 @@ import { bot } from './helpers/telegram'
 import * as GracefulShutdown from 'http-graceful-shutdown'
 import './helpers/bouncersMessage'
 import './sockets'
+const logger = require('koa-logger')
 
 const app = new Koa()
 const router = loadControllers(`${__dirname}/controllers`, { recurse: true })
 
 // Run app
+app.use(logger())
 app.use(cors({ origin: '*' }))
 app.use(bodyParser())
 app.use(router.routes())

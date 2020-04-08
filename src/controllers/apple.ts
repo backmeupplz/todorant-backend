@@ -8,7 +8,7 @@ import { SubscriptionStatus } from '../models'
 @Controller('/apple')
 export default class {
   @Post('/')
-  docs(ctx: Context) {
+  login(ctx: Context) {
     if (ctx.request.body.error) {
       ctx.redirect(`https://todorant.com?appleError=${ctx.request.body.error}`)
     }
