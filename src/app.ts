@@ -17,7 +17,7 @@ const app = new Koa()
 const router = loadControllers(`${__dirname}/controllers`, { recurse: true })
 
 // Run app
-// app.use(logger())
+app.use(logger())
 app.use(cors({ origin: '*' }))
 app.use(bodyParser())
 app.use(router.routes())

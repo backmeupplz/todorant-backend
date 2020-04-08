@@ -17,18 +17,6 @@ export default class {
     )
   }
 
-  @Get('/')
-  loginGet(ctx: Context) {
-    console.log(ctx.request.body, ctx.request.query)
-    ctx.throw(403)
-    if (ctx.request.body.error) {
-      ctx.redirect(`https://todorant.com?appleError=${ctx.request.body.error}`)
-    }
-    ctx.redirect(
-      `https://todorant.com?apple=${JSON.stringify(ctx.request.body)}`
-    )
-  }
-
   @Post('/subscription', authenticate)
   async subscription(ctx: Context) {
     const appleUrl =
