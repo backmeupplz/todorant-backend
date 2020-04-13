@@ -20,7 +20,7 @@ export async function findCurrentForUser(
     nowWithOffset.getDate() < 10
       ? `0${nowWithOffset.getDate()}`
       : nowWithOffset.getDate()
-  console.log(day, monthAndYear), user.id
+  console.log(day, monthAndYear, user.id)
   // Find todos
   const incompleteTodos = (
     await getTodos(await UserModel.findById(user.id), false, '')
