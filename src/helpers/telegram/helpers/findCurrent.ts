@@ -32,7 +32,7 @@ export async function findCurrentForUser(
       todo.date === day,
       todo.monthAndYear === monthAndYear
     )
-    return todo.date === day && todo.monthAndYear === monthAndYear
+    return `${todo.date}` === `${day}` && todo.monthAndYear === monthAndYear
   })
   console.log(incompleteTodos.length)
   // Return current
