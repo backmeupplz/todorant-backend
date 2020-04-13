@@ -22,9 +22,13 @@ export async function findCurrentForUser(
       : nowWithOffset.getDate()
   console.log(day, monthAndYear, user.id)
   // Find todos
-  const incompleteTodos = (
-    await getTodos(await UserModel.findById(user.id), false, '')
-  ).filter((todo) => {
+  let incompleteTodos = await getTodos(
+    await UserModel.findById(user.id),
+    false,
+    ''
+  )
+  console.log(incompleteTodos.length)
+  incompleteTodos = incompleteTodos.filter((todo) => {
     return todo.date === day && todo.monthAndYear === monthAndYear
   })
   console.log(incompleteTodos.length)
