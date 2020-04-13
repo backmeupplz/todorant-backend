@@ -69,9 +69,9 @@ export async function handleSkip(ctx: ContextMessageUpdate) {
       }
       if (startOffseting) {
         offset++
+        t.order -= 1
+        todosToSave.push(t)
         if (!t.skipped) {
-          t.order -= offset
-          todosToSave.push(t)
           break
         }
       }
