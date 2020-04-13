@@ -24,17 +24,8 @@ export async function findCurrentForUser(
   const incompleteTodos = (
     await getTodos(await UserModel.findById(user.id), false, '')
   ).filter((todo) => {
-    console.log(
-      day,
-      monthAndYear,
-      todo.date,
-      todo.monthAndYear,
-      todo.date === day,
-      todo.monthAndYear === monthAndYear
-    )
     return `${todo.date}` === `${day}` && todo.monthAndYear === monthAndYear
   })
-  console.log(incompleteTodos.length)
   // Return current
   return incompleteTodos.length
     ? await TodoModel.findById(incompleteTodos[0]._id)
