@@ -18,6 +18,7 @@ import {
   handleRefresh,
 } from './commands/current'
 import { handleId } from './commands/id'
+import { sendDebug } from './commands/debug'
 
 // Create bot
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
@@ -29,7 +30,7 @@ bot.use(checkAndAttachUser)
 setupI18N(bot)
 // Check if the language keyboard is pressed
 bot.action(
-  localesFiles().map(file => file.split('.')[0]),
+  localesFiles().map((file) => file.split('.')[0]),
   handleLanguage
 )
 // Check if user has set the language
@@ -43,6 +44,7 @@ bot.command('zen', handleZen)
 bot.command('timezone', handleTimezone)
 bot.command('current', handleCurrent)
 bot.command('id', handleId)
+bot.command('debug', sendDebug)
 // Actions
 bot.action('done', handleDone)
 bot.action('skip', handleSkip)

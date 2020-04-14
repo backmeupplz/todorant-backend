@@ -1,9 +1,10 @@
+import { linkify } from '../helpers/linkify'
 import { Context } from 'koa'
 import { Controller, Post, Put, Get, Delete } from 'koa-router-ts'
 import { Todo, TodoModel, getTitle } from '../models/todo'
 import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
-import { UserModel, User } from '../models'
+import { UserModel, User, addTags } from '../models'
 import { InstanceType } from 'typegoose'
 import { isTodoOld } from '../helpers/isTodoOld'
 import { checkSubscription } from '../middlewares/checkSubscription'
@@ -62,6 +63,15 @@ export default class {
       todosGoingOnTop,
       todosGoingToBottom,
       [...todosGoingOnTop, ...todosGoingToBottom]
+    )
+    // Add tags
+    await addTags(
+      ctx.state.user,
+      ctx.request.body
+        .map((todo) => linkify.match(todo.text))
+        .reduce((p, c) => p.concat(c), [])
+        .filter((m) => /^#[\u0400-\u04FFa-zA-Z_0-9]+$/u.test(m.url))
+        .map((m) => m.url.substr(1))
     )
     // Respond
     ctx.status = 200
@@ -140,6 +150,15 @@ export default class {
       undefined,
       undefined,
       [todo]
+    )
+    // Add tags
+    await addTags(
+      ctx.state.user,
+      [todo]
+        .map((todo) => linkify.match(todo.text))
+        .reduce((p, c) => p.concat(c), [])
+        .filter((m) => /^#[\u0400-\u04FFa-zA-Z_0-9]+$/u.test(m.url))
+        .map((m) => m.url.substr(1))
     )
     // Respond
     ctx.status = 200
@@ -275,12 +294,12 @@ export default class {
     const day = date.substr(8)
     const monthAndYear = date.substr(0, 7)
     const incompleteTodos = (await getTodos(ctx.state.user, false, '')).filter(
-      todo => {
+      (todo) => {
         return todo.date === day && todo.monthAndYear === monthAndYear
       }
     )
     const completeTodos = (await getTodos(ctx.state.user, true, '')).filter(
-      todo => {
+      (todo) => {
         return todo.date === day && todo.monthAndYear === monthAndYear
       }
     )
@@ -318,7 +337,7 @@ export default class {
       const monthAndYear = ctx.request.query.today.substr(0, 7)
       const monthAndYearMinusOne = monthAndYearPlus(monthAndYear, -1)
       const monthAndYearPlusOne = monthAndYearPlus(monthAndYear, 1)
-      todos = todos.filter(todo =>
+      todos = todos.filter((todo) =>
         [monthAndYear, monthAndYearMinusOne, monthAndYearPlusOne].includes(
           todo.monthAndYear
         )
@@ -333,7 +352,7 @@ export default class {
     // Get old todo sections
     const oldTodos = (
       await TodoModel.find({ user: ctx.state.user._id })
-    ).filter(todo => !todo.deleted)
+    ).filter((todo) => !todo.deleted)
     const oldTodoSections = oldTodos.reduce((prev, cur) => {
       const title = cur.date
         ? `${cur.monthAndYear}-${cur.date}`
@@ -388,15 +407,15 @@ export default class {
     // Reorder
     const newTodoIdsMap = newTodoSections
       .reduce((prev, cur) => prev.concat(cur.todos), [] as Todo[])
-      .map(t => t._id)
+      .map((t) => t._id)
       .reduce((prev, cur) => {
         prev[cur] = true
         return prev
       }, {} as { [index: string]: boolean })
     for (const title of titlesToReorder) {
       const todos = oldTodoSections[title]
-      const newTodos = todos.filter(t => !!newTodoIdsMap[t._id])
-      const oldTodos = todos.filter(t => !newTodoIdsMap[t._id])
+      const newTodos = todos.filter((t) => !!newTodoIdsMap[t._id])
+      const oldTodos = todos.filter((t) => !newTodoIdsMap[t._id])
       let i = newTodos.length
       for (const todo of oldTodos) {
         if (todo.order !== i) {
@@ -424,12 +443,12 @@ export async function getTodos(
   hash: string
 ) {
   return (await TodoModel.find({ user: user._id }))
-    .filter(todo => !todo.deleted)
-    .filter(todo => todo.completed === completed)
+    .filter((todo) => !todo.deleted)
+    .filter((todo) => todo.completed === completed)
     .filter(
-      todo => !hash || todo.text.toLowerCase().includes(hash.toLowerCase())
+      (todo) => !hash || todo.text.toLowerCase().includes(hash.toLowerCase())
     )
-    .map(todo => todo.stripped())
+    .map((todo) => todo.stripped())
     .sort(compareTodos(completed))
 }
 
