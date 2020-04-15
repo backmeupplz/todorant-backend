@@ -1,6 +1,6 @@
 import { ContextMessageUpdate } from 'telegraf'
 import { isUserSubscribed } from '../../isUserSubscribed'
-import { TodoModel, getTitle } from '../../../models'
+import { TodoModel, getTitle, addTags } from '../../../models'
 import { fixOrder } from '../../../helpers/fixOrder'
 import { requestSync } from '../../../sockets'
 
@@ -101,6 +101,8 @@ export async function addTodoWithText(
       user.settings.newTodosGoFirst ? [dbtodo] : [],
       user.settings.newTodosGoFirst ? [] : [dbtodo]
     )
+    // Add tag
+    addTags(user, [todo.text])
     // Respond
     ctx.reply('👍', {
       reply_to_message_id: ctx.message.message_id,
