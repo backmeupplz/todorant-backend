@@ -35,6 +35,10 @@ const errorsTemplate = {
     en: 'You have to buy the subscription',
     ru: 'Вам нужно приобрести подписку',
   },
+  noTag: {
+    en: 'No hashtag found',
+    ru: 'Хештег не найден',
+  },
 }
 
 export const errors: { [index: string]: string } = Object.keys(
