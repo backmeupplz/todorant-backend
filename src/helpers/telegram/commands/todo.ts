@@ -1,3 +1,4 @@
+import { linkify } from '../../linkify'
 import { ContextMessageUpdate } from 'telegraf'
 import { isUserSubscribed } from '../../isUserSubscribed'
 import { TodoModel, getTitle, addTags } from '../../../models'
@@ -102,7 +103,14 @@ export async function addTodoWithText(
       user.settings.newTodosGoFirst ? [] : [dbtodo]
     )
     // Add tag
-    addTags(user, [todo.text])
+    addTags(
+      user,
+      [todo]
+        .map((todo) => linkify.match(todo.text) || [])
+        .reduce((p, c) => p.concat(c), [])
+        .filter((m) => /^#[\u0400-\u04FFa-zA-Z_0-9]+$/u.test(m.url))
+        .map((m) => m.url.substr(1))
+    )
     // Respond
     ctx.reply('👍', {
       reply_to_message_id: ctx.message.message_id,
