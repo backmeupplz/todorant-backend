@@ -35,7 +35,7 @@ export const TagModel = new Tag().getModelForClass(Tag, {
 })
 
 export async function addTags(user: InstanceType<User>, tags: string[]) {
-  const dbtags = await TagModel.find({ user: user._id })
+  const dbtags = await TagModel.find({ user: user._id, deleted: false })
   const dbtagstexts = dbtags.map((tag) => tag.tag)
   const tagsToAdd = tags.filter((tag) => !dbtagstexts.includes(tag))
   const tagsToAddMap = tagsToAdd.reduce((p, c) => {
