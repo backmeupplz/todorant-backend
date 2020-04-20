@@ -32,6 +32,7 @@ export default class {
         break
       }
     }
+    console.log(date)
     // Respond
     const subscriptionIdExists =
       !!ctx.state.user.subscriptionId || !!ctx.state.user.appleReceipt
