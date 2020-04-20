@@ -28,6 +28,7 @@ export default class {
 
     for (const todo of todos) {
       if (todo.hasOwnProperty('text') && isTodoOld(todo, date)) {
+        console.log(todo)
         planning = true
         break
       }
