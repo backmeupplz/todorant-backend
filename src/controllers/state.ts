@@ -28,12 +28,10 @@ export default class {
 
     for (const todo of todos) {
       if (todo.hasOwnProperty('text') && isTodoOld(todo, date)) {
-        console.log(todo)
         planning = true
         break
       }
     }
-    console.log(date)
     // Respond
     const subscriptionIdExists =
       !!ctx.state.user.subscriptionId || !!ctx.state.user.appleReceipt
