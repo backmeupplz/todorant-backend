@@ -61,13 +61,16 @@ export async function handleSkip(ctx: ContextMessageUpdate) {
     // Find all neighbouring todos
     const neighbours = (
       await TodoModel.find({
+        user: todo.user,
         monthAndYear: todo.monthAndYear,
         date: todo.date,
         completed: todo.completed,
+        deleted: false,
       })
     ).sort(compareTodos(false))
     let startOffseting = false
     let offset = 0
+    let foundValidNeighbour = false
     const todosToSave = [todo]
     for (const t of neighbours) {
       if (t._id.toString() === todo._id.toString()) {
@@ -76,20 +79,28 @@ export async function handleSkip(ctx: ContextMessageUpdate) {
       }
       if (startOffseting) {
         offset++
-        t.order -= 1
-        todosToSave.push(t)
         if (!t.skipped) {
+          t.order -= offset
+          todosToSave.push(t)
+          foundValidNeighbour = true
           break
         }
       }
     }
+    if (!foundValidNeighbour) {
+      neighbours.forEach((n, i) => {
+        if (i > 0) {
+          n.order--
+          todosToSave.push(n)
+        }
+      })
+    }
     todo.order += offset
     // Edit and save
     todo.skipped = true
-    todo.order++
     await TodoModel.create(todosToSave)
     // Fix order
-    await fixOrder(user, [getTitle(todo)])
+    await fixOrder(user, [getTitle(todo)], undefined, undefined, [todo])
     // Trigger sync
     requestSync(user._id)
   }
