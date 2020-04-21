@@ -203,9 +203,11 @@ export default class {
     // Find all neighbouring todos
     const neighbours = (
       await TodoModel.find({
+        user: todo.user,
         monthAndYear: todo.monthAndYear,
         date: todo.date,
         completed: todo.completed,
+        deleted: false,
       })
     ).sort(compareTodos(false))
     let startOffseting = false
