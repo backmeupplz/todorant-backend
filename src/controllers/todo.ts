@@ -210,6 +210,7 @@ export default class {
     ).sort(compareTodos(false))
     let startOffseting = false
     let offset = 0
+    let foundValidNeighbour = false
     const todosToSave = [todo]
     for (const t of neighbours) {
       if (t._id.toString() === todo._id.toString()) {
@@ -218,12 +219,21 @@ export default class {
       }
       if (startOffseting) {
         offset++
-        t.order -= 1
-        todosToSave.push(t)
         if (!t.skipped) {
+          t.order -= offset
+          todosToSave.push(t)
+          foundValidNeighbour = true
           break
         }
       }
+    }
+    if (!foundValidNeighbour) {
+      neighbours.forEach((n, i) => {
+        if (i > 0) {
+          n.order--
+          todosToSave.push(n)
+        }
+      })
     }
     todo.order += offset
     // Edit and save
