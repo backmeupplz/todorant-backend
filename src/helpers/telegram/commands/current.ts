@@ -115,13 +115,15 @@ async function update(ctx: ContextMessageUpdate, user: InstanceType<User>) {
   // Update message
   if (current) {
     ctx.editMessageText(
-      current.frog ? `🐸 ${current.text}` : current.text,
+      current.frog
+        ? `🐸${current.time ? ` ${current.time}` : ''} ${current.text}`
+        : current.text,
       Markup.inlineKeyboard([
         Markup.callbackButton('✅', 'done'),
         Markup.callbackButton(
           '⏩',
           'skip',
-          current.skipped || current.frog || !!current.text || count <= 1
+          current.skipped || current.frog || !!current.time || count <= 1
         ),
         Markup.callbackButton('🔄', 'refresh'),
       ]).extra()
