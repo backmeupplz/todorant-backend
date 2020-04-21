@@ -361,6 +361,10 @@ export default class {
 
   @Post('/rearrange', authenticate)
   async rearrange(ctx: Context) {
+    const today = ctx.request.body.today
+    if (!today) {
+      return ctx.throw(403)
+    }
     // Get old todo sections
     const oldTodos = (
       await TodoModel.find({ user: ctx.state.user._id })
@@ -404,6 +408,12 @@ export default class {
         titlesToReorder.add(oldTodo.title)
         titlesToReorder.add(newTodoTitle)
         if (oldTodo.title !== newTodoTitle) {
+          if (isTodoOld(oldTodo.todo, today)) {
+            oldTodo.todo.frogFails += 1
+            if (oldTodo.todo.frogFails >= 2) {
+              oldTodo.todo.frog = true
+            }
+          }
           oldTodo.todo.date =
             newTodoTitle.length === 7 ? undefined : newTodoTitle.substr(8)
           oldTodo.todo.monthAndYear = newTodoTitle.substr(0, 7)
