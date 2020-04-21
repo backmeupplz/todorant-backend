@@ -5,7 +5,7 @@ import moment = require('moment')
 
 export async function findCurrentForUser(
   user: InstanceType<User>
-): Promise<InstanceType<Todo> | undefined> {
+): Promise<{ todo: InstanceType<Todo> | undefined; count: number }> {
   // Get date
   const now = new Date()
   const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000)
@@ -28,6 +28,9 @@ export async function findCurrentForUser(
   })
   // Return current
   return incompleteTodos.length
-    ? await TodoModel.findById(incompleteTodos[0]._id)
-    : undefined
+    ? {
+        todo: await TodoModel.findById(incompleteTodos[0]._id),
+        count: incompleteTodos.length,
+      }
+    : { todo: undefined, count: 0 }
 }

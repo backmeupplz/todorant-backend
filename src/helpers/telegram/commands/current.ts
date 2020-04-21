@@ -10,14 +10,21 @@ export async function handleCurrent(ctx: ContextMessageUpdate) {
   // Get user
   const user = ctx.dbuser
   // Get current
-  const current = await findCurrentForUser(user)
+  const { todo, count } = await findCurrentForUser(user)
+  const current = todo
   // Respond
   if (current) {
     ctx.reply(
-      current.frog ? `🐸 ${current.text}` : current.text,
+      current.frog
+        ? `🐸${current.time ? ` ${current.time}` : ''} ${current.text}`
+        : current.text,
       Markup.inlineKeyboard([
         Markup.callbackButton('✅', 'done'),
-        Markup.callbackButton('⏩', 'skip', current.skipped || current.frog),
+        Markup.callbackButton(
+          '⏩',
+          'skip',
+          current.skipped || current.frog || !!current.time || count <= 1
+        ),
         Markup.callbackButton('🔄', 'refresh'),
       ]).extra()
     )
@@ -30,7 +37,7 @@ export async function handleDone(ctx: ContextMessageUpdate) {
   // Get user
   const user = ctx.dbuser
   // Get current
-  const current = await findCurrentForUser(user)
+  const current = (await findCurrentForUser(user)).todo
   if (current) {
     current.completed = true
     await current.save()
@@ -49,7 +56,7 @@ export async function handleSkip(ctx: ContextMessageUpdate) {
   // Get user
   const user = ctx.dbuser
   // Get current
-  const todo = await findCurrentForUser(user)
+  const todo = (await findCurrentForUser(user)).todo
   if (todo) {
     // Find all neighbouring todos
     const neighbours = (
@@ -103,14 +110,19 @@ export async function handleRefresh(ctx: ContextMessageUpdate) {
 
 async function update(ctx: ContextMessageUpdate, user: InstanceType<User>) {
   // Get current
-  const current = await findCurrentForUser(user)
+  const { todo, count } = await findCurrentForUser(user)
+  const current = todo
   // Update message
   if (current) {
     ctx.editMessageText(
       current.frog ? `🐸 ${current.text}` : current.text,
       Markup.inlineKeyboard([
         Markup.callbackButton('✅', 'done'),
-        Markup.callbackButton('⏩', 'skip', current.skipped || current.frog),
+        Markup.callbackButton(
+          '⏩',
+          'skip',
+          current.skipped || current.frog || !!current.text || count <= 1
+        ),
         Markup.callbackButton('🔄', 'refresh'),
       ]).extra()
     )
