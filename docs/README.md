@@ -216,9 +216,10 @@ A map of todo date (e.g. `2020-01`, `2020-01-01`) to the list of todos.
 
 ### Parameters
 
-| field | type                      | Required | description         |
-| ----- | ------------------------- | -------- | ------------------- |
-| todos | [String: [Todo](#todo)[]] | Yes      | rearranged todo map |
+| field | type                      | Required | description                             |
+| ----- | ------------------------- | -------- | --------------------------------------- |
+| todos | [String: [Todo](#todo)[]] | Yes      | rearranged todo map                     |
+| today | String                    | Yes      | today's date in the format `2020-12-17` |
 
 ## `/subscription`
 
