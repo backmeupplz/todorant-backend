@@ -27,7 +27,7 @@ export async function report(err: Error) {
         return
       }
     }
-    await bot.telegram.sendMessage(process.env.TELEGRAM_ADMIN, text)
+    await bot.telegram.sendMessage(process.env.ADMIN, text)
   } catch (error) {
     console.error(err)
     console.error(error)
