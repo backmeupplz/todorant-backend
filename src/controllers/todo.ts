@@ -436,6 +436,9 @@ export default class {
       }, {} as { [index: string]: boolean })
     for (const title of titlesToReorder) {
       const todos = oldTodoSections[title]
+      if (!todos) {
+        continue
+      }
       const newTodos = todos.filter((t) => !!newTodoIdsMap[t._id])
       const oldTodos = todos.filter((t) => !newTodoIdsMap[t._id])
       let i = newTodos.length
