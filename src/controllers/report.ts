@@ -49,6 +49,7 @@ async function getReport(ctx: Context) {
     completed: true,
     date: { $exists: true },
   })
+  todos = todos.filter((t) => !!t.date)
   if (hash) {
     todos = todos.filter((t) =>
       t.text.toLowerCase().includes(`#${hash}`.toLowerCase())
