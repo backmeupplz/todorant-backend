@@ -10,6 +10,8 @@ import { isTodoOld } from '../helpers/isTodoOld'
 import { checkSubscription } from '../middlewares/checkSubscription'
 import { requestSync } from '../sockets'
 import { fixOrder } from '../helpers/fixOrder'
+import { getStateBody } from './state'
+import { getTagsBody } from './tag'
 
 @Controller('/todo')
 export default class {
@@ -320,6 +322,8 @@ export default class {
       todosCount: completeTodos.length + incompleteTodos.length,
       incompleteTodosCount: incompleteTodos.length,
       todo: incompleteTodos.length ? incompleteTodos[0] : undefined,
+      state: await getStateBody(ctx),
+      tags: await getTagsBody(ctx),
     }
   }
 
@@ -356,7 +360,11 @@ export default class {
       )
     }
     // Respond
-    ctx.body = todos
+    ctx.body = {
+      todos,
+      state: await getStateBody(ctx),
+      tags: await getTagsBody(ctx),
+    }
   }
 
   @Post('/rearrange', authenticate)

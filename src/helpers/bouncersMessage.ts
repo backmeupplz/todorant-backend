@@ -3,6 +3,9 @@ import { bot } from './telegram'
 import { sendBouncerMessage } from './sendEmail'
 
 async function sendMessageToBouncers() {
+  if (process.env.DEBUG) {
+    return
+  }
   // Send to telegram
   const telegramBouncers = await UserModel.find({
     createdAt: {

@@ -9,12 +9,7 @@ import { requestSync } from '../sockets'
 export default class {
   @Get('/', authenticate)
   async get(ctx: Context) {
-    const tags = await TagModel.find({
-      user: ctx.state.user._id,
-      deleted: false,
-    })
-    // Respond
-    ctx.body = tags.map((t) => t.stripped())
+    ctx.body = await getTagsBody(ctx)
   }
 
   @Delete('/:id', authenticate)
@@ -55,4 +50,13 @@ export default class {
     // Trigger sync
     requestSync(ctx.state.user._id)
   }
+}
+
+export async function getTagsBody(ctx: Context) {
+  const tags = await TagModel.find({
+    user: ctx.state.user._id,
+    deleted: false,
+  })
+  // Respond
+  return tags.map((t) => t.stripped())
 }
