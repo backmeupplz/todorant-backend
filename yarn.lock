@@ -930,10 +930,9 @@ define-property@^2.0.2:
     is-descriptor "^1.0.2"
     isobject "^3.0.1"
 
-dehumanize-date@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/dehumanize-date/-/dehumanize-date-3.0.0.tgz#fcff2545d81a4488c82ef1d43704b74dcdf36d55"
-  integrity sha512-UyrXOPJ77PTZL+dQHeRuSiVA+OnraSEVBLiy2Z2/aPG4OVJce079j1oEX+YY41kuCggM0cDLWcBxK5AQXVG1eQ==
+dehumanize-date@backmeupplz/dehumanize-date#a2d208614eec2bff6363a3864e36cdf7c49cca38:
+  version "3.0.1"
+  resolved "https://codeload.github.com/backmeupplz/dehumanize-date/tar.gz/a2d208614eec2bff6363a3864e36cdf7c49cca38"
   dependencies:
     is-leap-year "^0.1.0"
 
