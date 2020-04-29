@@ -930,6 +930,13 @@ define-property@^2.0.2:
     is-descriptor "^1.0.2"
     isobject "^3.0.1"
 
+dehumanize-date@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/dehumanize-date/-/dehumanize-date-3.0.0.tgz#fcff2545d81a4488c82ef1d43704b74dcdf36d55"
+  integrity sha512-UyrXOPJ77PTZL+dQHeRuSiVA+OnraSEVBLiy2Z2/aPG4OVJce079j1oEX+YY41kuCggM0cDLWcBxK5AQXVG1eQ==
+  dependencies:
+    is-leap-year "^0.1.0"
+
 delayed-stream@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/delayed-stream/-/delayed-stream-1.0.0.tgz#df3ae199acadfb7d440aaae0b29e2272b24ec619"
@@ -1766,6 +1773,11 @@ is-installed-globally@^0.1.0:
   dependencies:
     global-dirs "^0.1.0"
     is-path-inside "^1.0.0"
+
+is-leap-year@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/is-leap-year/-/is-leap-year-0.1.0.tgz#e3ee04508d878c3c68a5012361c5b806d1e0fbeb"
+  integrity sha1-4+4EUI2HjDxopQEjYcW4BtHg++s=
 
 is-npm@^1.0.0:
   version "1.0.0"

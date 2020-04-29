@@ -18,6 +18,8 @@ help: |
   /todo Buy milk
   /todo 2025-01 Celebrate New Year on my private island
   /todo 2020-04-20 Buy cookies
+  /todo tomorrow: Get magicians together
+  /todo this wednesday: Fill in Todorant
   /done Procrastinate for 20 minutes
   /timezone +3
   /timezone -8
@@ -38,3 +40,10 @@ timezone_success: |
 
   ${time}
 all_done: 👍 You did it! All the tasks for today are done, go get rest or maybe dance a little 💃
+no_todo_text: |
+  Please, provide text for this todo as shown below.
+
+  /todo Buy milk
+subscribe_error: Please, subscribe at todorant.com to keep using the service.
+past_date_error: Date cannot be in the past.
+add_todo_error: Oopsie, something went wrong! Make sure to tell us at @todorant_feedback about it!

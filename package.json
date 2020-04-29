@@ -35,6 +35,7 @@
     "@types/stripe": "^6.32.1",
     "apple-auth": "^1.0.4",
     "axios": "^0.18.0",
+    "dehumanize-date": "^3.0.0",
     "dotenv": "^7.0.0",
     "facebook-node-sdk": "^0.2.0",
     "google-play-billing-validator": "^2.1.1",

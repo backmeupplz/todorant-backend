@@ -4,6 +4,7 @@ import { isUserSubscribed } from '../../isUserSubscribed'
 import { TodoModel, getTitle, addTags } from '../../../models'
 import { fixOrder } from '../../../helpers/fixOrder'
 import { requestSync } from '../../../sockets'
+const dehumanize = require('dehumanize-date')
 
 export function addTodo(ctx: ContextMessageUpdate) {
   let todoText = ctx.message.text.substr(6).trim()
@@ -28,21 +29,27 @@ export async function addTodoWithText(
     monthAndYear = short
     todoText = todoText.substr(8).trim()
   }
+  // Check for the dehumanizable date
+  const components = todoText.split(':')
+  if (components.length > 1) {
+    const datePart = components[0]
+    const dateString = dehumanize(datePart)
+    if (dateString) {
+      todoText = todoText.substr(datePart.length + 1).trim()
+      const components = dateString.split('-')
+      monthAndYear = `${components[0]}-${components[1]}`
+      date = components[2]
+    }
+  }
   // Check text
   if (!todoText) {
-    return ctx.reply(`Please, provide text for this todo as shown below.
-
-Пожалуйста, добавьте к этой задаче текст, как показано ниже.
-
-/todo Buy milk`)
+    return ctx.reply(ctx.i18n.t('no_todo_text'))
   }
   // Get user
   const user = ctx.dbuser
   // Check subscription
   if (!isUserSubscribed(user)) {
-    return ctx.reply(`Please, subscribe at todorant.com to keep using the service.
-    
-Пожалуйста, подпишитесь на todorant.com, чтобы продолжить пользование сервисом.`)
+    return ctx.reply(ctx.i18n.t('subscribe_error'))
   }
   // Add todo to user
   try {
@@ -55,9 +62,7 @@ export async function addTodoWithText(
     const month = nowWithOffset.getMonth() + 1
     // Check dates
     if (monthAndYear) {
-      const pastError = `Date cannot be in the past.
-
-Дата не может быть в прошлом.`
+      const pastError = ctx.i18n.t('past_date_error')
       const components = monthAndYear.split('-')
       const year = +components[0]
       const month = +components[1]
@@ -118,9 +123,7 @@ export async function addTodoWithText(
     // Trigger sync
     requestSync(user._id)
   } catch (err) {
-    ctx.reply(`Oopsie, something went wrong!
-    
-Упс! Что-то пошло не так.
+    ctx.reply(`${ctx.i18n.t('add_todo_error')}
 
 ${err.message}`)
   }
