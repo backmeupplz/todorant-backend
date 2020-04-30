@@ -18,6 +18,7 @@ export async function addTodoWithText(
   // Check if it has timestamp
   const full = todoText.substr(0, 10) // 2018-08-31
   const short = todoText.substr(0, 7) // 2018-08
+  const shorter = todoText.substr(0, 5) // 08-31
   let monthAndYear = undefined
   let date = undefined
   if (/^\d{4}-\d{2}-\d{2}$/.test(full)) {
@@ -28,6 +29,11 @@ export async function addTodoWithText(
   } else if (/^\d{4}-\d{2}$/.test(short)) {
     monthAndYear = short
     todoText = todoText.substr(8).trim()
+  } else if (/^\d{2}-\d{2}$/.test(shorter)) {
+    monthAndYear = `${new Date().getFullYear()}-${shorter.substr(0, 2)}`
+    date = shorter.substr(3, 2)
+    todoText = shorter.substr(5).trim()
+    return
   }
   // Check for the dehumanizable date
   const components = todoText.split(':')

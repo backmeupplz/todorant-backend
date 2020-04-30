@@ -39,6 +39,7 @@
     "dotenv": "^7.0.0",
     "facebook-node-sdk": "^0.2.0",
     "google-play-billing-validator": "^2.1.1",
+    "googleapis": "^49.0.0",
     "http": "^0.0.0",
     "http-graceful-shutdown": "^2.3.2",
     "joi": "^14.3.1",

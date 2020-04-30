@@ -2,6 +2,7 @@
 import { sign } from '../helpers/jwt'
 import { prop, Typegoose, InstanceType, instanceMethod } from 'typegoose'
 import { omit } from 'lodash'
+import { Credentials } from '../helpers/googleCalendar'
 
 export enum SubscriptionStatus {
   earlyAdopter = 'earlyAdopter',
@@ -16,6 +17,7 @@ export class Settings {
   newTodosGoFirst?: boolean
   preserveOrderByTime?: boolean
   updatedAt?: Date
+  googleCalendarCredentials?: Credentials
 }
 
 export enum TelegramLanguage {

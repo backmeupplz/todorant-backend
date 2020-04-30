@@ -88,6 +88,20 @@ Verifies Apple purchase.
 
 Verifies Google purchase. Send all data Google gives you as body.
 
+### GET `/calendarAuthenticationURL`
+
+Gives google calendar OAuth URL.
+
+### POST `/calendarAuthorize`
+
+Returns token for the google calendar
+
+#### Parameters
+
+| field | type   | Required | description        |
+| ----- | ------ | -------- | ------------------ |
+| code  | string | Yes      | Authorization code |
+
 ## `/state`
 
 ### GET `/`
