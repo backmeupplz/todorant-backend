@@ -29,7 +29,7 @@ export default class {
 
   @Get('/calendarAuthenticationURL', authenticate)
   async calendarAuthenticationURL(ctx: Context) {
-    ctx.body = await getGoogleCalendarOAuthURL()
+    ctx.body = await getGoogleCalendarOAuthURL(!!ctx.query.web)
   }
 
   @Post('/calendarAuthorize', authenticate)
@@ -38,6 +38,6 @@ export default class {
     if (!code) {
       return ctx.throw(403)
     }
-    ctx.body = await getGoogleCalendarToken(code)
+    ctx.body = await getGoogleCalendarToken(code, !!ctx.request.body.web)
   }
 }

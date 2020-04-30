@@ -14,6 +14,9 @@ export default class {
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
     }
+    if (!ctx.request.body.googleCalendarCredentials) {
+      ctx.state.user.settings.googleCalendarCredentials = undefined
+    }
     await ctx.state.user.save()
     // Respond
     ctx.status = 200
@@ -42,6 +45,9 @@ export default class {
       ...(ctx.state.user.settings || {}),
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
+    }
+    if (!ctx.request.body.googleCalendarCredentials) {
+      ctx.state.user.settings.googleCalendarCredentials = undefined
     }
     await ctx.state.user.save()
     // Respond
