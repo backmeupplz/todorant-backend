@@ -23,4 +23,5 @@ export function getGoogleCalendarOAuthURL() {
 
 export async function getGoogleCalendarToken(code: string) {
   const { tokens } = await oauth2Client.getToken(code)
+  return tokens
 }

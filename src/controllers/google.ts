@@ -3,7 +3,10 @@ import { Controller, Post, Get } from 'koa-router-ts'
 import { Context } from 'koa'
 import { authenticate } from '../middlewares/authenticate'
 import { SubscriptionStatus } from '../models'
-import { getGoogleCalendarOAuthURL } from '../helpers/googleCalendar'
+import {
+  getGoogleCalendarOAuthURL,
+  getGoogleCalendarToken,
+} from '../helpers/googleCalendar'
 const Verifier = require('google-play-billing-validator')
 
 const googleCredentials = require('../../assets/api-4987639842126744234-562450-c85efe0aadfc.json')
@@ -35,6 +38,6 @@ export default class {
     if (!code) {
       return ctx.throw(403)
     }
-    ctx.body = {}
+    ctx.body = await getGoogleCalendarToken(code)
   }
 }

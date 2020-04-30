@@ -191,6 +191,9 @@ io.on('connection', (socket) => {
         throw new Error('User not found')
       }
       user.settings = { ...(user.settings || {}), ...settings }
+      if (!settings.googleCalendarCredentials) {
+        user.settings.googleCalendarCredentials = undefined
+      }
       user.settings.updatedAt = new Date()
       await user.save()
       return {
