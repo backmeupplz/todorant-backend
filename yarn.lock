@@ -959,9 +959,9 @@ define-property@^2.0.2:
     is-descriptor "^1.0.2"
     isobject "^3.0.1"
 
-dehumanize-date@backmeupplz/dehumanize-date#a2d208614eec2bff6363a3864e36cdf7c49cca38:
+dehumanize-date@backmeupplz/dehumanize-date#f5fe405de2b8f4d49ad69747f0ec3bdefe446113:
   version "3.0.1"
-  resolved "https://codeload.github.com/backmeupplz/dehumanize-date/tar.gz/a2d208614eec2bff6363a3864e36cdf7c49cca38"
+  resolved "https://codeload.github.com/backmeupplz/dehumanize-date/tar.gz/f5fe405de2b8f4d49ad69747f0ec3bdefe446113"
   dependencies:
     is-leap-year "^0.1.0"
 
