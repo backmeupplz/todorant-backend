@@ -4,6 +4,7 @@ import { Context } from 'koa'
 import { authenticate } from '../middlewares/authenticate'
 import axios from 'axios'
 import { SubscriptionStatus } from '../models'
+import { bot } from '../helpers/report'
 
 @Controller('/apple')
 export default class {
@@ -19,9 +20,7 @@ export default class {
 
   @Get('/')
   firefoxBug(ctx: Context) {
-    ctx.redirect(
-      `https://todorant.com/apple_firefox_error`
-    )
+    ctx.redirect(`https://todorant.com/apple_firefox_error`)
   }
 
   @Post('/subscription', authenticate)
@@ -40,8 +39,8 @@ export default class {
     // Get latest
     let latestSubscription = 0
     for (const info of latestReceiptInfo) {
-      if (info.expires_date_ms > latestSubscription) {
-        latestSubscription = info.expires_date_ms
+      if (+info.expires_date_ms > latestSubscription) {
+        latestSubscription = +info.expires_date_ms
       }
     }
     // Check status
@@ -56,10 +55,10 @@ export default class {
 
   @Post('/subscriptionNotification-FgA3JNgNy49dNnrVaQ9PCKGJ')
   async subscriptionNotification(ctx: Context) {
-    if (!ctx.body || ctx.body.notification_type !== 'CANCEL') {
+    const body = ctx.request.body
+    if (!body || body.notification_type !== 'CANCEL') {
       return
     }
-    const statusChangeDate = new Date(ctx.body.auto_renew_status_change_date_ms)
-    const receipt = ctx.body.latest_receipt
+    await bot.telegram.sendMessage(76104711, `Got cancel event from Apple`)
   }
 }

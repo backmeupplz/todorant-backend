@@ -10,6 +10,7 @@ import * as cors from '@koa/cors'
 import { bot } from './helpers/telegram'
 import * as GracefulShutdown from 'http-graceful-shutdown'
 import './helpers/bouncersMessage'
+import './helpers/checkAppleSubscribers'
 import './sockets'
 const logger = require('koa-logger')
 
@@ -27,7 +28,7 @@ app.listen(1337)
 console.log('Koa application is up and running on port 1337')
 
 GracefulShutdown(app, {
-  onShutdown: async signal => {
+  onShutdown: async (signal) => {
     bot.stop()
   },
 })
