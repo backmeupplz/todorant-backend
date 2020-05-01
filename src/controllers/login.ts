@@ -308,6 +308,9 @@ export default class {
       return ctx.throw(403)
     }
     const user = await getUserFromToken(token)
+    if (ctx.request.body.appleReceipt) {
+      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+    }
     ctx.body = user.stripped(true)
   }
 }
