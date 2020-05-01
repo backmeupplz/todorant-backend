@@ -84,7 +84,6 @@ export async function updateTodos(
           `${todo.monthAndYear}-${todo.date} ${todo.time}`,
           'YYYY-MM-DD HH:mm'
         ).add(15, 'minutes')
-        console.log(todorantCalendar.timeZone)
         if (!todoEvent) {
           todoEvent = (
             await api.events.insert({
