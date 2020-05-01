@@ -84,6 +84,7 @@ export async function updateTodos(
           `${todo.monthAndYear}-${todo.date} ${todo.time}`,
           'YYYY-MM-DD HH:mm'
         ).add(15, 'minutes')
+        console.log(todorantCalendar.timeZone)
         if (!todoEvent) {
           todoEvent = (
             await api.events.insert({
@@ -92,12 +93,15 @@ export async function updateTodos(
                 id: todo._id.toString(),
                 summary: todo.frog ? `🐸 ${todo.text}` : todo.text,
                 start: {
-                  dateTime: startDate.format(),
+                  dateTime: startDate.format().substr(0, 19),
                   timeZone: todorantCalendar.timeZone,
                 },
                 end: {
-                  dateTime: endDate.format(),
+                  dateTime: endDate.format().substr(0, 19),
                   timeZone: todorantCalendar.timeZone,
+                },
+                reminders: {
+                  useDefault: true,
                 },
               },
             })
@@ -109,12 +113,15 @@ export async function updateTodos(
           requestBody: {
             summary: todo.frog ? `🐸 ${todo.text}` : todo.text,
             start: {
-              dateTime: startDate.format(),
+              dateTime: startDate.format().substr(0, 19),
               timeZone: todorantCalendar.timeZone,
             },
             end: {
-              dateTime: endDate.format(),
+              dateTime: endDate.format().substr(0, 19),
               timeZone: todorantCalendar.timeZone,
+            },
+            reminders: {
+              useDefault: true,
             },
           },
         })
