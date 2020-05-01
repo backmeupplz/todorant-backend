@@ -70,6 +70,16 @@ Checks the status of request to user to authorize by Telegram (through [@todoran
 | ----- | ------ | -------- | ----------------- |
 | uuid  | string | Yes      | ID of the request |
 
+### [Public] POST `/token`
+
+Signs up with token, returns [User](#user).
+
+#### Parameters
+
+| field | type   | Required | description               |
+| ----- | ------ | -------- | ------------------------- |
+| token | string | Yes      | Access code from Todorant |
+
 ## `/apple`
 
 ### POST `/subscription`

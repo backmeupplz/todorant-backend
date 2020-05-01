@@ -10,6 +10,7 @@ import * as randToken from 'rand-token'
 import { bot } from '../helpers/telegram'
 import { Markup as m } from 'telegraf'
 import { InstanceType } from 'typegoose'
+import { getUserFromToken } from '../middlewares/authenticate'
 
 const TelegramLogin = require('node-telegram-login')
 const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
@@ -175,8 +176,8 @@ export default class {
       }
       const name = userJson.name
         ? `${userJson.name.firstName}${
-        userJson.name.lastName ? ` ${userJson.name.lastName}` : ''
-        }`
+            userJson.name.lastName ? ` ${userJson.name.lastName}` : ''
+          }`
         : undefined
       const params = {
         name: name || 'Unidentified Apple',
@@ -246,17 +247,25 @@ export default class {
       const { user } = await getOrCreateUser({
         name: `${telegramUser.first_name}${
           telegramUser.last_name ? ` ${telegramUser.last_name}` : ''
-          }`,
+        }`,
         telegramId: `${telegramUser.id}`,
       })
       const dbuser = user
       await bot.telegram.sendMessage(
         id,
-        user.telegramLanguage === 'ru' ? 'Кто-то пытается зайти через ваш Телеграм в Тудурант. Не нажимайте "Разрешить", если это не вы!' : 'Somebody wants to login to your account on Todorant. Do no press "Allow" if it wasn\'t you!',
+        user.telegramLanguage === 'ru'
+          ? 'Кто-то пытается зайти через ваш Телеграм в Тудурант. Не нажимайте "Разрешить", если это не вы!'
+          : 'Somebody wants to login to your account on Todorant. Do no press "Allow" if it wasn\'t you!',
         {
           reply_markup: m.inlineKeyboard([
-            m.callbackButton(user.telegramLanguage === 'ru' ? 'Разрешить' : 'Allow', `lta~${uuid}`),
-            m.callbackButton(user.telegramLanguage === 'ru' ? 'Запретить' : 'Reject', `ltr~${uuid}`),
+            m.callbackButton(
+              user.telegramLanguage === 'ru' ? 'Разрешить' : 'Allow',
+              `lta~${uuid}`
+            ),
+            m.callbackButton(
+              user.telegramLanguage === 'ru' ? 'Запретить' : 'Reject',
+              `ltr~${uuid}`
+            ),
           ]),
         }
       )
@@ -291,16 +300,26 @@ export default class {
       return ctx.throw(new Error())
     }
   }
+
+  @Post('/token')
+  async token(ctx: Context) {
+    const token = ctx.request.body.token
+    if (!token) {
+      return ctx.throw(403)
+    }
+    const user = await getUserFromToken(token)
+    ctx.body = user.stripped(true)
+  }
 }
 
-bot.action(/lta~.+/, async ctx => {
+bot.action(/lta~.+/, async (ctx) => {
   await ctx.deleteMessage()
   telegramLoginRequests[
     ctx.callbackQuery.data.replace('lta~', '')
   ].allowed = true
 })
 
-bot.action(/ltr~.+/, async ctx => {
+bot.action(/ltr~.+/, async (ctx) => {
   await ctx.deleteMessage()
   telegramLoginRequests[
     ctx.callbackQuery.data.replace('ltr~', '')
