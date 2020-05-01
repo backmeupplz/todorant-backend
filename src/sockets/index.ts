@@ -13,6 +13,7 @@ import {
   TagModel,
 } from '../models'
 import { InstanceType } from 'typegoose'
+import { updateTodos } from '../helpers/googleCalendar'
 
 const server = createServer()
 const io = SocketIO(server)
@@ -115,6 +116,11 @@ io.on('connection', (socket) => {
               }
             })
         )
+      )
+      // Update calendar
+      updateTodos(
+        savedTodos,
+        getUser(socket).settings.googleCalendarCredentials
       )
       return {
         objectsToPushBack: savedTodos.map((t) => t.stripped()),

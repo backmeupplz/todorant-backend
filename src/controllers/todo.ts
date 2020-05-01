@@ -12,6 +12,7 @@ import { requestSync } from '../sockets'
 import { fixOrder } from '../helpers/fixOrder'
 import { getStateBody } from './state'
 import { getTagsBody } from './tag'
+import { updateTodos } from '../helpers/googleCalendar'
 
 @Controller('/todo')
 export default class {
@@ -79,6 +80,11 @@ export default class {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    // Update calendar
+    updateTodos(
+      todosGoingOnTop.concat(todosGoingToBottom),
+      ctx.state.user.settings.googleCalendarCredentials
+    )
   }
 
   @Delete('/all', authenticate)
@@ -166,6 +172,8 @@ export default class {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    // Update calendar
+    updateTodos([todo], ctx.state.user.settings.googleCalendarCredentials)
   }
 
   @Put('/:id/done', authenticate)
@@ -187,6 +195,8 @@ export default class {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    // Update calendar
+    updateTodos([todo], ctx.state.user.settings.googleCalendarCredentials)
   }
 
   @Put('/:id/skip', authenticate)
@@ -274,6 +284,8 @@ export default class {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    // Update calendar
+    updateTodos([todo], ctx.state.user.settings.googleCalendarCredentials)
   }
 
   @Delete('/:id', authenticate)
@@ -295,6 +307,8 @@ export default class {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    // Update calendar
+    updateTodos([todo], ctx.state.user.settings.googleCalendarCredentials)
   }
 
   @Get('/current', authenticate)
@@ -458,7 +472,9 @@ export default class {
       }
     }
     // Save
-    await TodoModel.create(Array.from(modifiedTodos.values()))
+    const savedTodos = await TodoModel.create(
+      Array.from(modifiedTodos.values())
+    )
     // Reorder if required
     if (ctx.state.user.settings.preserveOrderByTime) {
       fixOrder(ctx.state.user, Array.from(titlesToReorder))
@@ -467,6 +483,8 @@ export default class {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    // Update calendar
+    updateTodos(savedTodos, ctx.state.user.settings.googleCalendarCredentials)
   }
 }
 
