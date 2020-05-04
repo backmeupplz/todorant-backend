@@ -11,6 +11,7 @@ import { bot } from './helpers/telegram'
 import * as GracefulShutdown from 'http-graceful-shutdown'
 import './helpers/bouncersMessage'
 import './helpers/checkAppleSubscribers'
+import './helpers/checkGoogleSubscribers'
 import './sockets'
 const logger = require('koa-logger')
 
