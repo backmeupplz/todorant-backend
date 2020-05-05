@@ -11,6 +11,7 @@ help: |
   /zen — turn on zen mode
   /login — login to todorant.com
   /language — change language
+  /qr — generate a QR code to login on mobile
 
   Find the commands examples at the end of this message. Cheers!
 

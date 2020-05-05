@@ -19,6 +19,7 @@ import {
 } from './commands/current'
 import { handleId } from './commands/id'
 import { sendDebug } from './commands/debug'
+import { sendQR } from './commands/qr'
 
 // Create bot
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
@@ -45,6 +46,7 @@ bot.command('timezone', handleTimezone)
 bot.command('current', handleCurrent)
 bot.command('id', handleId)
 bot.command('debug', sendDebug)
+bot.command('qr', sendQR)
 // Actions
 bot.action('done', handleDone)
 bot.action('skip', handleSkip)

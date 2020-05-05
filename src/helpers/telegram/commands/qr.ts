@@ -1,0 +1,20 @@
+import { ContextMessageUpdate } from 'telegraf'
+import { getSvg } from 'cnf-qrcode'
+import { convert } from 'convert-svg-to-png'
+
+export function sendQR(ctx: ContextMessageUpdate) {
+  getSvg(ctx.dbuser.token, undefined, async (err: any, svg: string) => {
+    if (err) {
+      console.log(err)
+    } else {
+      const png = await convert(svg, {
+        width: 300,
+        height: 300,
+        puppeteer: {
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        },
+      })
+      return ctx.replyWithPhoto({ source: png })
+    }
+  })
+}
