@@ -14,7 +14,14 @@ export function sendQR(ctx: ContextMessageUpdate) {
           args: ['--no-sandbox', '--disable-setuid-sandbox'],
         },
       })
-      return ctx.replyWithPhoto({ source: png })
+      const msg = await ctx.replyWithPhoto({ source: png })
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, msg.message_id)
+        } catch (err) {
+          console.log(err.message)
+        }
+      }, 5 * 60 * 1000)
     }
   })
 }
