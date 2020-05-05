@@ -45,6 +45,7 @@ async function checkAppleSubscribers() {
       appleSubscriber.subscriptionStatus = SubscriptionStatus.inactive
     }
     appleSubscriber.appleReceipt = latestReceipt
+    await appleSubscriber.save()
   }
   await bot.telegram.sendMessage(
     76104711,
