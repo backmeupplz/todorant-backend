@@ -13,6 +13,7 @@ async function checkAppleSubscribers() {
     subscriptionStatus: { $ne: 'earlyAdopter' },
   })
   console.log(`Got ${appleSubscribers.length} apple subscribers to check`)
+  let numberOfDeactivatedSubscribers = 0
   for (const appleSubscriber of appleSubscribers) {
     const receipt = appleSubscriber.appleReceipt
     if (!receipt) {
@@ -39,20 +40,16 @@ async function checkAppleSubscribers() {
       appleSubscriber.subscriptionStatus = SubscriptionStatus.active
     } else {
       if (appleSubscriber.subscriptionStatus !== SubscriptionStatus.inactive) {
-        await bot.telegram.sendMessage(
-          76104711,
-          `Apple subscription deactivated for ${appleSubscriber._id.toString()}`
-        )
+        numberOfDeactivatedSubscribers++
       }
       appleSubscriber.subscriptionStatus = SubscriptionStatus.inactive
     }
     appleSubscriber.appleReceipt = latestReceipt
-    console.log(
-      `Checked apple sub for ${appleSubscriber._id.toString()}, expires ${new Date(
-        +latestSubscription
-      )}`
-    )
   }
+  await bot.telegram.sendMessage(
+    76104711,
+    `Apple subscription deactivated for ${numberOfDeactivatedSubscribers} users`
+  )
   console.log('Finished checking apple subscribers')
 }
 
