@@ -67,12 +67,14 @@ export class User extends Typegoose {
 
   @prop({ index: true, required: true, default: false })
   bouncerNotified: boolean
+  @prop({ index: true, required: true, default: false })
+  powerUserNotified: boolean
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
-    const stripFields = ['__v', 'todos', 'bouncerNotified']
+    const stripFields = ['__v', 'todos', 'bouncerNotified', 'powerUserNotified']
     if (!withExtra) {
       stripFields.push('token')
       stripFields.push('email')

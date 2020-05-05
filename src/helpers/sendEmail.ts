@@ -28,3 +28,25 @@ Hi there! It's @borodutch, the creator of Todorant. Can you please spend just 2 
 If you have any additional questions please contact me directly — @borodutch — or simply reply to this email. Thank you!`,
   })
 }
+
+export async function sendPowerUserMessage(email: string) {
+  await transport.sendMail({
+    from: '"Todorant Support" <support@todorant.com>',
+    to: email,
+    replyTo: 'todorant@borodutch.com',
+    subject: 'Woah! Over 1000 tasks! 🎉💪🔥',
+    text: `Вот это да! Больше 1000 задач! 🎉💪🔥
+
+Это @borodutch, создатель Тудуранта. Можете, пожалуйста, потратить 2 минуты и ответить на несколько вопросов, что вам больше всего нравится и не нравится в Тудуранте? Ответить можно по ссылке вот тут: https://forms.gle/hNgYMpQyMyJQwiuDA. Всего пара минут — а гигантская польза всем людям, что пользуются Тудурантом! Все вопросы там необязательны для ответа, а опрос анонимен. Спасибо огромное заранее!
+
+Если у вас есть какие-либо дополнительные вопросы, пожалуйста, напишите мне напрямую — @borodutch. Спасибо!
+
+***
+
+Woah! Over 1000 tasks! 🎉💪🔥
+
+Hi there! It's @borodutch, the creator of Todorant. Can you please spend just 2 minutes and answer couple of questions what you like and what you don't like about Todorant? You can answer them here: https://forms.gle/C4Byzcypkd7KsXJHA. Just a couple of minutes — but huge help to anyone who uses Todorant! All questions are optional and the answers are anonymous. Thank you a lot in advance!
+
+If you have any additional questions please contact me directly — @borodutch. Thank you!`,
+  })
+}
