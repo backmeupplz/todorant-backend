@@ -13,6 +13,7 @@ import { fixOrder } from '../helpers/fixOrder'
 import { getStateBody } from './state'
 import { getTagsBody } from './tag'
 import { updateTodos } from '../helpers/googleCalendar'
+const fuzzysort = require('fuzzysort')
 
 @Controller('/todo')
 export default class {
@@ -345,9 +346,10 @@ export default class {
   async get(ctx: Context) {
     // Parameters
     const completed = ctx.query.completed === 'true'
-    const hash = decodeURI(ctx.query.hash)
+    const hash = decodeURI(ctx.query.hash || '')
+    const queryString = decodeURI(ctx.query.queryString || '')
     // Find todos
-    let todos = await getTodos(ctx.state.user, completed, hash)
+    let todos = await getTodos(ctx.state.user, completed, hash, queryString)
     if (
       !ctx.request.query.calendarView ||
       ctx.request.query.calendarView === 'false' ||
@@ -491,9 +493,10 @@ export default class {
 export async function getTodos(
   user: InstanceType<User>,
   completed: Boolean,
-  hash: string
+  hash: string,
+  queryString?: string
 ) {
-  return (await TodoModel.find({ user: user._id }))
+  const results = (await TodoModel.find({ user: user._id }))
     .filter((todo) => !todo.deleted)
     .filter((todo) => todo.completed === completed)
     .filter(
@@ -501,6 +504,17 @@ export async function getTodos(
     )
     .map((todo) => todo.stripped())
     .sort(compareTodos(completed))
+  if (!queryString) {
+    return results
+  } else {
+    const filteredResults = (
+      await fuzzysort.goAsync(queryString, results, {
+        key: 'text',
+        threshold: -10000,
+      })
+    ).map((result) => result.obj)
+    return filteredResults
+  }
 }
 
 export function compareTodos(completed: Boolean) {
