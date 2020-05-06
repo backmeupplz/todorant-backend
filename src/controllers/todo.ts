@@ -510,7 +510,7 @@ export async function getTodos(
     const filteredResults = (
       await fuzzysort.goAsync(queryString, results, {
         key: 'text',
-        threshold: -10000,
+        threshold: -1000,
       })
     ).map((result) => result.obj)
     return filteredResults
