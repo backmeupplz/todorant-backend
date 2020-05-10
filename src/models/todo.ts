@@ -22,6 +22,8 @@ export class Todo extends Typegoose {
   order: number
   @prop({ required: true, default: false })
   deleted: boolean
+  @prop({ required: true, default: false })
+  encrypted: boolean
 
   @prop({
     required: true,
@@ -30,7 +32,7 @@ export class Todo extends Typegoose {
     maxlength: 7,
     validate: [
       /^\d{4}-\d{2}$/,
-      v => {
+      (v) => {
         const components = v.split('-')
         const date = +components[1]
         const year = +components[0]
@@ -43,14 +45,14 @@ export class Todo extends Typegoose {
     index: true,
     minlength: 2,
     maxlength: 2,
-    validate: [/^\d{2}$/, v => +v <= 31 && +v > 0],
+    validate: [/^\d{2}$/, (v) => +v <= 31 && +v > 0],
   })
   date?: string // e.g. "01" or "31"
   @prop({
     index: true,
     minlength: 5,
     maxlength: 5,
-    validate: [v => !v || /^\d{2}:\d{2}$/.test(v)],
+    validate: [(v) => !v || /^\d{2}:\d{2}$/.test(v)],
   })
   time?: string // e.g. "01:01"
 
