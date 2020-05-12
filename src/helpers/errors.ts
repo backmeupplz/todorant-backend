@@ -39,6 +39,10 @@ const errorsTemplate = {
     en: 'No hashtag found',
     ru: 'Хештег не найден',
   },
+  wrongDecryptionPassword: {
+    en: 'Wrong decryption password',
+    ru: 'Неправильный пароль расшифровки',
+  },
 }
 
 export const errors: { [index: string]: string } = Object.keys(

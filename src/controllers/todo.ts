@@ -13,6 +13,7 @@ import { fixOrder } from '../helpers/fixOrder'
 import { getStateBody } from './state'
 import { getTagsBody } from './tag'
 import { updateTodos } from '../helpers/googleCalendar'
+import { _d } from '../helpers/encryption'
 const fuzzysort = require('fuzzysort')
 
 @Controller('/todo')
@@ -21,6 +22,21 @@ export default class {
   async create(ctx: Context) {
     if (ctx.request.body.todos) {
       ctx.request.body = ctx.request.body.todos
+    }
+    // Check the password
+    const password = ctx.headers.password
+    if (password) {
+      const todos = await TodoModel.find({
+        user: ctx.state.user._id,
+        encrypted: true,
+      }).limit(1)
+      if (todos.length) {
+        const todo = todos[0]
+        const decrypted = _d(todo.text, password)
+        if (!decrypted) {
+          return ctx.throw(errors.wrongDecryptionPassword)
+        }
+      }
     }
     if (!Array.isArray(ctx.request.body)) {
       ctx.request.body = [ctx.request.body]
@@ -348,8 +364,15 @@ export default class {
     const completed = ctx.query.completed === 'true'
     const hash = decodeURI(ctx.query.hash || '')
     const queryString = decodeURI(ctx.query.queryString || '')
+    const password = ctx.headers.password
     // Find todos
-    let todos = await getTodos(ctx.state.user, completed, hash, queryString)
+    let todos = await getTodos(
+      ctx.state.user,
+      completed,
+      hash,
+      queryString,
+      password
+    )
     if (
       !ctx.request.query.calendarView ||
       ctx.request.query.calendarView === 'false' ||
@@ -494,25 +517,53 @@ export async function getTodos(
   user: InstanceType<User>,
   completed: Boolean,
   hash: string,
-  queryString?: string
+  queryString?: string,
+  password?: string
 ) {
   const results = (await TodoModel.find({ user: user._id }))
     .filter((todo) => !todo.deleted)
     .filter((todo) => todo.completed === completed)
+    .map((todo) => {
+      if (todo.encrypted && password) {
+        const decrypted = _d(todo.text, password)
+        if (decrypted) {
+          ;(todo as any).decryptedText = decrypted
+        }
+      }
+      return todo
+    })
     .filter(
-      (todo) => !hash || todo.text.toLowerCase().includes(hash.toLowerCase())
+      (todo) =>
+        !hash ||
+        todo.text.toLowerCase().includes(hash.toLowerCase()) ||
+        (todo as any).decryptedText.toLowerCase().includes(hash.toLowerCase())
     )
     .map((todo) => todo.stripped())
     .sort(compareTodos(completed))
   if (!queryString) {
-    return results
+    return results.map((todo) => {
+      ;(todo as any).decryptedText = undefined
+      return todo
+    })
   } else {
     const filteredResults = (
-      await fuzzysort.goAsync(queryString, results, {
-        key: 'text',
-        threshold: -1000,
-      })
-    ).map((result) => result.obj)
+      await fuzzysort.goAsync(
+        queryString,
+        results.map((todo) => {
+          if (!(todo as any).decryptedText) {
+            ;(todo as any).decryptedText = todo.text
+          }
+          return todo
+        }),
+        {
+          key: 'text',
+          threshold: -1000,
+        }
+      )
+    ).map((result) => {
+      result.obj.decryptedText = undefined
+      return result.obj
+    })
     return filteredResults
   }
 }

@@ -33,6 +33,8 @@
     "@types/nodemailer": "^6.4.0",
     "@types/socket.io": "^2.1.4",
     "@types/stripe": "^6.32.1",
+    "@types/crypto-js": "^3.1.45",
+    "crypto-js": "^3.3.0",
     "apple-auth": "^1.0.4",
     "axios": "^0.18.0",
     "cnf-qrcode": "^1.0.13",

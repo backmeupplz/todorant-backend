@@ -5,6 +5,7 @@ import { authenticate } from '../middlewares/authenticate'
 import { User, TodoModel, ReportModel } from '../models'
 import { InstanceType } from 'typegoose'
 import * as randToken from 'rand-token'
+import { _d } from '../helpers/encryption'
 
 @Controller('/report')
 export default class {
@@ -44,12 +45,21 @@ async function getReport(ctx: Context) {
   const hash = ctx.query.hash
   const startDate = ctx.query.startDate || undefined
   const endDate = ctx.query.endDate || undefined
+  const password = ctx.headers.password
   let todos = await TodoModel.find({
     user: user._id,
     completed: true,
     date: { $exists: true },
   })
   todos = todos.filter((t) => !!t.date)
+  todos.forEach((todo) => {
+    if (todo.encrypted && password) {
+      const decrypted = _d(todo.text, password)
+      if (decrypted) {
+        todo.text = decrypted
+      }
+    }
+  })
   if (hash) {
     todos = todos.filter((t) =>
       t.text.toLowerCase().includes(`#${hash}`.toLowerCase())
