@@ -25,10 +25,10 @@ help: |
   /timezone +3
   /timezone -8
   /timezone 0
-language: Please, select the language.
+language: 'Please, select the language.'
 language_selected: '@todorant_bot now speaks English.'
-login: Please, login to todorant.com using the button below.
-zen_on: Welcome to the zen mode! Anything you send me will be handled as if you had <code>/todo</code> command prepended. So don't bother sending <code>/todo Clean fridge</code> or <code>/todo 2020 Watch all of the House MD</code>, just do <code>Clean fridge</code> and <code>2020 Watch all of the House MD</code>. Use /zen to turn this mode off.
+login: 'Please, login to todorant.com using the button below.'
+zen_on: 'Welcome to the zen mode! Anything you send me will be handled as if you had <code>/todo</code> command prepended. So do not bother sending <code>/todo Clean fridge</code> or <code>/todo 2020 Watch all of the House MD</code>, just do <code>Clean fridge</code> and <code>2020 Watch all of the House MD</code>. Use /zen to turn this mode off.'
 zen_off: You turned off zen mode.
 timezone_help: |
   Please, use this command like shown below. Thank you!
@@ -40,11 +40,11 @@ timezone_success: |
   Your timezone was set to UTC${timezone}. Please, check if the time below is your current time.
 
   ${time}
-all_done: 👍 You did it! All the tasks for today are done, go get rest or maybe dance a little 💃
+all_done: "\U0001F44D You did it! All the tasks for today are done, go get rest or maybe dance a little \U0001F483"
 no_todo_text: |
   Please, provide text for this todo as shown below.
 
   /todo Buy milk
-subscribe_error: Please, subscribe at todorant.com to keep using the service.
+subscribe_error: 'Please, subscribe at todorant.com to keep using the service.'
 past_date_error: Date cannot be in the past.
-add_todo_error: Oopsie, something went wrong! Make sure to tell us at @todorant_feedback about it!
+add_todo_error: 'Oopsie, something went wrong! Make sure to tell us at @todorant_feedback about it!'
