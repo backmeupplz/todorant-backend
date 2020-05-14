@@ -8,7 +8,7 @@ const jsyaml = require('js-yaml')
 ;(async function getTranslations() {
   console.log('==== Getting localizations')
   const translations = (
-    await axios.get('http://localhost:1337/localizations?tag=telegram')
+    await axios.get('https://localizer.todorant.com/localizations?tag=telegram')
   ).data.filter((l) => {
     return l.tags.indexOf('telegram') > -1
   })
