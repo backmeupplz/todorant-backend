@@ -536,7 +536,10 @@ export async function getTodos(
       (todo) =>
         !hash ||
         todo.text.toLowerCase().includes(hash.toLowerCase()) ||
-        (todo as any).decryptedText.toLowerCase().includes(hash.toLowerCase())
+        ((todo as any).decryptedText &&
+          (todo as any).decryptedText
+            .toLowerCase()
+            .includes(hash.toLowerCase()))
     )
     .map((todo) => todo.stripped())
     .sort(compareTodos(completed))
