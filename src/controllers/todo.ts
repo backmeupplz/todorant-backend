@@ -88,7 +88,13 @@ export default class {
     await addTags(
       ctx.state.user,
       ctx.request.body
-        .map((todo) => linkify.match(todo.text) || [])
+        .map((todo) => {
+          let text = todo.text
+          if (todo.encrypted && password) {
+            text = _d(todo.text, password)
+          }
+          return linkify.match(text) || []
+        })
         .reduce((p, c) => p.concat(c), [])
         .filter((m) => /^#[\u0400-\u04FFa-zA-Z_0-9]+$/u.test(m.url))
         .map((m) => m.url.substr(1))
@@ -176,11 +182,19 @@ export default class {
       undefined,
       [todo]
     )
+    // Get password
+    const password = ctx.headers.password
     // Add tags
     await addTags(
       ctx.state.user,
       [todo]
-        .map((todo) => linkify.match(todo.text) || [])
+        .map((todo) => {
+          let text = todo.text
+          if (todo.encrypted && password) {
+            text = _d(todo.text, password)
+          }
+          return linkify.match(text) || []
+        })
         .reduce((p, c) => p.concat(c), [])
         .filter((m) => /^#[\u0400-\u04FFa-zA-Z_0-9]+$/u.test(m.url))
         .map((m) => m.url.substr(1))
