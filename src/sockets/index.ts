@@ -215,7 +215,6 @@ io.on('connection', (socket) => {
     'hero',
     async (user) => {
       const hero = await getOrCreateHero(user._id)
-      console.log(hero)
       return hero
     },
     async (hero) => {
