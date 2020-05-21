@@ -19,11 +19,12 @@
   },
   "devDependencies": {
     "concurrently": "^4.1.0",
-    "nodemon": "^1.19.1",
-    "flat": "^5.0.0"
+    "flat": "^5.0.0",
+    "nodemon": "^1.19.1"
   },
   "dependencies": {
     "@koa/cors": "^3.0.0",
+    "@types/crypto-js": "^3.1.45",
     "@types/dotenv": "^6.1.1",
     "@types/http-graceful-shutdown": "^2.1.2",
     "@types/jsonwebtoken": "^8.3.2",
@@ -36,12 +37,12 @@
     "@types/nodemailer": "^6.4.0",
     "@types/socket.io": "^2.1.4",
     "@types/stripe": "^6.32.1",
-    "@types/crypto-js": "^3.1.45",
-    "crypto-js": "^3.3.0",
+    "@types/temp": "^0.8.34",
     "apple-auth": "^1.0.4",
     "axios": "^0.18.0",
     "cnf-qrcode": "^1.0.13",
     "convert-svg-to-png": "^0.5.0",
+    "crypto-js": "^3.3.0",
     "dehumanize-date": "backmeupplz/dehumanize-date#f5fe405de2b8f4d49ad69747f0ec3bdefe446113",
     "dotenv": "^7.0.0",
     "facebook-node-sdk": "^0.2.0",
@@ -69,6 +70,7 @@
     "stripe": "^7.9.0",
     "telegraf": "^3.32.0",
     "telegraf-i18n": "^6.6.0",
+    "temp": "^0.9.1",
     "typegoose": "^5.6.0",
     "typescript": "^3.6.3"
   }
