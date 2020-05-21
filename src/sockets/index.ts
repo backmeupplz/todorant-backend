@@ -1,3 +1,4 @@
+import { Hero, getOrCreateHero, HeroModel } from '../models/hero'
 import { omit } from 'lodash'
 import { createServer } from 'http'
 import SocketIO = require('socket.io')
@@ -204,6 +205,29 @@ io.on('connection', (socket) => {
       await user.save()
       return {
         objectsToPushBack: user.settings,
+        needsSync: true,
+      }
+    }
+  )
+
+  setupSync<Hero>(
+    socket,
+    'hero',
+    async (user) => {
+      const hero = await getOrCreateHero(user._id)
+      console.log(hero)
+      return hero
+    },
+    async (hero) => {
+      const dbhero = await HeroModel.findOne({ user: getUser(socket)._id })
+      if (!dbhero) {
+        throw new Error('Hero not found')
+      }
+      console.log(hero, dbhero)
+      dbhero.points = hero.points
+      await dbhero.save()
+      return {
+        objectsToPushBack: dbhero,
         needsSync: true,
       }
     }
