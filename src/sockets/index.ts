@@ -223,7 +223,6 @@ io.on('connection', (socket) => {
       if (!dbhero) {
         throw new Error('Hero not found')
       }
-      console.log(hero, dbhero)
       dbhero.points = hero.points
       await dbhero.save()
       return {
