@@ -39,7 +39,7 @@ export async function addTodoWithText(
   const components = todoText.split(':')
   if (components.length > 1) {
     const datePart = components[0]
-    const dateString = dehumanize(datePart)
+    const dateString = dehumanize(datePart.toLowerCase())
     if (dateString) {
       todoText = todoText.substr(datePart.length + 1).trim()
       const components = dateString.split('-')
