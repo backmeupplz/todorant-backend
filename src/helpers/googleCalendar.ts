@@ -66,7 +66,7 @@ export async function updateTodos(
       if (todo.encrypted && password) {
         const decrypted = _d(todo.text, password)
         if (decrypted) {
-          todo = { ...todo } as Todo
+          todo = { ...todo._doc } as Todo
           todo.text = decrypted
         }
       }
