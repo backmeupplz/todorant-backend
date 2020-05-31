@@ -106,7 +106,8 @@ export default class {
     // Update calendar
     updateTodos(
       todosGoingOnTop.concat(todosGoingToBottom),
-      ctx.state.user.settings.googleCalendarCredentials
+      ctx.state.user.settings.googleCalendarCredentials,
+      password
     )
   }
 
@@ -204,7 +205,11 @@ export default class {
     // Trigger sync
     requestSync(ctx.state.user._id)
     // Update calendar
-    updateTodos([todo], ctx.state.user.settings.googleCalendarCredentials)
+    updateTodos(
+      [todo],
+      ctx.state.user.settings.googleCalendarCredentials,
+      password
+    )
   }
 
   @Put('/:id/done', authenticate)
@@ -227,7 +232,11 @@ export default class {
     // Trigger sync
     requestSync(ctx.state.user._id)
     // Update calendar
-    updateTodos([todo], ctx.state.user.settings.googleCalendarCredentials)
+    updateTodos(
+      [todo],
+      ctx.state.user.settings.googleCalendarCredentials,
+      ctx.headers.password
+    )
   }
 
   @Put('/:id/skip', authenticate)
@@ -316,7 +325,11 @@ export default class {
     // Trigger sync
     requestSync(ctx.state.user._id)
     // Update calendar
-    updateTodos([todo], ctx.state.user.settings.googleCalendarCredentials)
+    updateTodos(
+      [todo],
+      ctx.state.user.settings.googleCalendarCredentials,
+      ctx.headers.password
+    )
   }
 
   @Delete('/:id', authenticate)
@@ -339,7 +352,11 @@ export default class {
     // Trigger sync
     requestSync(ctx.state.user._id)
     // Update calendar
-    updateTodos([todo], ctx.state.user.settings.googleCalendarCredentials)
+    updateTodos(
+      [todo],
+      ctx.state.user.settings.googleCalendarCredentials,
+      ctx.headers.password
+    )
   }
 
   @Get('/current', authenticate)
@@ -523,7 +540,11 @@ export default class {
     // Trigger sync
     requestSync(ctx.state.user._id)
     // Update calendar
-    updateTodos(savedTodos, ctx.state.user.settings.googleCalendarCredentials)
+    updateTodos(
+      savedTodos,
+      ctx.state.user.settings.googleCalendarCredentials,
+      ctx.headers.password
+    )
   }
 }
 

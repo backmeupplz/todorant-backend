@@ -27,7 +27,8 @@ function setupSync<T>(
     lastSyncDate: Date | undefined
   ) => Promise<T>,
   onPushObjects: (
-    objects: T
+    objects: T,
+    password?: string
   ) => Promise<{ objectsToPushBack: T; needsSync: boolean }>
 ) {
   socket.on(`sync_${name}`, async (lastSyncDate: Date | undefined) => {
@@ -37,17 +38,23 @@ function setupSync<T>(
     }
     socket.emit(name, await getObjects(user, lastSyncDate))
   })
-  socket.on(`push_${name}`, async (pushId: string, objects: T) => {
-    try {
-      const { objectsToPushBack, needsSync } = await onPushObjects(objects)
-      socket.emit(`${name}_pushed`, pushId, objectsToPushBack)
-      if (needsSync) {
-        socket.broadcast.to(getUser(socket)._id).emit(`${name}_sync_request`)
+  socket.on(
+    `push_${name}`,
+    async (pushId: string, objects: T, password?: string) => {
+      try {
+        const { objectsToPushBack, needsSync } = await onPushObjects(
+          objects,
+          password
+        )
+        socket.emit(`${name}_pushed`, pushId, objectsToPushBack)
+        if (needsSync) {
+          socket.broadcast.to(getUser(socket)._id).emit(`${name}_sync_request`)
+        }
+      } catch (err) {
+        socket.emit(`${name}_pushed_error`, pushId, err)
       }
-    } catch (err) {
-      socket.emit(`${name}_pushed_error`, pushId, err)
     }
-  })
+  )
 }
 
 io.on('connection', (socket) => {
@@ -83,7 +90,7 @@ io.on('connection', (socket) => {
       }
       return (await TodoModel.find(query)).map((t) => t.stripped())
     },
-    async (todos) => {
+    async (todos, password) => {
       const savedTodos = await Promise.all(
         todos.map(
           (todo) =>
@@ -121,7 +128,8 @@ io.on('connection', (socket) => {
       // Update calendar
       updateTodos(
         savedTodos,
-        getUser(socket).settings.googleCalendarCredentials
+        getUser(socket).settings.googleCalendarCredentials,
+        password
       )
       return {
         objectsToPushBack: savedTodos.map((t) => t.stripped()),

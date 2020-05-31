@@ -2,6 +2,7 @@ import { Todo } from '../models/todo'
 import { google, calendar_v3 } from 'googleapis'
 import { report } from './report'
 import moment = require('moment')
+import { _d } from './encryption'
 
 export interface GoogleCalendarCredentials {
   refresh_token?: string | null
@@ -46,7 +47,8 @@ export async function getGoogleCalendarToken(code: string, web = false) {
 
 export async function updateTodos(
   todos: Todo[],
-  credentials?: GoogleCalendarCredentials
+  credentials?: GoogleCalendarCredentials,
+  password?: string
 ) {
   if (!credentials) {
     return
@@ -60,7 +62,14 @@ export async function updateTodos(
     oauth.setCredentials(credentials)
     const api = google.calendar({ version: 'v3', auth: oauth })
     const todorantCalendar = await getTodorantCalendar(api)
-    for (const todo of todos) {
+    for (let todo of todos) {
+      if (todo.encrypted && password) {
+        const decrypted = _d(todo.text, password)
+        if (decrypted) {
+          todo = { ...todo } as Todo
+          todo.text = decrypted
+        }
+      }
       let todoEvent = await getTodoEvent(api, todorantCalendar, todo)
       if (
         (todo.deleted || todo.completed || !todo.time || !todo.date) &&
