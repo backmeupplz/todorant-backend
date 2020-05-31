@@ -52,5 +52,26 @@ const jsyaml = require('js-yaml')
   console.log('==== Saved object to the file')
 
   console.log('==== Working on errors')
-  console.log(translations)
+  const errorTranslations = (
+    await axios.get('https://localizer.todorant.com/localizations?tag=telegram')
+  ).data.filter((l) => {
+    return l.tags.indexOf('errors') > -1
+  })
+  console.log(JSON.stringify(errorTranslations, undefined, 2))
+  const errorsMap = {}
+  for (const translation of errorTranslations) {
+    const key = translation.key.replace('error.', '')
+    const value = errorsMap[key] || {}
+    for (const variant of translation.variants) {
+      if (!variant.selected) {
+        continue
+      }
+      value[variant.language] = variant.text
+    }
+    errorsMap[key] = value
+  }
+  fs.writeFileSync(
+    `${__dirname}/../locales/errors.js`,
+    `module.exports = ${JSON.stringify(errorsMap, undefined, 2)}`
+  )
 })()

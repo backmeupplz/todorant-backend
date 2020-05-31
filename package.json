@@ -15,12 +15,13 @@
     "watch-js": "nodemon dist/app.js -d 1",
     "killServer": "lsof -ti:1337 | xargs kill && lsof -ti:3000 | xargs kill",
     "upload-translations": "node scripts/upload.js",
-    "download-translations": "node scripts/download.js"
+    "download-translations": "node scripts/download.js && yarn prettier --single-quote --no-semi --write ./locales/errors.js"
   },
   "devDependencies": {
     "concurrently": "^4.1.0",
     "flat": "^5.0.0",
-    "nodemon": "^1.19.1"
+    "nodemon": "^1.19.1",
+    "prettier": "^2.0.5"
   },
   "dependencies": {
     "@koa/cors": "^3.0.0",
