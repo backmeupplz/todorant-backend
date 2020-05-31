@@ -57,5 +57,7 @@ function languageKeyboard() {
 }
 
 export function localesFiles() {
-  return readdirSync(`${__dirname}/../../../../locales`)
+  return readdirSync(`${__dirname}/../../../../locales`).filter((s) =>
+    s.includes('yaml')
+  )
 }
