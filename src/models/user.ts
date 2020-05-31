@@ -24,6 +24,7 @@ export enum TelegramLanguage {
   en = 'en',
   ru = 'ru',
   it = 'it',
+  ua = 'ua',
 }
 
 export class User extends Typegoose {
