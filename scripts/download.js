@@ -50,4 +50,7 @@ const jsyaml = require('js-yaml')
     fs.writeFileSync(`${__dirname}/../locales/${language}.yaml`, yaml)
   }
   console.log('==== Saved object to the file')
+
+  console.log('==== Working on errors')
+  console.log(translations)
 })()
