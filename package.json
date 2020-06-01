@@ -44,7 +44,7 @@
     "cnf-qrcode": "^1.0.13",
     "convert-svg-to-png": "^0.5.0",
     "crypto-js": "^3.3.0",
-    "dehumanize-date": "backmeupplz/dehumanize-date#f5fe405de2b8f4d49ad69747f0ec3bdefe446113",
+    "dehumanize-date": "backmeupplz/dehumanize-date#8ec0cfc944084e3259663d63175acdc5aeb54095",
     "dotenv": "^7.0.0",
     "facebook-node-sdk": "^0.2.0",
     "fuzzysort": "^1.1.4",
