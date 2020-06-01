@@ -20,6 +20,8 @@ import {
 import { handleId } from './commands/id'
 import { sendDebug } from './commands/debug'
 import { sendQR } from './commands/qr'
+import { checkSuperAdmin } from './middlewares/checkSuperAdmin'
+import { sendSubscriptions } from './commands/subscriptions'
 
 // Create bot
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
@@ -45,7 +47,8 @@ bot.command('zen', handleZen)
 bot.command('timezone', handleTimezone)
 bot.command('current', handleCurrent)
 bot.command('id', handleId)
-bot.command('debug', sendDebug)
+bot.command('debug', checkSuperAdmin, sendDebug)
+bot.command('subscriptions', checkSuperAdmin, sendSubscriptions)
 bot.command('qr', sendQR)
 // Actions
 bot.action('done', handleDone)
