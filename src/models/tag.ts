@@ -13,6 +13,8 @@ export class Tag extends Typegoose {
   tag: string
   @prop()
   color?: string
+  @prop({ required: true, default: 0 })
+  numberOfUses?: number
 
   @instanceMethod
   stripped() {
@@ -36,6 +38,20 @@ export const TagModel = new Tag().getModelForClass(Tag, {
 
 export async function addTags(user: InstanceType<User>, tags: string[]) {
   const dbtags = await TagModel.find({ user: user._id, deleted: false })
+  const tagsCountMap = tags.reduce((p, c) => {
+    if (p[c]) {
+      p[c]++
+    } else {
+      p[c] = 1
+    }
+    return p
+  }, {} as { [index: string]: number })
+  for (const tag of dbtags) {
+    if (tagsCountMap[tag.tag]) {
+      tag.numberOfUses += tagsCountMap[tag.tag]
+      await tag.save()
+    }
+  }
   const dbtagstexts = dbtags.map((tag) => tag.tag)
   const tagsToAdd = tags.filter((tag) => !dbtagstexts.includes(tag))
   const tagsToAddMap = tagsToAdd.reduce((p, c) => {

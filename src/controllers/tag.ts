@@ -56,7 +56,7 @@ export async function getTagsBody(ctx: Context) {
   const tags = await TagModel.find({
     user: ctx.state.user._id,
     deleted: false,
-  })
+  }).sort({ numberOfUses: -1 })
   // Respond
   return tags.map((t) => t.stripped())
 }
