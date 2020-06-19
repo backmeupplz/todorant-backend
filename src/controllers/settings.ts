@@ -41,6 +41,13 @@ export default class {
       ctx.request.body.newTodosGoFirst =
         ctx.request.body.newTodosGoFirst === '1'
     }
+    if (
+      typeof ctx.request.body.duplicateTagInBreakdown === 'string' ||
+      ctx.request.body.duplicateTagInBreakdown instanceof String
+    ) {
+      ctx.request.body.duplicateTagInBreakdown =
+        ctx.request.body.duplicateTagInBreakdown === '1'
+    }
     ctx.state.user.settings = {
       ...(ctx.state.user.settings || {}),
       ...(ctx.request.body || {}),
