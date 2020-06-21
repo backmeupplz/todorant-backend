@@ -22,49 +22,31 @@ export default class {
     unlinkSync(tempPath)
     ctx.status = 200
   }
+
   @Get('/', authenticate)
   async get(ctx: Context) {
     const incompleteTodos = await getTodos(ctx.state.user, false, '')
     const completeTodos = await getTodos(ctx.state.user, true, '')
-
     const allTodos = [...completeTodos, ...incompleteTodos].filter(
       (todo) => !todo.deleted
     )
-
     if (!allTodos) {
       return ''
     }
-
     let string = ''
-
-    for (let todo of allTodos) {
+    for (const todo of allTodos) {
       const dateFrom = `${new Date(todo.createdAt).toISOString()}`.substring(
         0,
         10
       )
-      const dateCompleted = `${todo.monthAndYear}-${todo.date}`
-      const textWithHashtags = todo.text.split(' ')
-      let textWithoutHashtags = ''
-      let hashtags = ''
-      let priority
-
-      if (todo.frog) {
-        priority = 'A'
+      let dateCompleted = `${todo.monthAndYear}`
+      if (todo.date) {
+        dateCompleted += `-${todo.date}`
       }
-
-      if (!priority) {
-        priority = String.fromCharCode(65 + todo.order)
-      }
-
-      textWithHashtags.forEach((word) => {
-        if (word.startsWith('#')) hashtags += `${word} `
-        else textWithoutHashtags += `${word} `
-      })
-
       if (todo.completed) {
-        string += `x ${dateCompleted} ${dateFrom} ${textWithoutHashtags}${hashtags}due:${dateCompleted}\n`
+        string += `x ${dateCompleted} ${dateFrom} ${todo.text} due:${dateCompleted}\n`
       } else {
-        string += `(${priority}) ${textWithoutHashtags}${hashtags}\n`
+        string += `${todo.text} due:${dateCompleted}\n`
       }
     }
 
