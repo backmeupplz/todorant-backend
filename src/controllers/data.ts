@@ -1,10 +1,11 @@
 // Dependencies
-import { Controller, Post } from 'koa-router-ts'
+import { Controller, Post, Get } from 'koa-router-ts'
 import { Context } from 'koa'
 import { authenticate } from '../middlewares/authenticate'
 import { path } from 'temp'
 import { writeFileSync, unlinkSync } from 'fs'
 import { bot } from '../helpers/report'
+import { getTodos } from './todo'
 
 @Controller('/data')
 export default class {
@@ -20,5 +21,33 @@ export default class {
     await bot.telegram.sendDocument(process.env.ADMIN, { source: tempPath })
     unlinkSync(tempPath)
     ctx.status = 200
+  }
+
+  @Get('/', authenticate)
+  async get(ctx: Context) {
+    const incompleteTodos = await getTodos(ctx.state.user, false, '')
+    const completeTodos = await getTodos(ctx.state.user, true, '')
+    const allTodos = [...completeTodos, ...incompleteTodos].filter(
+      (todo) => !todo.deleted
+    )
+    let string = ''
+    for (const todo of allTodos) {
+      const dateCreated = `${new Date(todo.createdAt).toISOString()}`.substring(
+        0,
+        10
+      )
+      let dateDue = `${todo.monthAndYear}`
+      if (todo.date) {
+        dateDue += `-${todo.date}`
+      }
+      if (todo.completed) {
+        string += `x ${dateDue} ${dateCreated} ${todo.text} due:${dateDue}\n`
+      } else {
+        string += `${todo.text} due:${dateDue}\n`
+      }
+    }
+
+    ctx.status = 200
+    ctx.body = string
   }
 }
