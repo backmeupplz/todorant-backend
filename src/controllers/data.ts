@@ -30,23 +30,20 @@ export default class {
     const allTodos = [...completeTodos, ...incompleteTodos].filter(
       (todo) => !todo.deleted
     )
-    if (!allTodos) {
-      return ''
-    }
     let string = ''
     for (const todo of allTodos) {
-      const dateFrom = `${new Date(todo.createdAt).toISOString()}`.substring(
+      const dateCreated = `${new Date(todo.createdAt).toISOString()}`.substring(
         0,
         10
       )
-      let dateCompleted = `${todo.monthAndYear}`
+      let dateDue = `${todo.monthAndYear}`
       if (todo.date) {
-        dateCompleted += `-${todo.date}`
+        dateDue += `-${todo.date}`
       }
       if (todo.completed) {
-        string += `x ${dateCompleted} ${dateFrom} ${todo.text} due:${dateCompleted}\n`
+        string += `x ${dateDue} ${dateCreated} ${todo.text} due:${dateDue}\n`
       } else {
-        string += `${todo.text} due:${dateCompleted}\n`
+        string += `${todo.text} due:${dateDue}\n`
       }
     }
 
