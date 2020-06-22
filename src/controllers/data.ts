@@ -5,6 +5,7 @@ import { authenticate } from '../middlewares/authenticate'
 import { path } from 'temp'
 import { writeFileSync, unlinkSync } from 'fs'
 import { bot } from '../helpers/report'
+import { _d } from '../helpers/encryption'
 import { getTodos } from './todo'
 
 @Controller('/data')
@@ -25,11 +26,17 @@ export default class {
 
   @Get('/', authenticate)
   async get(ctx: Context) {
+    const password = ctx.headers.password
     const incompleteTodos = await getTodos(ctx.state.user, false, '')
     const completeTodos = await getTodos(ctx.state.user, true, '')
-    const allTodos = [...completeTodos, ...incompleteTodos].filter(
-      (todo) => !todo.deleted
-    )
+    const allTodos = [...completeTodos, ...incompleteTodos]
+      .filter((todo) => !todo.deleted)
+      .map((todo) => {
+        if (todo.encrypted && password) {
+          todo.text = _d(todo.text, password)
+        }
+        return todo
+      })
     let string = ''
     for (const todo of allTodos) {
       const dateCreated = `${new Date(todo.createdAt).toISOString()}`.substring(
