@@ -4,7 +4,7 @@ import { Controller, Post, Put, Get, Delete } from 'koa-router-ts'
 import { Todo, TodoModel, getTitle } from '../models/todo'
 import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
-import { UserModel, User, addTags } from '../models'
+import { UserModel, User, addTags, HeroModel } from '../models'
 import { InstanceType } from 'typegoose'
 import { isTodoOld } from '../helpers/isTodoOld'
 import { checkSubscription } from '../middlewares/checkSubscription'
@@ -12,6 +12,7 @@ import { requestSync } from '../sockets'
 import { fixOrder } from '../helpers/fixOrder'
 import { getStateBody } from './state'
 import { getTagsBody } from './tag'
+import { getPoints } from './hero'
 import { updateTodos } from '../helpers/googleCalendar'
 import { _d } from '../helpers/encryption'
 const fuzzysort = require('fuzzysort')
@@ -55,6 +56,12 @@ export default class {
         todo.completed instanceof String
       ) {
         todo.completed = todo.completed === '1'
+      }
+      if (todo.completed) {
+        await HeroModel.findOneAndUpdate(
+          { user: ctx.state.user.id },
+          { $inc: { points: 1 } }
+        )
       }
       const goingOnTop =
         (ctx.state.user.settings.newTodosGoFirst &&
@@ -166,6 +173,12 @@ export default class {
       todo.skipped = false
     }
     todo.text = text
+    if (completed) {
+      await HeroModel.findOneAndUpdate(
+        { user: ctx.state.user.id },
+        { $inc: { points: 1 } }
+      )
+    }
     if (typeof completed === 'string' || completed instanceof String) {
       todo.completed = completed === '1'
     } else {
@@ -222,6 +235,11 @@ export default class {
     if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
       return ctx.throw(404, errors.noTodo)
     }
+    //Add hero point
+    await HeroModel.findOneAndUpdate(
+      { user: ctx.state.user.id },
+      { $inc: { points: 1 } }
+    )
     // Edit and save
     todo.completed = true
     await todo.save()
@@ -386,6 +404,7 @@ export default class {
       todo: incompleteTodos.length ? incompleteTodos[0] : undefined,
       state: await getStateBody(ctx),
       tags: await getTagsBody(ctx),
+      points: await getPoints(ctx),
     }
   }
 
@@ -434,6 +453,7 @@ export default class {
       todos,
       state: await getStateBody(ctx),
       tags: await getTagsBody(ctx),
+      points: await getPoints(ctx),
     }
   }
 
