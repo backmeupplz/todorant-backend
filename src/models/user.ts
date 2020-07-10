@@ -1,6 +1,13 @@
 // Dependencies
 import { sign } from '../helpers/jwt'
-import { prop, Typegoose, InstanceType, instanceMethod } from 'typegoose'
+import {
+  prop,
+  Typegoose,
+  InstanceType,
+  instanceMethod,
+  arrayProp,
+  Ref,
+} from 'typegoose'
 import { omit } from 'lodash'
 import { GoogleCalendarCredentials } from '../helpers/googleCalendar'
 
@@ -75,9 +82,20 @@ export class User extends Typegoose {
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
+  @prop({ index: true, unique: true })
+  delegateInviteToken?: string
+  @arrayProp({ items: User, required: true, default: [] })
+  delegates: Ref<User>[]
+
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
-    const stripFields = ['__v', 'todos', 'bouncerNotified', 'powerUserNotified']
+    const stripFields = [
+      '__v',
+      'todos',
+      'bouncerNotified',
+      'powerUserNotified',
+      'delegates',
+    ]
     if (!withExtra) {
       stripFields.push('token')
       stripFields.push('email')
