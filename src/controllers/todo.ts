@@ -575,7 +575,8 @@ export async function getTodos(
   queryString?: string,
   password?: string
 ) {
-  const results = (await TodoModel.find({ user: user._id }))
+  const hashes = hash.toLowerCase().split(',')
+  let results: Todo[] = (await TodoModel.find({ user: user._id }))
     .filter((todo) => !todo.deleted)
     .filter((todo) => todo.completed === completed)
     .map((todo) => {
@@ -587,17 +588,16 @@ export async function getTodos(
       }
       return todo
     })
-    .filter(
+  for (const singleHash of hashes) {
+    results = results.filter(
       (todo) =>
         !hash ||
-        todo.text.toLowerCase().includes(hash.toLowerCase()) ||
+        todo.text.toLowerCase().includes(singleHash) ||
         ((todo as any).decryptedText &&
-          (todo as any).decryptedText
-            .toLowerCase()
-            .includes(hash.toLowerCase()))
+          (todo as any).decryptedText.toLowerCase().includes(singleHash))
     )
-    .map((todo) => todo.stripped())
-    .sort(compareTodos(completed))
+  }
+  results = results.map((todo) => todo.stripped()).sort(compareTodos(completed))
   if (!queryString) {
     return results.map((todo) => {
       ;(todo as any).decryptedText = undefined
