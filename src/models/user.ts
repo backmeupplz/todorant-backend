@@ -19,6 +19,7 @@ export class Settings {
   duplicateTagInBreakdown?: boolean
   updatedAt?: Date
   googleCalendarCredentials?: GoogleCalendarCredentials
+  language?: string
 }
 
 export enum TelegramLanguage {
