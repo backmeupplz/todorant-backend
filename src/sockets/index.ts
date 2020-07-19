@@ -15,6 +15,8 @@ import {
 } from '../models'
 import { InstanceType } from 'typegoose'
 import { updateTodos } from '../helpers/googleCalendar'
+import { isUserSubscribed } from '../helpers/isUserSubscribed'
+import { errors } from '../helpers/errors'
 
 const server = createServer()
 const io = SocketIO(server)
@@ -84,6 +86,9 @@ io.on('connection', (socket) => {
     socket,
     'todos',
     async (user: InstanceType<User>, lastSyncDate: Date | undefined) => {
+      if (!isUserSubscribed(user)) {
+        throw new Error(errors.subscription)
+      }
       const query = { user: user._id } as any
       if (lastSyncDate) {
         query.updatedAt = { $gt: lastSyncDate }
