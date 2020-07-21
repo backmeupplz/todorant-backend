@@ -1,4 +1,3 @@
-// Dependencies
 import { sign } from '../helpers/jwt'
 import {
   prop,
@@ -84,7 +83,7 @@ export class User extends Typegoose {
 
   @prop({ index: true, unique: true })
   delegateInviteToken?: string
-  @arrayProp({ items: User, required: true, default: [] })
+  @arrayProp({ items: User, required: true, default: [], index: true })
   delegates: Ref<User>[]
 
   @instanceMethod

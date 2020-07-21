@@ -1,5 +1,5 @@
 import { User, UserModel } from '../models/user'
-import { Controller, Post, Delete, Get } from 'koa-router-ts'
+import { Controller, Post, Get } from 'koa-router-ts'
 import { Context } from 'koa'
 import { authenticate } from '../middlewares/authenticate'
 import * as randToken from 'rand-token'
@@ -12,13 +12,6 @@ export default class {
     ctx.state.user.delegateInviteToken = token
     await ctx.state.user.save()
     ctx.body = token
-  }
-
-  @Delete('/deleteToken', authenticate)
-  async deleteToken(ctx: Context) {
-    ctx.state.user.delegateInviteToken = undefined
-    await ctx.state.user.save()
-    ctx.status = 200
   }
 
   @Post('/useToken', authenticate)
@@ -35,13 +28,27 @@ export default class {
     ) {
       delegator.delegates.push(ctx.state.user._id)
     }
+    await delegator.save()
     ctx.status = 200
   }
 
-  @Get('/delegates', authenticate)
-  async getDelegates(ctx: Context) {
-    ctx.body = (
+  @Get('/', authenticate)
+  async getDelegateInfo(ctx: Context) {
+    const delegates = (
       await UserModel.findById(ctx.state.user._id).populate('delegates')
     ).delegates.map((d: User) => d.stripped(false, false))
+    const delegators = (
+      await UserModel.find({ delegates: ctx.state.user._id })
+    ).map((d: User) => d.stripped(false, false))
+    if (!ctx.state.user.delegateInviteToken) {
+      ctx.state.user.delegateInviteToken = randToken.generate(16)
+      await ctx.state.user.save()
+    }
+    const token = ctx.state.user.delegateInviteToken
+    ctx.body = {
+      delegates,
+      delegators,
+      token,
+    }
   }
 }
