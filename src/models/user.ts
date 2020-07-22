@@ -83,7 +83,7 @@ export class User extends Typegoose {
 
   @prop({ index: true, unique: true })
   delegateInviteToken?: string
-  @arrayProp({ items: User, required: true, default: [], index: true })
+  @arrayProp({ itemsRef: User, required: true, default: [], index: true })
   delegates: Ref<User>[]
 
   @instanceMethod
@@ -101,10 +101,18 @@ export class User extends Typegoose {
       stripFields.push('facebookId')
       stripFields.push('telegramId')
       stripFields.push('appleSubId')
+      stripFields.push('createdOnApple')
+      stripFields.push('subscriptionStatus')
+      stripFields.push('timezone')
+      stripFields.push('settings')
+      stripFields.push('updatedAt')
+      stripFields.push('createdAt')
+      stripFields.push('telegramZen')
     }
     if (!withToken) {
       stripFields.push('token')
       stripFields.push('anonymousToken')
+      stripFields.push('delegateInviteToken')
     }
     return omit(this._doc, stripFields)
   }
