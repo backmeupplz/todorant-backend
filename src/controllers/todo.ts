@@ -688,12 +688,10 @@ export async function addEpicPoints(user: object, text: string) {
     .filter((epic) => epic.epicGoal > epic.epicPoints)
     .map((epic) => epic.tag)
     .filter((epic) => tagsArray.includes(`#${epic}`))
-  if (epicsInTodo) {
-    epicsInTodo.forEach(async (epic) => {
-      await TagModel.findOneAndUpdate(
-        { user: user, tag: epic },
-        { $inc: { epicPoints: 1 } }
-      )
-    })
-  }
+  epicsInTodo.forEach(async (epic) => {
+    await TagModel.updateMany(
+      { user: user, tag: epic },
+      { $inc: { epicPoints: 1 } }
+    )
+  })
 }
