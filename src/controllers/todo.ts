@@ -4,7 +4,7 @@ import { Controller, Post, Put, Get, Delete } from 'koa-router-ts'
 import { Todo, TodoModel, getTitle } from '../models/todo'
 import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
-import { UserModel, User, addTags, HeroModel } from '../models'
+import { UserModel, User, addTags, HeroModel, TagModel } from '../models'
 import { InstanceType } from 'typegoose'
 import { isTodoOld } from '../helpers/isTodoOld'
 import { checkSubscription } from '../middlewares/checkSubscription'
@@ -62,6 +62,7 @@ export default class {
           { user: ctx.state.user.id },
           { $inc: { points: 1 } }
         )
+        await addEpicPoints(ctx.state.user._id, todo.text)
       }
       const goingOnTop =
         (ctx.state.user.settings.newTodosGoFirst &&
@@ -178,6 +179,7 @@ export default class {
         { user: ctx.state.user.id },
         { $inc: { points: 1 } }
       )
+      await addEpicPoints(todo.user, todo.text)
     }
     if (typeof completed === 'string' || completed instanceof String) {
       todo.completed = completed === '1'
@@ -240,6 +242,7 @@ export default class {
       { user: ctx.state.user.id },
       { $inc: { points: 1 } }
     )
+    await addEpicPoints(todo.user, todo.text)
     // Edit and save
     todo.completed = true
     await todo.save()
@@ -674,4 +677,23 @@ function monthAndYearPlus(monthAndYear: string, numberOfMonths: number) {
     month = month - 12
   }
   return `${year}-${month < 10 ? `0${month}` : month}`
+}
+
+export async function addEpicPoints(user: object, text: string) {
+  const tagsArray = text
+    .split(' ')
+    .filter((m) => m.match(/^#[\u0400-\u04FFa-zA-Z_0-9]+$/))
+  const epicsInTodo = (await TagModel.find({ user: user, deleted: false }))
+    .filter((r) => r.epic)
+    .filter((epic) => epic.epicGoal > epic.epicPoints)
+    .map((epic) => epic.tag)
+    .filter((epic) => tagsArray.includes(`#${epic}`))
+  if (epicsInTodo) {
+    epicsInTodo.forEach(async (epic) => {
+      await TagModel.findOneAndUpdate(
+        { user: user, tag: epic },
+        { $inc: { epicPoints: 1 } }
+      )
+    })
+  }
 }
