@@ -663,7 +663,7 @@ function monthAndYearPlus(monthAndYear: string, numberOfMonths: number) {
 export async function addEpicPoints(user: User, tags: string[]) {
   const epics = (await TagModel.find({ user: user, deleted: false, tag: tags }))
     .filter((tag) => tag.epic)
-    .filter((epic) => epic.epicPoints <= epic.epicGoal)
+    .filter((epic) => epic.epicPoints < epic.epicGoal)
     .map((epic) => epic.tag)
   await TagModel.updateMany(
     { user: user, tag: epics, deleted: false },
