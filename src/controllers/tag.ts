@@ -35,15 +35,22 @@ export default class {
   async put(ctx: Context) {
     // Parameters
     const id = ctx.params.id
-    const { color } = ctx.request.body
+    const { color, epic, epicCompleted, epicGoal } = ctx.request.body
     // Find todo
     const tag = await TagModel.findById(id)
     // Check ownership
     if (!tag || tag.user.toString() !== ctx.state.user._id.toString()) {
       return ctx.throw(404, errors.noTag)
     }
+    // Check if completed
+    if (epicCompleted) {
+      tag.epicPoints = 0
+    }
     // Edit and save
     tag.color = color || null
+    tag.epic = epic || false
+    tag.epicCompleted = epicCompleted || false
+    tag.epicGoal = epicGoal || 0
     await tag.save()
     // Respond
     ctx.status = 200

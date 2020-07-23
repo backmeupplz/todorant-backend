@@ -4,7 +4,7 @@ import { Controller, Post, Put, Get, Delete } from 'koa-router-ts'
 import { Todo, TodoModel, getTitle } from '../models/todo'
 import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
-import { UserModel, User, addTags, HeroModel } from '../models'
+import { UserModel, User, addTags, HeroModel, TagModel } from '../models'
 import { InstanceType } from 'typegoose'
 import { isTodoOld } from '../helpers/isTodoOld'
 import { checkSubscription } from '../middlewares/checkSubscription'
@@ -15,6 +15,7 @@ import { getTagsBody } from './tag'
 import { getPoints } from './hero'
 import { updateTodos } from '../helpers/googleCalendar'
 import { _d } from '../helpers/encryption'
+import { getTags } from '../helpers/getTags'
 const fuzzysort = require('fuzzysort')
 
 @Controller('/todo')
@@ -62,6 +63,8 @@ export default class {
           { user: ctx.state.user.id },
           { $inc: { points: 1 } }
         )
+        const tagsArray = getTags(ctx.request.body, password)
+        await addEpicPoints(ctx.state.user, tagsArray)
       }
       const goingOnTop =
         (ctx.state.user.settings.newTodosGoFirst &&
@@ -92,20 +95,8 @@ export default class {
       [...todosGoingOnTop, ...todosGoingToBottom]
     )
     // Add tags
-    await addTags(
-      ctx.state.user,
-      ctx.request.body
-        .map((todo) => {
-          let text = todo.text
-          if (todo.encrypted && password) {
-            text = _d(todo.text, password)
-          }
-          return linkify.match(text) || []
-        })
-        .reduce((p, c) => p.concat(c), [])
-        .filter((m) => /^#[\u0400-\u04FFa-zA-Z_0-9]+$/u.test(m.url))
-        .map((m) => m.url.substr(1))
-    )
+    const tagsArray = getTags(ctx.request.body, password)
+    await addTags(ctx.state.user, tagsArray)
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -149,6 +140,8 @@ export default class {
       today,
       time,
     } = ctx.request.body
+    // Get password
+    const password = ctx.headers.password
     // Find todo
     const todo = await TodoModel.findById(id)
     // Check ownership
@@ -178,6 +171,8 @@ export default class {
         { user: ctx.state.user.id },
         { $inc: { points: 1 } }
       )
+      const tagsArray = getTags(ctx.request.body, password)
+      await addEpicPoints(ctx.state.user, tagsArray)
     }
     if (typeof completed === 'string' || completed instanceof String) {
       todo.completed = completed === '1'
@@ -196,23 +191,9 @@ export default class {
       undefined,
       [todo]
     )
-    // Get password
-    const password = ctx.headers.password
     // Add tags
-    await addTags(
-      ctx.state.user,
-      [todo]
-        .map((todo) => {
-          let text = todo.text
-          if (todo.encrypted && password) {
-            text = _d(todo.text, password)
-          }
-          return linkify.match(text) || []
-        })
-        .reduce((p, c) => p.concat(c), [])
-        .filter((m) => /^#[\u0400-\u04FFa-zA-Z_0-9]+$/u.test(m.url))
-        .map((m) => m.url.substr(1))
-    )
+    const tagsArray = getTags([todo], password)
+    await addTags(ctx.state.user, tagsArray)
     // Respond
     ctx.status = 200
     // Trigger sync
@@ -229,6 +210,7 @@ export default class {
   async done(ctx: Context) {
     // Parameters
     const id = ctx.params.id
+    const password = ctx.headers.password
     // Find todo
     const todo = await TodoModel.findById(id)
     // Check ownership
@@ -240,6 +222,8 @@ export default class {
       { user: ctx.state.user.id },
       { $inc: { points: 1 } }
     )
+    const tagsArray = getTags([todo], password)
+    await addEpicPoints(ctx.state.user, tagsArray)
     // Edit and save
     todo.completed = true
     await todo.save()
@@ -674,4 +658,15 @@ function monthAndYearPlus(monthAndYear: string, numberOfMonths: number) {
     month = month - 12
   }
   return `${year}-${month < 10 ? `0${month}` : month}`
+}
+
+export async function addEpicPoints(user: User, tags: string[]) {
+  const epics = (await TagModel.find({ user: user, deleted: false, tag: tags }))
+    .filter((tag) => tag.epic)
+    .filter((epic) => epic.epicPoints < epic.epicGoal)
+    .map((epic) => epic.tag)
+  await TagModel.updateMany(
+    { user: user, tag: epics, deleted: false },
+    { $inc: { epicPoints: 1 } }
+  )
 }
