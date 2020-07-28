@@ -163,7 +163,7 @@ export default class {
     } else {
       todo.frog = frog
     }
-    if (isTodoOld(todo, today)) {
+    if (isTodoOld(todo, today, ctx)) {
       todo.frogFails += 1
       if (todo.frogFails >= 2) {
         todo.frog = true
@@ -506,7 +506,7 @@ export default class {
         titlesToReorder.add(oldTodo.title)
         titlesToReorder.add(newTodoTitle)
         if (oldTodo.title !== newTodoTitle) {
-          if (isTodoOld(oldTodo.todo, today)) {
+          if (isTodoOld(oldTodo.todo, today, ctx)) {
             oldTodo.todo.frogFails += 1
             if (oldTodo.todo.frogFails >= 2) {
               oldTodo.todo.frog = true

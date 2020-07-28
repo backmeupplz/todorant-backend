@@ -32,7 +32,7 @@ export async function getStateBody(ctx: Context) {
   const todos = await getTodos(ctx.state.user, false, '')
 
   for (const todo of todos) {
-    if (todo.hasOwnProperty('text') && isTodoOld(todo, date)) {
+    if (todo.hasOwnProperty('text') && isTodoOld(todo, date, ctx)) {
       planning = true
       break
     }

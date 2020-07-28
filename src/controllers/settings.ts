@@ -14,8 +14,13 @@ export default class {
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
     }
+    if (!ctx.request.body.startTimeOfDay) {
+      ctx.state.user.settings.startTimeOfDay =
+        ctx.state.user.settings.startTimeOfDay || '00:00'
+    }
     if (!ctx.request.body.googleCalendarCredentials) {
-      ctx.state.user.settings.googleCalendarCredentials = undefined
+      ctx.state.user.settings.googleCalendarCredentials =
+        ctx.state.user.settings.googleCalendarCredentials || undefined
     }
     await ctx.state.user.save()
     // Respond
@@ -46,8 +51,13 @@ export default class {
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
     }
+    if (!ctx.request.body.startTimeOfDay) {
+      ctx.state.user.settings.startTimeOfDay =
+        ctx.state.user.settings.startTimeOfDay || '00:00'
+    }
     if (!ctx.request.body.googleCalendarCredentials) {
-      ctx.state.user.settings.googleCalendarCredentials = undefined
+      ctx.state.user.settings.googleCalendarCredentials =
+        ctx.state.user.settings.googleCalendarCredentials || undefined
     }
     await ctx.state.user.save()
     // Respond
