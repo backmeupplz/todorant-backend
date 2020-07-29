@@ -63,18 +63,39 @@ export default class {
           { $inc: { points: 1 } }
         )
       }
+
+      let delegate: InstanceType<User> | undefined
+      if (todo.delegate) {
+        delegate = await UserModel.findById(todo.delegate)
+        if (!delegate) {
+          ctx.throw(404)
+        }
+        if (
+          !ctx.state.user.delegates
+            .map((d) => d.toString())
+            .includes(todo.delegate)
+        ) {
+          ctx.throw(404)
+        }
+        todo.delegate = undefined
+        todo.user = delegate._id
+        todo.delegator = ctx.state.user._id
+      }
+
       const goingOnTop =
         (ctx.state.user.settings.newTodosGoFirst &&
           todo.goFirst === undefined) ||
         todo.goFirst === true
-      if (goingOnTop) {
-        todosGoingOnTop.push(
-          await new TodoModel({ ...todo, user: ctx.state.user._id }).save()
-        )
-      } else {
-        todosGoingToBottom.push(
-          await new TodoModel({ ...todo, user: ctx.state.user._id }).save()
-        )
+      const dbtodo = await new TodoModel({
+        ...todo,
+        user: delegate ? delegate._id : ctx.state.user._id,
+      }).save()
+      if (!todo.delegator) {
+        if (goingOnTop) {
+          todosGoingOnTop.push(dbtodo)
+        } else {
+          todosGoingToBottom.push(dbtodo)
+        }
       }
     }
     // Fix order

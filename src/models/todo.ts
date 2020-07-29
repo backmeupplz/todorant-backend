@@ -56,6 +56,9 @@ export class Todo extends Typegoose {
   })
   time?: string // e.g. "01:01"
 
+  @prop({ ref: User })
+  delegator?: Ref<User>
+
   @instanceMethod
   stripped() {
     const stripFields = ['__v', 'user']
