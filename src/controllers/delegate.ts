@@ -1,9 +1,14 @@
+import { errors } from '../helpers/errors'
+import { TodoModel, getTitle } from '../models/todo'
 import { User, UserModel } from '../models/user'
 import { Controller, Post, Get, Delete } from 'koa-router-ts'
 import { Context } from 'koa'
 import { authenticate } from '../middlewares/authenticate'
 import * as randToken from 'rand-token'
 import { InstanceType } from 'typegoose'
+import { fixOrder } from '../helpers/fixOrder'
+import { requestSync } from '../sockets'
+import { updateTodos } from '../helpers/googleCalendar'
 
 @Controller('/delegate')
 export default class {
@@ -77,5 +82,47 @@ export default class {
       await delegator.save()
     }
     ctx.status = 200
+  }
+
+  @Get('/unaccepted', authenticate)
+  async getUnaccepted(ctx: Context) {
+    const todos = await TodoModel.find({
+      deleted: false,
+      user: ctx.state.user._id,
+      delegator: { $exists: true },
+      $or: [
+        { delegateAccepted: false },
+        { delegateAccepted: { $exists: false } },
+      ],
+    }).populate('delegator')
+    console.log(todos)
+    ctx.body = todos.map((t) => t.stripped())
+  }
+
+  @Post('/accept/:id', authenticate)
+  async acceptTodo(ctx: Context) {
+    // Parameters
+    const id = ctx.params.id
+    // Find todo
+    const todo = await TodoModel.findById(id)
+    // Check ownership
+    if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
+      return ctx.throw(404, errors.noTodo)
+    }
+    // Edit and save
+    todo.delegateAccepted = true
+    await todo.save()
+    // Fix order
+    await fixOrder(ctx.state.user, [getTitle(todo)])
+    // Respond
+    ctx.status = 200
+    // Trigger sync
+    requestSync(ctx.state.user._id)
+    // Update calendar
+    updateTodos(
+      [todo],
+      ctx.state.user.settings.googleCalendarCredentials,
+      ctx.headers.password
+    )
   }
 }

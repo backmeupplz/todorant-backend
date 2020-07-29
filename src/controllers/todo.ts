@@ -597,6 +597,7 @@ export async function getTodos(
   password?: string
 ) {
   const results = (await TodoModel.find({ user: user._id }))
+    .filter((todo) => !todo.delegator || todo.delegateAccepted)
     .filter((todo) => !todo.deleted)
     .filter((todo) => todo.completed === completed)
     .map((todo) => {
