@@ -6,8 +6,8 @@ function getDateFromTime(date: string, time: string) {
     parseInt(date.substr(0, 4)),
     parseInt(date.substr(5, 7)),
     parseInt(date.substr(8)),
-    parseInt(time.substr(0, 2)),
-    parseInt(time.substr(3))
+    time ? parseInt(time.substr(0, 2)) : undefined,
+    time ? parseInt(time.substr(3)) : undefined
   )
 }
 
@@ -15,12 +15,11 @@ export function isTodoOld(
   todo: Todo,
   date: string,
   time: string,
-  startTimeOfDay: any
+  startTimeOfDay = '00:00'
 ) {
   const day = date.substr(8)
   const monthAndYear = date.substr(0, 7)
   const yesterday = `${parseInt(day) - 1}`
-  if (!startTimeOfDay) startTimeOfDay = '00:00'
   const now = getDateFromTime(date, time)
   const todayDate = getDateFromTime(date, startTimeOfDay)
 
