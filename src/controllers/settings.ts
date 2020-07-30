@@ -14,6 +14,10 @@ export default class {
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
     }
+    if (!ctx.request.body.startTimeOfDay) {
+      ctx.state.user.settings.startTimeOfDay =
+        ctx.state.user.settings.startTimeOfDay || undefined
+    }
     if (!ctx.request.body.googleCalendarCredentials) {
       ctx.state.user.settings.googleCalendarCredentials = undefined
     }
@@ -45,6 +49,10 @@ export default class {
       ...(ctx.state.user.settings || {}),
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
+    }
+    if (!ctx.request.body.startTimeOfDay) {
+      ctx.state.user.settings.startTimeOfDay =
+        ctx.state.user.settings.startTimeOfDay || undefined
     }
     if (!ctx.request.body.googleCalendarCredentials) {
       ctx.state.user.settings.googleCalendarCredentials = undefined
