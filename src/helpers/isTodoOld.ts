@@ -1,23 +1,28 @@
 // Dependencies
 import { Todo } from '../models'
-import { User } from '../models/user'
-import { Context } from 'koa'
-import { InstanceType } from 'typegoose'
 
-export function isTodoOld(todo: Todo, date: string, ctx: Context) {
-  const user = ctx.state.user as InstanceType<User>
-  const startTimeOfDay = user.settings.startTimeOfDay
+function getDateFromTime(date: string, time: string) {
+  return new Date(
+    parseInt(date.substr(0, 4)),
+    parseInt(date.substr(5, 7)),
+    parseInt(date.substr(8)),
+    parseInt(time.substr(0, 2)),
+    parseInt(time.substr(3))
+  )
+}
+
+export function isTodoOld(
+  todo: Todo,
+  date: string,
+  time: string,
+  startTimeOfDay: any
+) {
   const day = date.substr(8)
   const monthAndYear = date.substr(0, 7)
   const yesterday = `${parseInt(day) - 1}`
-  const now = new Date()
-  const todayDate = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    parseInt(startTimeOfDay.substr(0, 2)),
-    parseInt(startTimeOfDay.substr(3))
-  )
+  if (!startTimeOfDay) startTimeOfDay = '00:00'
+  const now = getDateFromTime(date, time)
+  const todayDate = getDateFromTime(date, startTimeOfDay)
 
   // Exact date exists or not
   if (todo.date) {
