@@ -36,7 +36,7 @@ export const startWatch = async (credentials, userId, token) => {
         id: userId,
         token: token,
         type: 'web_hook',
-        address: 'https://364ac6883862.ngrok.io/google/notifications',
+        address: 'https://e607028cb5c0.ngrok.io/google/notifications',
         params: {
           ttl: channelLivingTime,
         },

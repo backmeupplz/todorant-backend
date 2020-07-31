@@ -103,4 +103,26 @@ export default class {
       ctx.status = 500
     }
   }
+  @Post('/closeChannel')
+  async closeChannel(ctx: Context) {
+    const userId = ctx.request.body.userId
+    const oauth = new google.auth.OAuth2(
+      process.env.GOOGLE_CALENDAR_CLIENT_ID,
+      process.env.GOOGLE_CALENDAR_SECRET,
+      'http://127.0.0.1:8080/google_calendar_setup'
+    )
+    const api = google.calendar({ version: 'v3', auth: oauth })
+    const user = await UserModel.findOne({
+      _id: userId,
+    })
+    const credentials = user.settings.googleCalendarCredentials
+    oauth.setCredentials(credentials)
+    await api.channels.stop({
+      requestBody: {
+        id: userId,
+        resourceId: 'kUfdGKvrVwF2V05vIAOicn1Kd2o',
+      },
+    })
+    ctx.status = 200
+  }
 }
