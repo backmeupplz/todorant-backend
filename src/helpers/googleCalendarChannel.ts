@@ -2,6 +2,9 @@ import { UserModel } from '../models/user'
 import { google } from 'googleapis'
 import { getTodorantCalendar } from './googleCalendar'
 
+const MAIN_URL = process.env.MAIN_URL
+const BASE_URL = process.env.BASE_URL
+
 const oneHour = 3600000
 
 googleSync()
@@ -12,38 +15,41 @@ async function googleSync() {
     'settings.googleCalendarCredentials': { $exists: true, $ne: undefined },
   })
   usersWithCalendar.forEach((user) => {
-    const userCalendar = user.settings.googleCalendarCredentials
+    const credentials = user.settings.googleCalendarCredentials
     const userId = user._id
-    const userToken = user.settings.googleCalendarCredentials.access_token
-    startWatch(userCalendar, userId, userToken)
+    startWatch(credentials, userId)
   })
 }
 
-export const startWatch = async (credentials, userId, token) => {
+export const startWatch = async (credentials: any, userId: string) => {
   const channelLivingTime = '7776000'
   try {
     const oauth = new google.auth.OAuth2(
       process.env.GOOGLE_CALENDAR_CLIENT_ID,
       process.env.GOOGLE_CALENDAR_SECRET,
-      'http://127.0.0.1:8080/google_calendar_setup'
+      `${BASE_URL}/google_calendar_setup`
     )
     oauth.setCredentials(credentials)
     const api = google.calendar({ version: 'v3', auth: oauth })
-    const todorantCalendr = await getTodorantCalendar(api)
-    await api.events.watch({
-      calendarId: todorantCalendr.id,
+    const todorantCalendar = await getTodorantCalendar(api)
+    const channel = await api.events.watch({
+      calendarId: todorantCalendar.id,
       requestBody: {
         id: userId,
-        token: token,
+        token: credentials.access_token,
         type: 'web_hook',
-        address: 'https://e607028cb5c0.ngrok.io/google/notifications',
+        address: `${MAIN_URL}/google/notifications`,
         params: {
           ttl: channelLivingTime,
         },
       },
     })
+    const resourceId = channel.data.resourceId
+    await UserModel.findOneAndUpdate(
+      { _id: userId },
+      { resourceId: resourceId }
+    )
   } catch (err) {
-    console.log(err)
     if (err.message !== `Channel id ${userId} not unique`) {
       console.log(err.message)
     }

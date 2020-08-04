@@ -76,6 +76,9 @@ export class User extends Typegoose {
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
+  @prop()
+  resourceId: string
+
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
     const stripFields = ['__v', 'todos', 'bouncerNotified', 'powerUserNotified']

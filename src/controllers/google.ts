@@ -1,7 +1,7 @@
 // Dependencies
 import { Controller, Post, Get } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
+import { authenticate, getUserFromToken } from '../middlewares/authenticate'
 import { SubscriptionStatus, UserModel, TodoModel } from '../models'
 import {
   getGoogleCalendarOAuthURL,
@@ -10,9 +10,12 @@ import {
   getGoogleEvents,
 } from '../helpers/googleCalendar'
 import { google } from 'googleapis'
+import { startWatch } from '../helpers/googleCalendarChannel'
 const Verifier = require('google-play-billing-validator')
 
 const googleCredentials = require('../../assets/api-4987639842126744234-562450-c85efe0aadfc.json')
+
+const BASE_URL = process.env.BASE_URL
 
 const verifier = new Verifier({
   email: googleCredentials.client_email,
@@ -41,15 +44,23 @@ export default class {
     if (!code) {
       return ctx.throw(403)
     }
-    ctx.body = await getGoogleCalendarToken(code, !!ctx.request.body.web)
+    const credentials = await getGoogleCalendarToken(
+      code,
+      !!ctx.request.body.web
+    )
+    const token = ctx.headers.token
+    const { _id } = await getUserFromToken(token)
+    startWatch(credentials, _id)
+    ctx.body = credentials
   }
+
   @Post('/notifications')
   async post(ctx: Context) {
     try {
       const oauth = new google.auth.OAuth2(
         process.env.GOOGLE_CALENDAR_CLIENT_ID,
         process.env.GOOGLE_CALENDAR_SECRET,
-        'http://127.0.0.1:8080/google_calendar_setup'
+        `${BASE_URL}/google_calendar_setup`
       )
       const id = ctx.request.header['x-goog-channel-id']
       const user = await UserModel.findOne({
@@ -103,26 +114,30 @@ export default class {
       ctx.status = 500
     }
   }
+
   @Post('/closeChannel')
   async closeChannel(ctx: Context) {
     const userId = ctx.request.body.userId
     const oauth = new google.auth.OAuth2(
       process.env.GOOGLE_CALENDAR_CLIENT_ID,
       process.env.GOOGLE_CALENDAR_SECRET,
-      'http://127.0.0.1:8080/google_calendar_setup'
+      `${BASE_URL}/google_calendar_setup`
     )
     const api = google.calendar({ version: 'v3', auth: oauth })
     const user = await UserModel.findOne({
       _id: userId,
     })
+    const resourceId = user.resourceId
     const credentials = user.settings.googleCalendarCredentials
     oauth.setCredentials(credentials)
     await api.channels.stop({
       requestBody: {
         id: userId,
-        resourceId: 'kUfdGKvrVwF2V05vIAOicn1Kd2o',
+        resourceId: resourceId,
       },
     })
+    user.resourceId = undefined
+    user.save()
     ctx.status = 200
   }
 }

@@ -21,16 +21,18 @@ export async function getGoogleEvents(api, calendar) {
   return req.data.items
 }
 
+const BASE_URL = process.env.BASE_URL
+
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CALENDAR_CLIENT_ID,
   process.env.GOOGLE_CALENDAR_SECRET,
-  'http://127.0.0.1:8080/google_calendar_setup'
+  `${BASE_URL}/google_calendar_setup`
 )
 
 const webOauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CALENDAR_CLIENT_ID,
   process.env.GOOGLE_CALENDAR_SECRET,
-  'http://127.0.0.1:8080/google_calendar_setup_web'
+  `${BASE_URL}/google_calendar_setup_web`
 )
 
 export function getGoogleCalendarOAuthURL(web = false) {
@@ -66,7 +68,7 @@ export async function updateTodos(
     const oauth = new google.auth.OAuth2(
       process.env.GOOGLE_CALENDAR_CLIENT_ID,
       process.env.GOOGLE_CALENDAR_SECRET,
-      'http://127.0.0.1:8080/google_calendar_setup'
+      `${BASE_URL}/google_calendar_setup`
     )
     oauth.setCredentials(credentials)
     const api = google.calendar({ version: 'v3', auth: oauth })
