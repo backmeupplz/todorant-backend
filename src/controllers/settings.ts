@@ -34,7 +34,7 @@ export default class {
           resourceId: resourceId,
         },
       })
-      ctx.state.user.settings.googleCalendarCredentials = null
+      ctx.state.user.settings.googleCalendarCredentials = undefined
     }
     await ctx.state.user.save()
     // Respond
@@ -82,7 +82,7 @@ export default class {
           resourceId: resourceId,
         },
       })
-      ctx.state.user.settings.googleCalendarCredentials = null
+      ctx.state.user.settings.googleCalendarCredentials = undefined
     }
     await ctx.state.user.save()
     // Respond

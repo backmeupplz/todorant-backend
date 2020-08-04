@@ -234,7 +234,7 @@ io.on('connection', (socket) => {
         } catch (err) {
           console.log(err)
         }
-        user.settings.googleCalendarCredentials = null
+        user.settings.googleCalendarCredentials = undefined
       }
       user.settings.updatedAt = new Date()
       await user.save()
