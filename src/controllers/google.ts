@@ -115,29 +115,35 @@ export default class {
     }
   }
 
-  @Post('/closeChannel')
+  @Post('/closeChannel', authenticate)
   async closeChannel(ctx: Context) {
-    const userId = ctx.request.body.userId
-    const oauth = new google.auth.OAuth2(
-      process.env.GOOGLE_CALENDAR_CLIENT_ID,
-      process.env.GOOGLE_CALENDAR_SECRET,
-      `${BASE_URL}/google_calendar_setup`
-    )
-    const api = google.calendar({ version: 'v3', auth: oauth })
-    const user = await UserModel.findOne({
-      _id: userId,
-    })
-    const resourceId = user.resourceId
-    const credentials = user.settings.googleCalendarCredentials
-    oauth.setCredentials(credentials)
-    await api.channels.stop({
-      requestBody: {
-        id: userId,
-        resourceId: resourceId,
-      },
-    })
-    user.resourceId = undefined
-    user.save()
-    ctx.status = 200
+    try {
+      const token = ctx.headers.token
+      const { _id } = await getUserFromToken(token)
+      const oauth = new google.auth.OAuth2(
+        process.env.GOOGLE_CALENDAR_CLIENT_ID,
+        process.env.GOOGLE_CALENDAR_SECRET,
+        `${BASE_URL}/google_calendar_setup`
+      )
+      const api = google.calendar({ version: 'v3', auth: oauth })
+      const user = await UserModel.findOne({
+        _id: _id,
+      })
+      const resourceId = user.resourceId
+      const credentials = user.settings.googleCalendarCredentials
+      oauth.setCredentials(credentials)
+      await api.channels.stop({
+        requestBody: {
+          id: _id,
+          resourceId: resourceId,
+        },
+      })
+      user.resourceId = undefined
+      user.save()
+      ctx.status = 200
+    } catch (err) {
+      console.log(err)
+      ctx.status = 500
+    }
   }
 }
