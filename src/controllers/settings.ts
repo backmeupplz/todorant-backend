@@ -1,8 +1,11 @@
 // Dependencies
 import { Controller, Post, Put } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
+import { authenticate, getUserFromToken } from '../middlewares/authenticate'
 import { requestSync } from '../sockets'
+import { google } from 'googleapis'
+
+const BASE_URL = process.env.BASE_URL
 
 @Controller('/settings')
 export default class {
@@ -14,8 +17,24 @@ export default class {
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
     }
-    if (!ctx.request.body.googleCalendarCredentials) {
-      ctx.state.user.settings.googleCalendarCredentials = undefined
+    if (ctx.request.body.googleCalendarCredentials === null) {
+      const oauth = new google.auth.OAuth2(
+        process.env.GOOGLE_CALENDAR_CLIENT_ID,
+        process.env.GOOGLE_CALENDAR_SECRET,
+        `${BASE_URL}/google_calendar_setup`
+      )
+      const api = google.calendar({ version: 'v3', auth: oauth })
+      const resourceId = ctx.state.user.resourceId
+      const googleCredentials = (await getUserFromToken(ctx.headers.token))
+        .settings.googleCalendarCredentials
+      oauth.setCredentials(googleCredentials)
+      await api.channels.stop({
+        requestBody: {
+          id: ctx.state.user._id,
+          resourceId: resourceId,
+        },
+      })
+      ctx.state.user.settings.googleCalendarCredentials = null
     }
     await ctx.state.user.save()
     // Respond
@@ -46,8 +65,24 @@ export default class {
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
     }
-    if (!ctx.request.body.googleCalendarCredentials) {
-      ctx.state.user.settings.googleCalendarCredentials = undefined
+    if (ctx.request.body.googleCalendarCredentials === null) {
+      const oauth = new google.auth.OAuth2(
+        process.env.GOOGLE_CALENDAR_CLIENT_ID,
+        process.env.GOOGLE_CALENDAR_SECRET,
+        `${BASE_URL}/google_calendar_setup`
+      )
+      const api = google.calendar({ version: 'v3', auth: oauth })
+      const resourceId = ctx.state.user.resourceId
+      const googleCredentials = (await getUserFromToken(ctx.headers.token))
+        .settings.googleCalendarCredentials
+      oauth.setCredentials(googleCredentials)
+      await api.channels.stop({
+        requestBody: {
+          id: ctx.state.user._id,
+          resourceId: resourceId,
+        },
+      })
+      ctx.state.user.settings.googleCalendarCredentials = null
     }
     await ctx.state.user.save()
     // Respond
