@@ -211,7 +211,7 @@ io.on('connection', (socket) => {
         throw new Error('User not found')
       }
       user.settings = { ...(user.settings || {}), ...settings }
-      if (settings.googleCalendarCredentials === null) {
+      if (settings.googleCalendarCredentials === undefined) {
         const api = getGoogleCalendarApi(
           user.settings.googleCalendarCredentials
         )
