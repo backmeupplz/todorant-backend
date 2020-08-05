@@ -14,6 +14,7 @@ export enum SubscriptionStatus {
 export class Settings {
   showTodayOnAddTodo?: boolean
   firstDayOfWeek?: number
+  startTimeOfDay?: string
   newTodosGoFirst?: boolean
   preserveOrderByTime?: boolean
   duplicateTagInBreakdown?: boolean
