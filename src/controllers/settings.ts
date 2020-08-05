@@ -31,6 +31,10 @@ export default class {
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
     }
+    if (!ctx.request.body.startTimeOfDay) {
+      ctx.state.user.settings.startTimeOfDay =
+        ctx.state.user.settings.startTimeOfDay || undefined
+    }
     await ctx.state.user.save()
     // Respond
     ctx.status = 200
@@ -75,6 +79,10 @@ export default class {
       ...(ctx.state.user.settings || {}),
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
+    }
+    if (!ctx.request.body.startTimeOfDay) {
+      ctx.state.user.settings.startTimeOfDay =
+        ctx.state.user.settings.startTimeOfDay || undefined
     }
     await ctx.state.user.save()
     // Respond
