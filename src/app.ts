@@ -13,6 +13,7 @@ import './helpers/bouncersMessage'
 import './helpers/powerUsersMessage'
 import './helpers/checkAppleSubscribers'
 import './helpers/checkGoogleSubscribers'
+import './helpers/googleCalendarChannel'
 import './sockets'
 const logger = require('koa-logger')
 

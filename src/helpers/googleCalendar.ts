@@ -11,17 +11,28 @@ export interface GoogleCalendarCredentials {
   token_type?: string | null
   id_token?: string | null
 }
+export async function getGoogleEvents(api, calendar) {
+  const date = new Date()
+  date.setMinutes(date.getMinutes() - 1)
+  const req = await api.events.list({
+    calendarId: calendar.id,
+    updatedMin: date,
+  })
+  return req.data.items
+}
+
+const BASE_URL = process.env.BASE_URL
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CALENDAR_CLIENT_ID,
   process.env.GOOGLE_CALENDAR_SECRET,
-  'https://todorant.com/google_calendar_setup'
+  `${BASE_URL}/google_calendar_setup`
 )
 
 const webOauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CALENDAR_CLIENT_ID,
   process.env.GOOGLE_CALENDAR_SECRET,
-  'https://todorant.com/google_calendar_setup_web'
+  `${BASE_URL}/google_calendar_setup_web`
 )
 
 export function getGoogleCalendarOAuthURL(web = false) {
@@ -54,13 +65,7 @@ export async function updateTodos(
     return
   }
   try {
-    const oauth = new google.auth.OAuth2(
-      process.env.GOOGLE_CALENDAR_CLIENT_ID,
-      process.env.GOOGLE_CALENDAR_SECRET,
-      'https://todorant.com/google_calendar_setup'
-    )
-    oauth.setCredentials(credentials)
-    const api = google.calendar({ version: 'v3', auth: oauth })
+    const api = getGoogleCalendarApi(credentials)
     const todorantCalendar = await getTodorantCalendar(api)
     for (let todo of todos) {
       if (todo.encrypted && password) {
@@ -140,7 +145,7 @@ export async function updateTodos(
   }
 }
 
-async function getTodorantCalendar(api: calendar_v3.Calendar) {
+export async function getTodorantCalendar(api: calendar_v3.Calendar) {
   const calendarList = (await api.calendarList.list()).data
   let primaryTimezone = ''
   for (const calendar of calendarList.items) {
@@ -179,4 +184,15 @@ async function getTodoEvent(
   } catch (err) {
     return undefined
   }
+}
+
+export function getGoogleCalendarApi(credentials: GoogleCalendarCredentials) {
+  const oauth = new google.auth.OAuth2(
+    process.env.GOOGLE_CALENDAR_CLIENT_ID,
+    process.env.GOOGLE_CALENDAR_SECRET,
+    `${BASE_URL}/google_calendar_setup`
+  )
+  oauth.setCredentials(credentials)
+  const api = google.calendar({ version: 'v3', auth: oauth })
+  return api
 }
