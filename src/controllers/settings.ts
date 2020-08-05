@@ -1,40 +1,32 @@
 // Dependencies
 import { Controller, Post, Put } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate, getUserFromToken } from '../middlewares/authenticate'
+import { authenticate } from '../middlewares/authenticate'
 import { requestSync } from '../sockets'
-import { google } from 'googleapis'
-
-const BASE_URL = process.env.BASE_URL
+import { getGoogleCalendarApi } from '../helpers/googleCalendar'
 
 @Controller('/settings')
 export default class {
   @Post('/', authenticate)
   async post(ctx: Context) {
-    // Set settings
-    ctx.state.user.settings = {
-      ...(ctx.state.user.settings || {}),
-      ...(ctx.request.body || {}),
-      ...{ updatedAt: new Date() },
-    }
     if (ctx.request.body.googleCalendarCredentials === null) {
-      const oauth = new google.auth.OAuth2(
-        process.env.GOOGLE_CALENDAR_CLIENT_ID,
-        process.env.GOOGLE_CALENDAR_SECRET,
-        `${BASE_URL}/google_calendar_setup`
-      )
-      const api = google.calendar({ version: 'v3', auth: oauth })
-      const resourceId = ctx.state.user.resourceId
-      const googleCredentials = (await getUserFromToken(ctx.headers.token))
-        .settings.googleCalendarCredentials
-      oauth.setCredentials(googleCredentials)
+      const googleCredentials =
+        ctx.state.user.settings.googleCalendarCredentials
+      const resourceId = ctx.state.user.googleCalendarResourceId
+      const api = getGoogleCalendarApi(googleCredentials)
       await api.channels.stop({
         requestBody: {
           id: ctx.state.user._id,
           resourceId: resourceId,
         },
       })
-      ctx.state.user.settings.googleCalendarCredentials = undefined
+      ctx.request.body.googleCalendarCredentials = undefined
+    }
+    // Set settings
+    ctx.state.user.settings = {
+      ...(ctx.state.user.settings || {}),
+      ...(ctx.request.body || {}),
+      ...{ updatedAt: new Date() },
     }
     await ctx.state.user.save()
     // Respond
@@ -45,6 +37,19 @@ export default class {
 
   @Put('/', authenticate)
   async put(ctx: Context) {
+    if (ctx.request.body.googleCalendarCredentials === null) {
+      const googleCredentials =
+        ctx.state.user.settings.googleCalendarCredentials
+      const resourceId = ctx.state.user.googleCalendarResourceId
+      const api = getGoogleCalendarApi(googleCredentials)
+      await api.channels.stop({
+        requestBody: {
+          id: ctx.state.user._id,
+          resourceId: resourceId,
+        },
+      })
+      ctx.request.body.googleCalendarCredentials = undefined
+    }
     // Set settings
     if (
       typeof ctx.request.body.showTodayOnAddTodo === 'string' ||
@@ -64,25 +69,6 @@ export default class {
       ...(ctx.state.user.settings || {}),
       ...(ctx.request.body || {}),
       ...{ updatedAt: new Date() },
-    }
-    if (ctx.request.body.googleCalendarCredentials === null) {
-      const oauth = new google.auth.OAuth2(
-        process.env.GOOGLE_CALENDAR_CLIENT_ID,
-        process.env.GOOGLE_CALENDAR_SECRET,
-        `${BASE_URL}/google_calendar_setup`
-      )
-      const api = google.calendar({ version: 'v3', auth: oauth })
-      const resourceId = ctx.state.user.resourceId
-      const googleCredentials = (await getUserFromToken(ctx.headers.token))
-        .settings.googleCalendarCredentials
-      oauth.setCredentials(googleCredentials)
-      await api.channels.stop({
-        requestBody: {
-          id: ctx.state.user._id,
-          resourceId: resourceId,
-        },
-      })
-      ctx.state.user.settings.googleCalendarCredentials = undefined
     }
     await ctx.state.user.save()
     // Respond

@@ -8,14 +8,12 @@ import {
   getGoogleCalendarToken,
   getTodorantCalendar,
   getGoogleEvents,
+  getGoogleCalendarApi,
 } from '../helpers/googleCalendar'
-import { google } from 'googleapis'
 import { startWatch } from '../helpers/googleCalendarChannel'
 const Verifier = require('google-play-billing-validator')
 
 const googleCredentials = require('../../assets/api-4987639842126744234-562450-c85efe0aadfc.json')
-
-const BASE_URL = process.env.BASE_URL
 
 const verifier = new Verifier({
   email: googleCredentials.client_email,
@@ -48,28 +46,20 @@ export default class {
       code,
       !!ctx.request.body.web
     )
-    const token = ctx.headers.token
-    const { _id } = await getUserFromToken(token)
-    startWatch(credentials, _id)
+    const userId = ctx.state.user._id
+    startWatch(credentials, userId)
     ctx.body = credentials
   }
 
   @Post('/notifications')
   async post(ctx: Context) {
     try {
-      const oauth = new google.auth.OAuth2(
-        process.env.GOOGLE_CALENDAR_CLIENT_ID,
-        process.env.GOOGLE_CALENDAR_SECRET,
-        `${BASE_URL}/google_calendar_setup`
-      )
       const id = ctx.request.header['x-goog-channel-id']
       const user = await UserModel.findOne({
         _id: id,
       })
-      const api = google.calendar({ version: 'v3', auth: oauth })
       const credentials = user.settings.googleCalendarCredentials
-      oauth.setCredentials(credentials)
-
+      const api = getGoogleCalendarApi(credentials)
       const todorantCalendar = await getTodorantCalendar(api)
       const events = await getGoogleEvents(api, todorantCalendar)
       const deletedEvents = events.filter((event) => {
@@ -94,6 +84,9 @@ export default class {
         const todo = await TodoModel.findOne({
           _id: event.id,
         })
+        if (!todo) {
+          return
+        }
         const monthAndYearInEvent = eventDate.substr(0, 7)
         const timeInEvent = eventDate.substr(11, 5)
         const dateInEvent = eventDate.substr(8, 2)

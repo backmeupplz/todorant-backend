@@ -77,11 +77,17 @@ export class User extends Typegoose {
   createdOnApple: boolean
 
   @prop()
-  resourceId: string
+  googleCalendarResourceId: string
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
-    const stripFields = ['__v', 'todos', 'bouncerNotified', 'powerUserNotified']
+    const stripFields = [
+      '__v',
+      'todos',
+      'bouncerNotified',
+      'powerUserNotified',
+      'googleCalendarResourceId',
+    ]
     if (!withExtra) {
       stripFields.push('token')
       stripFields.push('email')

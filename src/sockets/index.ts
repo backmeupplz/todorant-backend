@@ -14,15 +14,12 @@ import {
   TagModel,
 } from '../models'
 import { InstanceType } from 'typegoose'
-import { updateTodos } from '../helpers/googleCalendar'
+import { updateTodos, getGoogleCalendarApi } from '../helpers/googleCalendar'
 import { isUserSubscribed } from '../helpers/isUserSubscribed'
 import { errors } from '../helpers/errors'
-import { google } from 'googleapis'
 
 const server = createServer()
 const io = SocketIO(server)
-
-const BASE_URL = process.env.BASE_URL
 
 function setupSync<T>(
   socket: SocketIO.Socket,
@@ -214,16 +211,11 @@ io.on('connection', (socket) => {
         throw new Error('User not found')
       }
       user.settings = { ...(user.settings || {}), ...settings }
-      if (settings.googleCalendarCredentials === undefined) {
-        const oauth = new google.auth.OAuth2(
-          process.env.GOOGLE_CALENDAR_CLIENT_ID,
-          process.env.GOOGLE_CALENDAR_SECRET,
-          `${BASE_URL}/google_calendar_setup`
+      if (settings.googleCalendarCredentials === null) {
+        const api = getGoogleCalendarApi(
+          user.settings.googleCalendarCredentials
         )
-        const api = google.calendar({ version: 'v3', auth: oauth })
-        const resourceId = user.resourceId
-        const googleCredentials = user.settings.googleCalendarCredentials
-        oauth.setCredentials(googleCredentials)
+        const resourceId = user.googleCalendarResourceId
         try {
           await api.channels.stop({
             requestBody: {

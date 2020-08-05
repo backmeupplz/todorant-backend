@@ -1,9 +1,7 @@
 import { UserModel } from '../models/user'
-import { google } from 'googleapis'
-import { getTodorantCalendar } from './googleCalendar'
+import { getTodorantCalendar, getGoogleCalendarApi } from './googleCalendar'
 
-const MAIN_URL = process.env.MAIN_URL
-const BASE_URL = process.env.BASE_URL
+const BACKEND_URL = process.env.BACKEND_URL
 
 const oneHour = 3600000
 
@@ -24,13 +22,7 @@ async function googleSync() {
 export const startWatch = async (credentials: any, userId: string) => {
   const channelLivingTime = '7776000'
   try {
-    const oauth = new google.auth.OAuth2(
-      process.env.GOOGLE_CALENDAR_CLIENT_ID,
-      process.env.GOOGLE_CALENDAR_SECRET,
-      `${BASE_URL}/google_calendar_setup`
-    )
-    oauth.setCredentials(credentials)
-    const api = google.calendar({ version: 'v3', auth: oauth })
+    const api = getGoogleCalendarApi(credentials)
     const todorantCalendar = await getTodorantCalendar(api)
     const channel = await api.events.watch({
       calendarId: todorantCalendar.id,
@@ -38,7 +30,7 @@ export const startWatch = async (credentials: any, userId: string) => {
         id: userId,
         token: credentials.access_token,
         type: 'web_hook',
-        address: `${MAIN_URL}/google/notifications`,
+        address: `${BACKEND_URL}/google/notifications`,
         params: {
           ttl: channelLivingTime,
         },
@@ -47,7 +39,7 @@ export const startWatch = async (credentials: any, userId: string) => {
     const resourceId = channel.data.resourceId
     await UserModel.findOneAndUpdate(
       { _id: userId },
-      { resourceId: resourceId }
+      { googleCalendarResourceId: resourceId }
     )
   } catch (err) {
     if (err.message !== `Channel id ${userId} not unique`) {

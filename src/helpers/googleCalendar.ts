@@ -65,13 +65,7 @@ export async function updateTodos(
     return
   }
   try {
-    const oauth = new google.auth.OAuth2(
-      process.env.GOOGLE_CALENDAR_CLIENT_ID,
-      process.env.GOOGLE_CALENDAR_SECRET,
-      `${BASE_URL}/google_calendar_setup`
-    )
-    oauth.setCredentials(credentials)
-    const api = google.calendar({ version: 'v3', auth: oauth })
+    const api = getGoogleCalendarApi(credentials)
     const todorantCalendar = await getTodorantCalendar(api)
     for (let todo of todos) {
       if (todo.encrypted && password) {
@@ -190,4 +184,15 @@ async function getTodoEvent(
   } catch (err) {
     return undefined
   }
+}
+
+export function getGoogleCalendarApi(credentials: GoogleCalendarCredentials) {
+  const oauth = new google.auth.OAuth2(
+    process.env.GOOGLE_CALENDAR_CLIENT_ID,
+    process.env.GOOGLE_CALENDAR_SECRET,
+    `${BASE_URL}/google_calendar_setup`
+  )
+  oauth.setCredentials(credentials)
+  const api = google.calendar({ version: 'v3', auth: oauth })
+  return api
 }
