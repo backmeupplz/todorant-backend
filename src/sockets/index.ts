@@ -211,16 +211,18 @@ io.on('connection', (socket) => {
         throw new Error('User not found')
       }
       user.settings = { ...(user.settings || {}), ...settings }
-      if (settings.googleCalendarCredentials === undefined) {
+      if (
+        settings.googleCalendarCredentials === undefined &&
+        user.settings.googleCalendarCredentials
+      ) {
         const api = getGoogleCalendarApi(
           user.settings.googleCalendarCredentials
         )
-        const resourceId = user.googleCalendarResourceId
         try {
           await api.channels.stop({
             requestBody: {
               id: user._id,
-              resourceId: resourceId,
+              resourceId: user.googleCalendarResourceId,
             },
           })
         } catch (err) {

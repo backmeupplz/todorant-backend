@@ -9,7 +9,10 @@ import { getGoogleCalendarApi } from '../helpers/googleCalendar'
 export default class {
   @Post('/', authenticate)
   async post(ctx: Context) {
-    if (ctx.request.body.googleCalendarCredentials === null) {
+    if (
+      ctx.request.body.googleCalendarCredentials === null &&
+      ctx.state.user.settings.googleCalendarCredentials
+    ) {
       const googleCredentials =
         ctx.state.user.settings.googleCalendarCredentials
       const resourceId = ctx.state.user.googleCalendarResourceId
@@ -37,7 +40,10 @@ export default class {
 
   @Put('/', authenticate)
   async put(ctx: Context) {
-    if (ctx.request.body.googleCalendarCredentials === null) {
+    if (
+      ctx.request.body.googleCalendarCredentials === null &&
+      ctx.state.user.settings.googleCalendarCredentials
+    ) {
       const googleCredentials =
         ctx.state.user.settings.googleCalendarCredentials
       const resourceId = ctx.state.user.googleCalendarResourceId
