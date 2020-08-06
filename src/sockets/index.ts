@@ -94,7 +94,9 @@ io.on('connection', (socket) => {
       if (lastSyncDate) {
         query.updatedAt = { $gt: lastSyncDate }
       }
-      return (await TodoModel.find(query)).map((t) => t.stripped())
+      return (await TodoModel.find(query).populate('delegator')).map((t) =>
+        t.stripped()
+      )
     },
     async (todos, password) => {
       const savedTodos = await Promise.all(

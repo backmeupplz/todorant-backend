@@ -1,4 +1,3 @@
-import { linkify } from '../helpers/linkify'
 import { Context } from 'koa'
 import { Controller, Post, Put, Get, Delete } from 'koa-router-ts'
 import { Todo, TodoModel, getTitle } from '../models/todo'
@@ -45,6 +44,7 @@ export default class {
     }
     const todosGoingOnTop: Todo[] = []
     const todosGoingToBottom: Todo[] = []
+    const delegatesToSync: string[] = []
     for (const todo of ctx.request.body) {
       if (!todo.time) {
         todo.time = undefined
@@ -83,6 +83,9 @@ export default class {
         todo.delegate = undefined
         todo.user = delegate._id
         todo.delegator = ctx.state.user._id
+        if (!delegatesToSync.includes(delegate._id)) {
+          delegatesToSync.push(delegate._id)
+        }
       }
 
       const goingOnTop =
@@ -122,6 +125,9 @@ export default class {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    for (const delegateId of delegatesToSync) {
+      requestSync(delegateId)
+    }
     // Update calendar
     updateTodos(
       todosGoingOnTop.concat(todosGoingToBottom),
@@ -581,7 +587,7 @@ export async function getTodos(
   password?: string
 ) {
   const hashes = hash.toLowerCase().split(',')
-  let results = (await TodoModel.find({ user: user._id }))
+  let results = (await TodoModel.find({ user: user._id }).populate('delegator'))
     .filter((todo) => !todo.delegator || todo.delegateAccepted)
     .filter((todo) => !todo.deleted)
     .filter((todo) => todo.completed === completed)
