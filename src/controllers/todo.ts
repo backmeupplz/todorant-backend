@@ -183,7 +183,9 @@ export default class {
     } else {
       todo.frog = frog
     }
-    if (isTodoOld(todo, today)) {
+    const timenow = ctx.query.time
+    const startTimeOfDay = ctx.state.user.settings.startTimeOfDay
+    if (isTodoOld(todo, today, timenow, startTimeOfDay)) {
       todo.frogFails += 1
       if (todo.frogFails >= 2) {
         todo.frog = true
@@ -198,7 +200,7 @@ export default class {
         { user: ctx.state.user.id },
         { $inc: { points: 1 } }
       )
-      const tagsArray = getTags(ctx.request.body, password)
+      const tagsArray = getTags([ctx.request.body], password)
       await addEpicPoints(ctx.state.user, tagsArray)
     }
     if (typeof completed === 'string' || completed instanceof String) {
@@ -517,7 +519,9 @@ export default class {
         titlesToReorder.add(oldTodo.title)
         titlesToReorder.add(newTodoTitle)
         if (oldTodo.title !== newTodoTitle) {
-          if (isTodoOld(oldTodo.todo, today)) {
+          const time = ctx.query.time
+          const startTimeOfDay = ctx.state.user.settings.startTimeOfDay
+          if (isTodoOld(oldTodo.todo, today, time, startTimeOfDay)) {
             oldTodo.todo.frogFails += 1
             if (oldTodo.todo.frogFails >= 2) {
               oldTodo.todo.frog = true

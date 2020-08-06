@@ -1,12 +1,16 @@
 // Dependencies
 import { Controller, Post, Get } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
-import { SubscriptionStatus } from '../models'
+import { authenticate, getUserFromToken } from '../middlewares/authenticate'
+import { SubscriptionStatus, UserModel, TodoModel } from '../models'
 import {
   getGoogleCalendarOAuthURL,
   getGoogleCalendarToken,
+  getTodorantCalendar,
+  getGoogleEvents,
+  getGoogleCalendarApi,
 } from '../helpers/googleCalendar'
+import { startWatch } from '../helpers/googleCalendarChannel'
 const Verifier = require('google-play-billing-validator')
 
 const googleCredentials = require('../../assets/api-4987639842126744234-562450-c85efe0aadfc.json')
@@ -38,6 +42,69 @@ export default class {
     if (!code) {
       return ctx.throw(403)
     }
-    ctx.body = await getGoogleCalendarToken(code, !!ctx.request.body.web)
+    const credentials = await getGoogleCalendarToken(
+      code,
+      !!ctx.request.body.web
+    )
+    const userId = ctx.state.user._id
+    startWatch(credentials, userId)
+    ctx.body = credentials
+  }
+
+  @Post('/notifications')
+  async post(ctx: Context) {
+    try {
+      const id = ctx.request.header['x-goog-channel-id']
+      const user = await UserModel.findOne({
+        _id: id,
+      })
+      const credentials = user.settings.googleCalendarCredentials
+      const api = getGoogleCalendarApi(credentials)
+      const todorantCalendar = await getTodorantCalendar(api)
+      const events = await getGoogleEvents(api, todorantCalendar)
+      const deletedEvents = events.filter((event) => {
+        return event.status === 'cancelled'
+      })
+      const timedEvents = events.filter((event) => {
+        if (!event.start) {
+          return false
+        }
+        return event.start.dateTime
+      })
+      deletedEvents.forEach(async (event) => {
+        await TodoModel.findOneAndUpdate(
+          {
+            _id: event.id,
+          },
+          { completed: true }
+        )
+      })
+      timedEvents.forEach(async (event) => {
+        const eventDate = event.start.dateTime
+        const todo = await TodoModel.findOne({
+          _id: event.id,
+        })
+        if (!todo) {
+          return
+        }
+        const monthAndYearInEvent = eventDate.substr(0, 7)
+        const timeInEvent = eventDate.substr(11, 5)
+        const dateInEvent = eventDate.substr(8, 2)
+        if (timeInEvent !== todo.time) {
+          todo.time = timeInEvent
+        }
+        if (dateInEvent !== todo.date) {
+          todo.date = dateInEvent
+        }
+        if (monthAndYearInEvent !== todo.monthAndYear) {
+          todo.monthAndYear = monthAndYearInEvent
+        }
+        todo.save()
+      })
+      ctx.status = 200
+    } catch (err) {
+      console.log(err.message)
+      ctx.status = 500
+    }
   }
 }

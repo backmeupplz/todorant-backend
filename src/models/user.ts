@@ -20,6 +20,7 @@ export enum SubscriptionStatus {
 export class Settings {
   showTodayOnAddTodo?: boolean
   firstDayOfWeek?: number
+  startTimeOfDay?: string
   newTodosGoFirst?: boolean
   preserveOrderByTime?: boolean
   duplicateTagInBreakdown?: boolean
@@ -82,10 +83,15 @@ export class User extends Typegoose {
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
+
   @prop({ index: true, unique: true })
   delegateInviteToken?: string
   @arrayProp({ itemsRef: User, required: true, default: [], index: true })
   delegates: Ref<User>[]
+
+  @prop()
+  googleCalendarResourceId: string
+
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
@@ -95,6 +101,7 @@ export class User extends Typegoose {
       'bouncerNotified',
       'powerUserNotified',
       'delegates',
+      'googleCalendarResourceId',
     ]
     if (!withExtra) {
       stripFields.push('token')

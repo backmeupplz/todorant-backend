@@ -14,7 +14,7 @@ import {
   TagModel,
 } from '../models'
 import { InstanceType } from 'typegoose'
-import { updateTodos } from '../helpers/googleCalendar'
+import { updateTodos, getGoogleCalendarApi } from '../helpers/googleCalendar'
 import * as randToken from 'rand-token'
 import { isUserSubscribed } from '../helpers/isUserSubscribed'
 import { errors } from '../helpers/errors'
@@ -214,7 +214,23 @@ io.on('connection', (socket) => {
         throw new Error('User not found')
       }
       user.settings = { ...(user.settings || {}), ...settings }
-      if (!settings.googleCalendarCredentials) {
+      if (
+        settings.googleCalendarCredentials === undefined &&
+        user.settings.googleCalendarCredentials
+      ) {
+        const api = getGoogleCalendarApi(
+          user.settings.googleCalendarCredentials
+        )
+        try {
+          await api.channels.stop({
+            requestBody: {
+              id: user._id,
+              resourceId: user.googleCalendarResourceId,
+            },
+          })
+        } catch (err) {
+          console.log(err)
+        }
         user.settings.googleCalendarCredentials = undefined
       }
       user.settings.updatedAt = new Date()
