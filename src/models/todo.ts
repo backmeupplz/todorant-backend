@@ -56,11 +56,20 @@ export class Todo extends Typegoose {
   })
   time?: string // e.g. "01:01"
 
+  @prop({ ref: User })
+  delegator?: Ref<User>
+  @prop()
+  delegateAccepted?: boolean
+
   @instanceMethod
   stripped() {
     const stripFields = ['__v', 'user']
+    const delegator =
+      typeof this.delegator === 'object'
+        ? { name: (this.delegator as any).name }
+        : this.delegator
     return omit(
-      { ...this._doc, ...{ _tempSyncId: this._tempSyncId } },
+      { ...this._doc, ...{ _tempSyncId: this._tempSyncId, delegator } },
       stripFields
     ) as Todo
   }

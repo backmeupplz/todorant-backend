@@ -119,7 +119,7 @@ export async function addTodoWithText(
       [todo]
         .map((todo) => linkify.match(todo.text) || [])
         .reduce((p, c) => p.concat(c), [])
-        .filter((m) => /^#[\u0400-\u04FFa-zA-Z_0-9]+$/u.test(m.url))
+        .filter((m) => /^#[\u0400-\u04FFa-zA-Z_0-9/]+$/u.test(m.url))
         .map((m) => m.url.substr(1))
     )
     // Respond

@@ -1,6 +1,12 @@
-// Dependencies
 import { sign } from '../helpers/jwt'
-import { prop, Typegoose, InstanceType, instanceMethod } from 'typegoose'
+import {
+  prop,
+  Typegoose,
+  InstanceType,
+  instanceMethod,
+  arrayProp,
+  Ref,
+} from 'typegoose'
 import { omit } from 'lodash'
 import { GoogleCalendarCredentials } from '../helpers/googleCalendar'
 
@@ -77,8 +83,15 @@ export class User extends Typegoose {
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
+
+  @prop({ index: true, unique: true })
+  delegateInviteToken?: string
+  @arrayProp({ itemsRef: User, required: true, default: [], index: true })
+  delegates: Ref<User>[]
+
   @prop()
   googleCalendarResourceId: string
+
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
@@ -87,6 +100,7 @@ export class User extends Typegoose {
       'todos',
       'bouncerNotified',
       'powerUserNotified',
+      'delegates',
       'googleCalendarResourceId',
     ]
     if (!withExtra) {
@@ -95,10 +109,18 @@ export class User extends Typegoose {
       stripFields.push('facebookId')
       stripFields.push('telegramId')
       stripFields.push('appleSubId')
+      stripFields.push('createdOnApple')
+      stripFields.push('subscriptionStatus')
+      stripFields.push('timezone')
+      stripFields.push('settings')
+      stripFields.push('updatedAt')
+      stripFields.push('createdAt')
+      stripFields.push('telegramZen')
     }
     if (!withToken) {
       stripFields.push('token')
       stripFields.push('anonymousToken')
+      stripFields.push('delegateInviteToken')
     }
     return omit(this._doc, stripFields)
   }

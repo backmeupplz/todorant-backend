@@ -15,6 +15,7 @@ import {
 } from '../models'
 import { InstanceType } from 'typegoose'
 import { updateTodos, getGoogleCalendarApi } from '../helpers/googleCalendar'
+import * as randToken from 'rand-token'
 import { isUserSubscribed } from '../helpers/isUserSubscribed'
 import { errors } from '../helpers/errors'
 
@@ -85,7 +86,7 @@ io.on('connection', (socket) => {
   setupSync<Todo[]>(
     socket,
     'todos',
-    async (user: InstanceType<User>, lastSyncDate: Date | undefined) => {
+    async (user, lastSyncDate: Date | undefined) => {
       if (!isUserSubscribed(user)) {
         throw new Error(errors.subscription)
       }
@@ -93,7 +94,9 @@ io.on('connection', (socket) => {
       if (lastSyncDate) {
         query.updatedAt = { $gt: lastSyncDate }
       }
-      return (await TodoModel.find(query)).map((t) => t.stripped())
+      return (await TodoModel.find(query).populate('delegator')).map((t) =>
+        t.stripped()
+      )
     },
     async (todos, password) => {
       const savedTodos = await Promise.all(
@@ -146,7 +149,7 @@ io.on('connection', (socket) => {
   setupSync<Tag[]>(
     socket,
     'tags',
-    async (user: InstanceType<User>, lastSyncDate: Date | undefined) => {
+    async (user, lastSyncDate: Date | undefined) => {
       const query = { user: user._id } as any
       if (lastSyncDate) {
         query.updatedAt = { $gt: lastSyncDate }
@@ -295,6 +298,43 @@ io.on('connection', (socket) => {
       return {
         objectsToPushBack: dbuser.stripped(true, false),
         needsSync: true,
+      }
+    }
+  )
+
+  setupSync<{
+    delegates: Partial<User>[]
+    delegators: Partial<User>[]
+    token: string
+  }>(
+    socket,
+    'delegate',
+    async (user) => {
+      const dbuser = await UserModel.findById(user._id)
+      if (!dbuser) {
+        throw new Error('User not found')
+      }
+      const delegates = (
+        await UserModel.findById(dbuser._id).populate('delegates')
+      ).delegates.map((d: User) => d.stripped(false, false))
+      const delegators = (
+        await UserModel.find({ delegates: dbuser._id })
+      ).map((d: User) => d.stripped(false, false))
+      if (!dbuser.delegateInviteToken) {
+        dbuser.delegateInviteToken = randToken.generate(16)
+        await dbuser.save()
+      }
+      const token = dbuser.delegateInviteToken
+      return {
+        delegates,
+        delegators,
+        token,
+      }
+    },
+    async (objects) => {
+      return {
+        objectsToPushBack: objects,
+        needsSync: false,
       }
     }
   )

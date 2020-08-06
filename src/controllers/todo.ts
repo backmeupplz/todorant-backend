@@ -1,4 +1,3 @@
-import { linkify } from '../helpers/linkify'
 import { Context } from 'koa'
 import { Controller, Post, Put, Get, Delete } from 'koa-router-ts'
 import { Todo, TodoModel, getTitle } from '../models/todo'
@@ -45,6 +44,7 @@ export default class {
     }
     const todosGoingOnTop: Todo[] = []
     const todosGoingToBottom: Todo[] = []
+    const delegatesToSync: string[] = []
     for (const todo of ctx.request.body) {
       if (!todo.time) {
         todo.time = undefined
@@ -66,18 +66,42 @@ export default class {
         const tagsArray = getTags(ctx.request.body, password)
         await addEpicPoints(ctx.state.user, tagsArray)
       }
+
+      let delegate: InstanceType<User> | undefined
+      if (todo.delegate) {
+        delegate = await UserModel.findById(todo.delegate)
+        if (!delegate) {
+          ctx.throw(404)
+        }
+        if (
+          !ctx.state.user.delegates
+            .map((d) => d.toString())
+            .includes(todo.delegate)
+        ) {
+          ctx.throw(404)
+        }
+        todo.delegate = undefined
+        todo.user = delegate._id
+        todo.delegator = ctx.state.user._id
+        if (!delegatesToSync.includes(delegate._id)) {
+          delegatesToSync.push(delegate._id)
+        }
+      }
+
       const goingOnTop =
         (ctx.state.user.settings.newTodosGoFirst &&
           todo.goFirst === undefined) ||
         todo.goFirst === true
-      if (goingOnTop) {
-        todosGoingOnTop.push(
-          await new TodoModel({ ...todo, user: ctx.state.user._id }).save()
-        )
-      } else {
-        todosGoingToBottom.push(
-          await new TodoModel({ ...todo, user: ctx.state.user._id }).save()
-        )
+      const dbtodo = await new TodoModel({
+        ...todo,
+        user: delegate ? delegate._id : ctx.state.user._id,
+      }).save()
+      if (!todo.delegator) {
+        if (goingOnTop) {
+          todosGoingOnTop.push(dbtodo)
+        } else {
+          todosGoingToBottom.push(dbtodo)
+        }
       }
     }
     // Fix order
@@ -101,6 +125,9 @@ export default class {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    for (const delegateId of delegatesToSync) {
+      requestSync(delegateId)
+    }
     // Update calendar
     updateTodos(
       todosGoingOnTop.concat(todosGoingToBottom),
@@ -564,7 +591,8 @@ export async function getTodos(
   password?: string
 ) {
   const hashes = hash.toLowerCase().split(',')
-  let results: Todo[] = (await TodoModel.find({ user: user._id }))
+  let results = (await TodoModel.find({ user: user._id }).populate('delegator'))
+    .filter((todo) => !todo.delegator || todo.delegateAccepted)
     .filter((todo) => !todo.deleted)
     .filter((todo) => todo.completed === completed)
     .map((todo) => {
@@ -585,7 +613,9 @@ export async function getTodos(
           (todo as any).decryptedText.toLowerCase().includes(singleHash))
     )
   }
-  results = results.map((todo) => todo.stripped()).sort(compareTodos(completed))
+  results = results
+    .map((todo) => todo.stripped())
+    .sort(compareTodos(completed)) as InstanceType<Todo>[]
   if (!queryString) {
     return results.map((todo) => {
       ;(todo as any).decryptedText = undefined

@@ -13,7 +13,6 @@
     "build-ts": "tsc --skipLibCheck",
     "watch-ts": "tsc -w --skipLibCheck",
     "watch-js": "nodemon dist/app.js -d 1",
-    "killServer": "lsof -ti:1337 | xargs kill && lsof -ti:3000 | xargs kill",
     "upload-translations": "node scripts/upload.js",
     "download-translations": "node scripts/download.js && yarn prettier --single-quote --no-semi --write ./locales/errors.js"
   },
