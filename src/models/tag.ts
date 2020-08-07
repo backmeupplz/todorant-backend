@@ -14,16 +14,16 @@ export class Tag extends Typegoose {
   @prop()
   color?: string
 
-  @prop({ required: true, default: false })
-  epic: boolean
-  @prop({ required: true, default: false })
-  epicCompleted: boolean
-  @prop({ required: true, default: 0 })
-  epicGoal: number
-  @prop({ required: true, default: 0 })
-  epicPoints: number
+  @prop({ default: false })
+  epic?: boolean
+  @prop({ default: false })
+  epicCompleted?: boolean
+  @prop({ default: 0 })
+  epicGoal?: number
+  @prop({ default: 0 })
+  epicPoints?: number
 
-  @prop({ required: true, default: 0 })
+  @prop({ default: 0 })
   numberOfUses?: number
 
   @instanceMethod
