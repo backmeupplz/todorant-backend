@@ -699,8 +699,14 @@ export async function addEpicPoints(user: User, tags: string[]) {
     .filter((tag) => tag.epic)
     .filter((epic) => epic.epicPoints < epic.epicGoal)
     .map((epic) => epic.tag)
+  // epicPoints !== null
   await TagModel.updateMany(
-    { user: user, tag: epics, deleted: false },
+    { user: user, tag: epics, deleted: false, epicPoints: { $ne: null } },
     { $inc: { epicPoints: 1 } }
+  )
+  // epicPoints === null
+  await TagModel.updateMany(
+    { user: user, tag: epics, deleted: false, epicPoints: null },
+    { epicPoints: 1 }
   )
 }
