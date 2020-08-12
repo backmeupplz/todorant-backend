@@ -2,7 +2,7 @@
 import axios from 'axios'
 import { Context } from 'koa'
 import { getOrCreateUser, UserModel, SubscriptionStatus, User } from '../models'
-import { Controller, Post } from 'koa-router-ts'
+import { Controller, Post, Get } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { decode } from 'jsonwebtoken'
 import { sign } from '../helpers/jwt'
@@ -312,6 +312,27 @@ export default class {
       tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
     ctx.body = user.stripped(true)
+  }
+  @Post('/extension/google')
+  async extensionGoogle(ctx: Context) {
+    const accessToken = ctx.request.body.accessToken
+    const userData = (
+      await axios(
+        `https://www.googleapis.com/oauth2/v3/userinfo?alt=json&access_token=${accessToken}`
+      )
+    ).data
+    const { created, user } = await getOrCreateUser({
+      name: userData.name,
+      email: userData.email,
+    })
+    if (created && ctx.request.body.fromApple) {
+      user.createdOnApple = true
+      await user.save()
+    }
+    if (ctx.request.body.appleReceipt) {
+      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+    }
+    ctx.body = user
   }
 }
 
