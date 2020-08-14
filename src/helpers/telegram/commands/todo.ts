@@ -88,6 +88,9 @@ export async function addTodoWithText(
       if (year === yearNow && month === monthNow && date && +date < dateNow) {
         return ctx.reply(pastError)
       }
+      if (month > 12) {
+        return ctx.reply(pastError)
+      }
     }
     // Create todo
     const todo = {
