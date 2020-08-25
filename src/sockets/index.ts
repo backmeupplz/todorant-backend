@@ -254,7 +254,8 @@ io.on('connection', (socket) => {
       if (!dbhero) {
         throw new Error('Hero not found')
       }
-      dbhero.points = hero.points
+      const largest = dbhero.points > hero.points ? dbhero.points : hero.points
+      dbhero.points = largest
       await dbhero.save()
       return {
         objectsToPushBack: dbhero,
