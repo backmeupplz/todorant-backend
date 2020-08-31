@@ -61,6 +61,8 @@ export class User extends Typegoose {
   telegramZen: boolean
   @prop({ enum: TelegramLanguage, index: true })
   telegramLanguage?: TelegramLanguage
+  @prop({ required: true, default: 'English' })
+  witLanguage: string
 
   @prop({
     index: true,
@@ -83,7 +85,6 @@ export class User extends Typegoose {
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
-
   @prop({ index: true, unique: true })
   delegateInviteToken?: string
   @arrayProp({ itemsRef: User, required: true, default: [], index: true })
@@ -91,7 +92,6 @@ export class User extends Typegoose {
 
   @prop()
   googleCalendarResourceId: string
-
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {
