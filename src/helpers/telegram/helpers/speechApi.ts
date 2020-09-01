@@ -7,6 +7,7 @@ const fs = require('fs')
 
 export async function getText(witLanguage, duration, ogaPath) {
   const token = witLanguages[witLanguage]
+  console.log(token)
   const paths = await splitPath(ogaPath, duration)
   const savedPaths = paths.slice()
   try {
