@@ -1,11 +1,13 @@
-// Dependencies
 import { Controller, Get, Post } from 'koa-router-ts'
 import { Context } from 'koa'
 import { authenticate } from '../middlewares/authenticate'
-import * as Stripe from 'stripe'
+import Stripe from 'stripe'
+import { User } from '../models/user'
 import { UserModel, SubscriptionStatus } from '../models'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET)
+const stripe = new Stripe(process.env.STRIPE_SECRET, {
+  apiVersion: '2020-03-02',
+})
 
 @Controller('/subscription')
 export default class {
@@ -40,6 +42,27 @@ export default class {
     const subscriptionId = ctx.state.user.subscriptionId
     await stripe.subscriptions.del(subscriptionId)
     // Respond
+    ctx.status = 200
+  }
+
+  @Get('/manageUrl', authenticate)
+  async manageSubscriptionUrl(ctx: Context) {
+    const user = ctx.state.user as User
+    if (!user.subscriptionId) {
+      return ctx.throw(404)
+    }
+    const subscription = await stripe.subscriptions.retrieve(
+      user.subscriptionId as string
+    )
+    const customerId = subscription.customer as string
+    const url = (
+      await stripe.billingPortal.sessions.create({
+        customer: customerId,
+      })
+    ).url
+    ctx.body = {
+      url,
+    }
     ctx.status = 200
   }
 
