@@ -4,6 +4,7 @@ import { isUserSubscribed } from '../../isUserSubscribed'
 import { TodoModel, getTitle, addTags } from '../../../models'
 import { fixOrder } from '../../../helpers/fixOrder'
 import { requestSync } from '../../../sockets'
+import { Message } from 'telegraf/typings/telegram-types'
 const dehumanize = require('dehumanize-date')
 
 export function addTodo(ctx: ContextMessageUpdate) {
@@ -14,7 +15,7 @@ export function addTodo(ctx: ContextMessageUpdate) {
 export async function addTodoWithText(
   todoText: string,
   ctx: ContextMessageUpdate,
-  msg?: any,
+  sentMessage?: Message,
   voice?: boolean
 ) {
   // Check if it has timestamp
@@ -60,8 +61,8 @@ export async function addTodoWithText(
     return ctx.reply(ctx.i18n.t('subscribe_error'))
   } else if (!isUserSubscribed(user) && voice) {
     return await ctx.telegram.editMessageText(
-      msg.chat.id,
-      msg.message_id,
+      sentMessage.chat.id,
+      sentMessage.message_id,
       null,
       ctx.i18n.t('subscribe_error')
     )
@@ -144,8 +145,8 @@ export async function addTodoWithText(
     } else {
       // Edit message
       await ctx.telegram.editMessageText(
-        msg.chat.id,
-        msg.message_id,
+        sentMessage.chat.id,
+        sentMessage.message_id,
         null,
         `👍\n${todoText}`
       )

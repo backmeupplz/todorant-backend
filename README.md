@@ -12,12 +12,13 @@ And you should be good to go! Feel free to fork and submit pull requests. Docume
 
 ## Environment variables
 
-| Name                                     | Description                                 |
-| ---------------------------------------- | ------------------------------------------- |
-| `MONGO`                                  | URL of the mongo database                   |
-| `JWT`                                    | secret for JWT                              |
-| `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET` | Facebook login credentials                  |
-| `TELEGRAM_LOGIN_TOKEN`                   | Telegram login bot                          |
+| Name                                     | Description                              |
+| ---------------------------------------- | ---------------------------------------- |
+| `MONGO`                                  | URL of the mongo database                |
+| `JWT`                                    | secret for JWT                           |
+| `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET` | Facebook login credentials               |
+| `TELEGRAM_LOGIN_TOKEN`                   | Telegram login bot                       |
+| `WIT_LANGUAGES`                          | A map of language names to Wit.ai tokens |
 
 Also, please, consider looking at `.env.sample`.
 
