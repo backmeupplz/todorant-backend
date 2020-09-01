@@ -83,7 +83,6 @@ export class User extends Typegoose {
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
-
   @prop({ index: true, unique: true })
   delegateInviteToken?: string
   @arrayProp({ itemsRef: User, required: true, default: [], index: true })
@@ -91,7 +90,6 @@ export class User extends Typegoose {
 
   @prop()
   googleCalendarResourceId: string
-
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {

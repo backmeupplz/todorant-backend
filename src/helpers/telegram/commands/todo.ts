@@ -4,6 +4,7 @@ import { isUserSubscribed } from '../../isUserSubscribed'
 import { TodoModel, getTitle, addTags } from '../../../models'
 import { fixOrder } from '../../../helpers/fixOrder'
 import { requestSync } from '../../../sockets'
+import { Message } from 'telegraf/typings/telegram-types'
 const dehumanize = require('dehumanize-date')
 
 export function addTodo(ctx: ContextMessageUpdate) {
@@ -13,7 +14,9 @@ export function addTodo(ctx: ContextMessageUpdate) {
 
 export async function addTodoWithText(
   todoText: string,
-  ctx: ContextMessageUpdate
+  ctx: ContextMessageUpdate,
+  sentMessage?: Message,
+  voice?: boolean
 ) {
   // Check if it has timestamp
   const full = todoText.substr(0, 10) // 2018-08-31
@@ -54,8 +57,15 @@ export async function addTodoWithText(
   // Get user
   const user = ctx.dbuser
   // Check subscription
-  if (!isUserSubscribed(user)) {
+  if (!isUserSubscribed(user) && !voice) {
     return ctx.reply(ctx.i18n.t('subscribe_error'))
+  } else if (!isUserSubscribed(user) && voice) {
+    return await ctx.telegram.editMessageText(
+      sentMessage.chat.id,
+      sentMessage.message_id,
+      null,
+      ctx.i18n.t('subscribe_error')
+    )
   }
   // Add todo to user
   try {
@@ -105,8 +115,10 @@ export async function addTodoWithText(
               ? nowWithOffset.getDate()
               : `0${nowWithOffset.getDate()}`
           }`,
-      frog: ctx.message.text.substr(1, 4) === 'frog',
-      completed: ctx.message.text.substr(1, 4) === 'done',
+      frog: ctx.message.text ? ctx.message.text.substr(1, 4) === 'frog' : false,
+      completed: ctx.message.text
+        ? ctx.message.text.substr(1, 4) === 'done'
+        : false,
     }
     const dbtodo = await new TodoModel({ ...todo, user: user._id }).save()
     // Fix order
@@ -126,9 +138,19 @@ export async function addTodoWithText(
         .map((m) => m.url.substr(1))
     )
     // Respond
-    ctx.reply('👍', {
-      reply_to_message_id: ctx.message.message_id,
-    })
+    if (!voice) {
+      ctx.reply('👍', {
+        reply_to_message_id: ctx.message.message_id,
+      })
+    } else {
+      // Edit message
+      await ctx.telegram.editMessageText(
+        sentMessage.chat.id,
+        sentMessage.message_id,
+        null,
+        `👍\n${todoText}`
+      )
+    }
     // Trigger sync
     requestSync(user._id)
   } catch (err) {

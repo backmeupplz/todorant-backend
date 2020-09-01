@@ -9,6 +9,7 @@ import { checkLanguage } from './middlewares/checkLanguage'
 import { sendLogin } from './commands/login'
 import { addTodo } from './commands/todo'
 import { handleText } from './helpers/handleText'
+import { handleVoice } from './helpers/handleVoice'
 import { handleZen } from './commands/zen'
 import { handleTimezone } from './commands/timezone'
 import {
@@ -56,6 +57,7 @@ bot.action('skip', handleSkip)
 bot.action('refresh', handleRefresh)
 // Check zen mode
 bot.on('text', handleText)
+bot.on('voice', handleVoice)
 // Error catch
 bot.catch(console.error)
 // Start bot
