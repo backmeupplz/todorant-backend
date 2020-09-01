@@ -1,11 +1,12 @@
 import { ContextMessageUpdate } from 'telegraf'
 import { urlToText } from './urlToText'
 import { addTodoWithText } from '../commands/todo'
+import { languageForCode } from './witLanguage'
 
 export async function handleMessage(ctx: ContextMessageUpdate) {
   try {
     // Get wit language
-    const witLanguage = ctx.dbuser.witLanguage
+    const witLanguage = languageForCode(ctx.dbuser.telegramLanguage)
     // Get message
     const message = ctx.message
     // Get voice message

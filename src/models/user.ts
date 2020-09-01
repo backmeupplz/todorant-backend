@@ -61,8 +61,6 @@ export class User extends Typegoose {
   telegramZen: boolean
   @prop({ enum: TelegramLanguage, index: true })
   telegramLanguage?: TelegramLanguage
-  @prop({ required: true, default: 'English' })
-  witLanguage: string
 
   @prop({
     index: true,
