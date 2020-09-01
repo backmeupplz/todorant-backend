@@ -148,7 +148,7 @@ export async function addTodoWithText(
         sentMessage.chat.id,
         sentMessage.message_id,
         null,
-        `👍\n${todoText}`
+        `👍 ${todoText}`
       )
     }
     // Trigger sync
