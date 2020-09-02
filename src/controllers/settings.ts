@@ -90,4 +90,14 @@ export default class {
     // Trigger sync
     requestSync(ctx.state.user._id)
   }
+
+  @Post('/username', authenticate)
+  async setUserName(ctx: Context) {
+    ctx.state.user.name = ctx.request.body.name || ctx.state.user.name
+    await ctx.state.user.save()
+    // Respond
+    ctx.status = 200
+    // Trigger sync
+    requestSync(ctx.state.user._id)
+  }
 }
