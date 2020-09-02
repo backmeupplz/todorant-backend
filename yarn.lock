@@ -716,6 +716,11 @@ camelcase@^5.0.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
   integrity sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==
 
+capitalize-sentence@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/capitalize-sentence/-/capitalize-sentence-0.1.5.tgz#7bf2ed51dc8aa2a63c94f824039e4aa614b71de6"
+  integrity sha1-e/LtUdyKoqY8lPgkA55KphS3HeY=
+
 capture-stack-trace@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/capture-stack-trace/-/capture-stack-trace-1.0.1.tgz#a6c0bbe1f38f3aa0b92238ecb6ff42c344d4135d"

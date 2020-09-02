@@ -2,6 +2,7 @@ import { ContextMessageUpdate } from 'telegraf'
 import { urlToText } from './urlToText'
 import { addTodoWithText } from '../commands/todo'
 import { languageForCode } from './witLanguage'
+import capitalize from 'capitalize-sentence'
 
 export async function handleMessage(ctx: ContextMessageUpdate) {
   try {
@@ -34,7 +35,8 @@ async function sendTranscription(ctx, url, witLanguage) {
     const textArr = await urlToText(url, witLanguage)
     const text =
       textArr.length > 1 ? textArr.map((t) => `${t}`).join(' ') : `${textArr}`
-    await addTodoWithText(text, ctx, sentMessage, true)
+
+    await addTodoWithText(capitalize(text), ctx, sentMessage, true)
   } catch (err) {
     // In case of error, send it
     await updateMessagewithError(ctx, sentMessage)
