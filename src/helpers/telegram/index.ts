@@ -58,6 +58,8 @@ bot.action('refresh', handleRefresh)
 // Check zen mode
 bot.on('text', handleText)
 bot.on('photo', handleText)
+bot.on('video', handleText)
+bot.on('document', handleText)
 bot.on('voice', handleVoice)
 // Error catch
 bot.catch(console.error)
