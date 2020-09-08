@@ -57,6 +57,7 @@ bot.action('skip', handleSkip)
 bot.action('refresh', handleRefresh)
 // Check zen mode
 bot.on('text', handleText)
+bot.on('photo', handleText)
 bot.on('voice', handleVoice)
 // Error catch
 bot.catch(console.error)

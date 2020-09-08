@@ -7,9 +7,9 @@ export function handleText(ctx: ContextMessageUpdate) {
     return
   }
   // Check if not a command
-  if (/^\//.test(ctx.message.text)) {
+  if (/^\//.test(ctx.message.text || ctx.message.caption)) {
     return
   }
   // Add todo
-  return addTodoWithText(ctx.message.text, ctx)
+  return addTodoWithText(ctx.message.text || ctx.message.caption, ctx)
 }
