@@ -418,6 +418,7 @@ export default class {
       state: await getStateBody(ctx),
       tags: await getTagsBody(ctx),
       points: await getPoints(ctx),
+      name: ctx.state.user.name,
     }
   }
 
