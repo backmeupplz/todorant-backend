@@ -5,6 +5,7 @@ import { authenticate } from '../middlewares/authenticate'
 import { errors } from '../helpers/errors'
 import { isTodoOld } from '../helpers/isTodoOld'
 import { getTodos } from './todo'
+import { pick } from 'lodash'
 
 enum SubscriptionType {
   none = 'none',
@@ -58,5 +59,6 @@ export async function getStateBody(ctx: Context) {
       ? SubscriptionType.web
       : SubscriptionType.google,
     settings: ctx.state.user.settings,
+    userInfo: pick(ctx.state.user, 'name'),
   }
 }
