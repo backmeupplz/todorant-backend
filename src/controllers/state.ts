@@ -58,6 +58,6 @@ export async function getStateBody(ctx: Context) {
       ? SubscriptionType.web
       : SubscriptionType.google,
     settings: ctx.state.user.settings,
-    user: ctx.state.user,
+    name: ctx.state.user.name,
   }
 }
