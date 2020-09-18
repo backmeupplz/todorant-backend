@@ -94,6 +94,7 @@ export default class {
   @Post('/username', authenticate)
   async setUserName(ctx: Context) {
     ctx.state.user.name = ctx.request.body.name || ctx.state.user.name
+    ctx.state.user.updatedAt = new Date()
     await ctx.state.user.save()
     // Respond
     ctx.status = 200
