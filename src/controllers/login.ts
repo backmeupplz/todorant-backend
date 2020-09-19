@@ -119,6 +119,33 @@ export default class {
     ctx.body = user.stripped(true)
   }
 
+  @Post('/google-firebase')
+  async googleFirebase(ctx: Context) {
+    const accessToken = ctx.request.body.accessToken
+
+    const userData: any = (
+      await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+    ).data
+
+    const { created, user } = await getOrCreateUser({
+      name: userData.name,
+
+      email: userData.email,
+    })
+    if (created && ctx.request.body.fromApple) {
+      user.createdOnApple = true
+      await user.save()
+    }
+    if (ctx.request.body.appleReceipt) {
+      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+    }
+    ctx.body = user.stripped(true)
+  }
+
   @Post('/anonymous')
   async anonymous(ctx: Context) {
     const { created, user } = await getOrCreateUser({
