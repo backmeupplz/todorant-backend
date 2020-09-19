@@ -5,8 +5,10 @@ const BACKEND_URL = process.env.BACKEND_URL
 
 const oneHour = 3600000
 
-googleSync()
-setInterval(googleSync, oneHour)
+if (process.env.ENVIRONMENT !== 'staging') {
+  googleSync()
+  setInterval(googleSync, oneHour)
+}
 
 async function googleSync() {
   const usersWithCalendar = await UserModel.find({

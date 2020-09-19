@@ -37,20 +37,17 @@ export async function addTodoWithText(
   } else if (/^\d{2}-\d{2}$/.test(shorter)) {
     monthAndYear = `${new Date().getFullYear()}-${shorter.substr(0, 2)}`
     date = shorter.substr(3, 2)
-    todoText = shorter.substr(5).trim()
+    todoText = todoText.substr(5).trim()
+  } else if (/^\d{8}$/.test(noDash)) {
+    monthAndYear = `${noDash.substr(0, 4)}-${noDash.substr(4, 2)}`
+    date = noDash.substr(6, 2)
+    todoText = todoText.substr(8).trim()
   } else if (/^\d{6}$/.test(noDashWithoutDate)) {
     monthAndYear = `${noDashWithoutDate.substr(
       0,
       4
     )}-${noDashWithoutDate.substr(4, 2)}`
-    todoText = shorter.substr(6).trim()
-  } else if (/^\d{8}$/.test(noDash)) {
-    monthAndYear = `${noDashWithoutDate.substr(
-      0,
-      4
-    )}-${noDashWithoutDate.substr(4, 2)}`
-    date = shorter.substr(6, 2)
-    todoText = shorter.substr(8).trim()
+    todoText = todoText.substr(6).trim()
   }
   // Check for the dehumanizable date
   const components = todoText.split(':')
