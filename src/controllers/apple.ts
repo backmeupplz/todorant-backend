@@ -8,16 +8,6 @@ import { bot } from '../helpers/report'
 
 @Controller('/apple')
 export default class {
-  @Post('/')
-  login(ctx: Context) {
-    if (ctx.request.body.error) {
-      ctx.redirect(`https://todorant.com?appleError=${ctx.request.body.error}`)
-    }
-    ctx.redirect(
-      `https://todorant.com?apple=${JSON.stringify(ctx.request.body)}`
-    )
-  }
-
   @Get('/')
   firefoxBug(ctx: Context) {
     ctx.redirect(`https://todorant.com/apple_firefox_error`)
