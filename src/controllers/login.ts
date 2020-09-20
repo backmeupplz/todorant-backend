@@ -1,11 +1,10 @@
-// Dependencies
 import axios from 'axios'
 import { Context } from 'koa'
 import { getOrCreateUser, UserModel, SubscriptionStatus, User } from '../models'
 import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { decode } from 'jsonwebtoken'
-import { sign } from '../helpers/jwt'
+import { sign, verifyAppleToken } from '../helpers/jwt'
 import * as randToken from 'rand-token'
 import { bot } from '../helpers/telegram'
 import { Markup as m } from 'telegraf'
@@ -171,7 +170,7 @@ export default class {
             ? 'com.todorant.app'
             : 'com.todorant.web',
         team_id: 'ACWP4F58HZ',
-        key_id: 'J75L72AKZX',
+        key_id: 'M3N8Y594JS',
         redirect_uri: 'https://backend.todorant.com/apple',
         scope: 'name email',
       },
@@ -211,6 +210,7 @@ export default class {
         appleSubId,
         subscriptionStatus: SubscriptionStatus.trial,
         email,
+        delegateInviteToken: randToken.generate(16),
       } as any
       // Try to find this user
       let user = await UserModel.findOne({ appleSubId })
@@ -254,6 +254,45 @@ export default class {
       }
       ctx.body = user.stripped(true)
     }
+  }
+
+  @Post('/apple-firebase')
+  async appleFirebase(ctx: Context) {
+    const idToken = (await verifyAppleToken(
+      ctx.request.body.credential.oauthIdToken,
+      'com.todorant.web'
+    )) as any
+
+    const appleSubId = idToken.sub
+    const email = idToken.email
+    let name = 'Unidentified Apple'
+    try {
+      name =
+        ctx.request.body.name ||
+        ctx.request.body.user.providerData[0].displayName ||
+        'Unidentified Apple'
+    } catch {
+      // Do nothing
+    }
+
+    let user = await UserModel.findOne({ appleSubId })
+    if (user) {
+      ctx.body = user.stripped(true)
+      return
+    }
+    const params = {
+      name,
+      email,
+      appleSubId,
+      subscriptionStatus: SubscriptionStatus.trial,
+      delegateInviteToken: randToken.generate(16),
+    } as any
+    user = await new UserModel({
+      ...params,
+      token: await sign(params),
+    }).save()
+
+    ctx.body = user.stripped(true)
   }
 
   @Post('/telegram_mobile')

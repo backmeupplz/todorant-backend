@@ -9,6 +9,7 @@ import {
 } from 'typegoose'
 import { omit } from 'lodash'
 import { GoogleCalendarCredentials } from '../helpers/googleCalendar'
+import * as randToken from 'rand-token'
 
 export enum SubscriptionStatus {
   earlyAdopter = 'earlyAdopter',
@@ -178,6 +179,7 @@ export async function getOrCreateUser(loginOptions: LoginOptions) {
     const params = {
       name: loginOptions.name,
       subscriptionStatus: SubscriptionStatus.trial,
+      delegateInviteToken: randToken.generate(16),
     } as any
     if (loginOptions.email) {
       params.email = loginOptions.email
