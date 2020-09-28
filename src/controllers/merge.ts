@@ -26,8 +26,8 @@ export default class {
     const existingUser:
       | InstanceType<User>
       | undefined = await UserModel.findOne({
-        facebookId: fbProfile.id,
-      })
+      facebookId: fbProfile.id,
+    })
     // Add data if required
     originalUser.facebookId = fbProfile.id
     // Check if early adopter
@@ -94,6 +94,7 @@ export default class {
     // Save it
     await originalUser.save()
     // Respond
+    ctx.body = { telegramId: originalUser.telegramId }
     ctx.status = 200
   }
 
