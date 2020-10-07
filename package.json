@@ -9,12 +9,13 @@
   "private": true,
   "scripts": {
     "distribute": "yarn build-ts && node dist/app.js",
-    "develop": "concurrently -i -k -p \"[{name}]\" -n \"Node, TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\"",
+    "develop": "yarn kill-server && concurrently -i -k -p \"[{name}]\" -n \"Node, TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\"",
     "build-ts": "tsc --skipLibCheck",
     "watch-ts": "tsc -w --skipLibCheck",
     "watch-js": "nodemon dist/app.js -d 1",
     "upload-translations": "node scripts/upload.js",
-    "download-translations": "node scripts/download.js && yarn prettier --single-quote --no-semi --write ./locales/errors.js"
+    "download-translations": "node scripts/download.js && yarn prettier --single-quote --no-semi --write ./locales/errors.js",
+    "kill-server": "lsof -ti:1337 | xargs kill"
   },
   "devDependencies": {
     "concurrently": "^4.1.0",

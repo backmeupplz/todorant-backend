@@ -16,13 +16,15 @@ export default class {
       const googleCredentials =
         ctx.state.user.settings.googleCalendarCredentials
       const resourceId = ctx.state.user.googleCalendarResourceId
-      const api = getGoogleCalendarApi(googleCredentials)
-      await api.channels.stop({
-        requestBody: {
-          id: ctx.state.user._id,
-          resourceId: resourceId,
-        },
-      })
+      if (resourceId) {
+        const api = getGoogleCalendarApi(googleCredentials)
+        await api.channels.stop({
+          requestBody: {
+            id: ctx.state.user._id,
+            resourceId: resourceId,
+          },
+        })
+      }
       ctx.request.body.googleCalendarCredentials = undefined
     }
     // Set settings
@@ -51,13 +53,15 @@ export default class {
       const googleCredentials =
         ctx.state.user.settings.googleCalendarCredentials
       const resourceId = ctx.state.user.googleCalendarResourceId
-      const api = getGoogleCalendarApi(googleCredentials)
-      await api.channels.stop({
-        requestBody: {
-          id: ctx.state.user._id,
-          resourceId: resourceId,
-        },
-      })
+      if (resourceId) {
+        const api = getGoogleCalendarApi(googleCredentials)
+        await api.channels.stop({
+          requestBody: {
+            id: ctx.state.user._id,
+            resourceId: resourceId,
+          },
+        })
+      }
       ctx.request.body.googleCalendarCredentials = undefined
     }
     // Set settings
