@@ -330,6 +330,7 @@ io.on('connection', (socket) => {
         delegates,
         delegators,
         token,
+        updatedAt: user['updatedAt'],
       }
     },
     async (objects) => {
