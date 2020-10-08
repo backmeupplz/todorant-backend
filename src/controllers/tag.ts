@@ -12,6 +12,24 @@ export default class {
     ctx.body = await getTagsBody(ctx)
   }
 
+  @Delete('/all', authenticate)
+  async deleteAll(ctx: Context) {
+    // Update todos
+    await TagModel.updateMany(
+      {
+        user: ctx.state.user._id,
+        deleted: false,
+      },
+      {
+        deleted: true,
+      }
+    )
+    // Respond
+    ctx.status = 200
+    // Trigger sync
+    requestSync(ctx.state.user._id)
+  }
+
   @Delete('/:id', authenticate)
   async delete(ctx: Context) {
     // Parameters
