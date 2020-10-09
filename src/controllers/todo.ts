@@ -529,7 +529,7 @@ export default class {
         titlesToReorder.add(oldTodo.title)
         titlesToReorder.add(newTodoTitle)
         if (oldTodo.title !== newTodoTitle) {
-          const time = ctx.query.time
+          const time = ctx.request.body.time
           const startTimeOfDay = ctx.state.user.settings.startTimeOfDay
           if (
             isTodoOld(oldTodo.todo, today, time, startTimeOfDay) &&
