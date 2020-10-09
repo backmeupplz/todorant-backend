@@ -410,6 +410,13 @@ export default class {
         return todo.date === day && todo.monthAndYear === monthAndYear
       }
     )
+    // Decrypt if we can
+    if (incompleteTodos.length && ctx.headers.password) {
+      const decryptedText = _d(ctx.headers.password, ctx.headers.password)
+      if (decryptedText) {
+        incompleteTodos[0].text = decryptedText
+      }
+    }
     // Respond
     ctx.body = {
       todosCount: completeTodos.length + incompleteTodos.length,
