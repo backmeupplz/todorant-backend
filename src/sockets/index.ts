@@ -16,8 +16,6 @@ import {
 import { InstanceType } from 'typegoose'
 import { updateTodos, getGoogleCalendarApi } from '../helpers/googleCalendar'
 import * as randToken from 'rand-token'
-import { isUserSubscribed } from '../helpers/isUserSubscribed'
-import { errors } from '../helpers/errors'
 
 const server = createServer()
 const io = SocketIO(server)
