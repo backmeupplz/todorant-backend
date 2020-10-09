@@ -185,7 +185,7 @@ export default class {
     }
     const timenow = ctx.query.time
     const startTimeOfDay = ctx.state.user.settings.startTimeOfDay
-    if (isTodoOld(todo, today, timenow, startTimeOfDay) && !todo.date) {
+    if (isTodoOld(todo, today, timenow, startTimeOfDay) && !!todo.date) {
       todo.frogFails += 1
       if (todo.frogFails >= 2) {
         todo.frog = true
@@ -533,7 +533,7 @@ export default class {
           const startTimeOfDay = ctx.state.user.settings.startTimeOfDay
           if (
             isTodoOld(oldTodo.todo, today, time, startTimeOfDay) &&
-            !oldTodo.todo.date
+            !!oldTodo.todo.date
           ) {
             oldTodo.todo.frogFails += 1
             if (oldTodo.todo.frogFails >= 2) {
