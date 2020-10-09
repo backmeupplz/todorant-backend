@@ -411,8 +411,11 @@ export default class {
       }
     )
     // Decrypt if we can
-    if (!!incompleteTodos.length && !!ctx.headers.password) {
-      const decryptedText = _d(incompleteTodos[0].text, ctx.headers.password)
+    if (!!incompleteTodos.length && !!ctx.headers.passwordToDecrypt) {
+      const decryptedText = _d(
+        incompleteTodos[0].text,
+        ctx.headers.passwordToDecrypt
+      )
       if (decryptedText) {
         incompleteTodos[0].text = decryptedText
       }
