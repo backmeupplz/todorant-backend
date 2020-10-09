@@ -87,9 +87,6 @@ io.on('connection', (socket) => {
     socket,
     'todos',
     async (user, lastSyncDate: Date | undefined) => {
-      if (!isUserSubscribed(user)) {
-        throw new Error(errors.subscription)
-      }
       const query = { user: user._id } as any
       if (lastSyncDate) {
         query.updatedAt = { $gt: lastSyncDate }
