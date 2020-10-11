@@ -104,6 +104,9 @@ io.on('connection', (socket) => {
                     ...omit(todo, '_id'),
                     user: getUser(socket)._id,
                   })
+                  if (!dbtodo.date) {
+                    dbtodo.date = undefined
+                  }
                   const savedTodo = await dbtodo.save()
                   savedTodo._tempSyncId = todo._tempSyncId
                   res(savedTodo as any)
@@ -118,6 +121,9 @@ io.on('connection', (socket) => {
                     return rej(new Error('Not authorized'))
                   }
                   Object.assign(dbtodo, omit(todo, '_id'))
+                  if (!dbtodo.date) {
+                    dbtodo.date = undefined
+                  }
                   const savedTodo = await dbtodo.save()
                   savedTodo._tempSyncId = todo._tempSyncId
                   res(savedTodo as any)
