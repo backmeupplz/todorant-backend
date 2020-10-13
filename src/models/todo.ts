@@ -26,7 +26,6 @@ export class Todo extends Typegoose {
   encrypted: boolean
 
   @prop({
-    required: true,
     index: true,
     minlength: 7,
     maxlength: 7,
@@ -40,7 +39,7 @@ export class Todo extends Typegoose {
       },
     ],
   })
-  monthAndYear: string // e.g. "08-2019" or "01-2020"
+  monthAndYear?: string // e.g. "08-2019" or "01-2020"
   @prop({
     index: true,
     minlength: 2,
@@ -81,7 +80,7 @@ export class Todo extends Typegoose {
   _tempSyncId?: string
 }
 
-export function getTitle(todo: { monthAndYear: string; date?: string }) {
+export function getTitle(todo: { monthAndYear?: string; date?: string }) {
   return `${todo.monthAndYear}${todo.date ? `-${todo.date}` : ''}`
 }
 
