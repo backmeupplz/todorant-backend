@@ -47,8 +47,8 @@ export const startWatch = async (
       { googleCalendarResourceId: resourceId }
     )
   } catch (err) {
-    if (err.message !== `Channel id ${user._id} is not unique`) {
-      console.log(err.message)
+    if (err.message.indexOf('is not unique') < 0) {
+      console.log('Start watching Google Calendar error', err.message)
     }
     // Invalid Google Calendar credentials, remove them from the user
     if (err.message.indexOf('invalid_grant') > -1) {
