@@ -47,15 +47,20 @@ export const startWatch = async (
       { googleCalendarResourceId: resourceId }
     )
   } catch (err) {
-    console.log(err.message.indexOf('is not unique'), err.message, err)
-    if (err.message.indexOf('is not unique') < 0) {
+    if (`${err.message}`.indexOf('is not unique') < 0) {
       console.log('Start watching Google Calendar error', err.message)
     }
     // Invalid Google Calendar credentials, remove them from the user
-    if (err.message.indexOf('invalid_grant') > -1) {
-      user.googleCalendarResourceId = undefined
-      user.settings.googleCalendarCredentials = undefined
-      await user.save()
+    if (`${err.message}`.indexOf('invalid_grant') > -1) {
+      await UserModel.findOneAndUpdate(
+        { _id: user._id },
+        {
+          $unset: {
+            googleCalendarResourceId: 1,
+            'settings.googleCalendarCredentials': 1,
+          },
+        }
+      )
     }
   }
 }
