@@ -1,8 +1,8 @@
-// Dependencies
+import { Todo } from '../models/todo'
 import { Controller, Post, Get } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate, getUserFromToken } from '../middlewares/authenticate'
-import { SubscriptionStatus, UserModel, TodoModel } from '../models'
+import { authenticate } from '../middlewares/authenticate'
+import { SubscriptionStatus, UserModel, TodoModel, getTitle } from '../models'
 import {
   getGoogleCalendarOAuthURL,
   getGoogleCalendarToken,
@@ -11,6 +11,8 @@ import {
   getGoogleCalendarApi,
 } from '../helpers/googleCalendar'
 import { startWatch } from '../helpers/googleCalendarChannel'
+import { requestSync } from '../sockets'
+import { fixOrder } from '../helpers/fixOrder'
 const Verifier = require('google-play-billing-validator')
 
 const googleCredentials = require('../../assets/api-4987639842126744234-562450-c85efe0aadfc.json')
@@ -79,6 +81,7 @@ export default class {
           { completed: true }
         )
       })
+      const changedTodos = [] as Todo[]
       timedEvents.forEach(async (event) => {
         const eventDate = event.start.dateTime
         const todo = await TodoModel.findOne({
@@ -90,17 +93,31 @@ export default class {
         const monthAndYearInEvent = eventDate.substr(0, 7)
         const timeInEvent = eventDate.substr(11, 5)
         const dateInEvent = eventDate.substr(8, 2)
+        let needsSaving = false
         if (timeInEvent !== todo.time) {
           todo.time = timeInEvent
+          needsSaving = true
         }
         if (dateInEvent !== todo.date) {
           todo.date = dateInEvent
+          needsSaving = true
         }
         if (monthAndYearInEvent !== todo.monthAndYear) {
           todo.monthAndYear = monthAndYearInEvent
+          needsSaving = true
         }
-        todo.save()
+        if (needsSaving) {
+          todo.save()
+          changedTodos.push(todo)
+        }
       })
+      // Fix order
+      await fixOrder(
+        user,
+        changedTodos.map((t) => getTitle(t))
+      )
+      // Trigger sync
+      requestSync(user._id)
       ctx.status = 200
     } catch (err) {
       console.log(err.message)
