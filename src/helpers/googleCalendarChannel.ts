@@ -47,6 +47,7 @@ export const startWatch = async (
       { googleCalendarResourceId: resourceId }
     )
   } catch (err) {
+    console.log(err.message.indexOf('is not unique'), err.message, err)
     if (err.message.indexOf('is not unique') < 0) {
       console.log('Start watching Google Calendar error', err.message)
     }
