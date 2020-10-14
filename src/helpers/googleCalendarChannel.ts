@@ -51,7 +51,7 @@ export const startWatch = async (
       console.log(err.message)
     }
     // Invalid Google Calendar credentials, remove them from the user
-    if (err.message === 'invalid_grant') {
+    if (err.message.indexOf('invalid_grant') > -1) {
       user.googleCalendarResourceId = undefined
       user.settings.googleCalendarCredentials = undefined
       await user.save()
