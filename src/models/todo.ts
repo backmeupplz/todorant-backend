@@ -26,6 +26,9 @@ export class Todo extends Typegoose {
   encrypted: boolean
 
   @prop({
+    required: function () {
+      return !this.delegator
+    },
     index: true,
     minlength: 7,
     maxlength: 7,
