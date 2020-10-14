@@ -90,7 +90,7 @@ export class User extends Typegoose {
   delegates: Ref<User>[]
 
   @prop()
-  googleCalendarResourceId: string
+  googleCalendarResourceId?: string
 
   @instanceMethod
   stripped(withExtra = false, withToken = true) {

@@ -1,4 +1,5 @@
-import { UserModel } from '../models/user'
+import { InstanceType } from 'typegoose'
+import { UserModel, User } from '../models/user'
 import { getTodorantCalendar, getGoogleCalendarApi } from './googleCalendar'
 
 const BACKEND_URL = process.env.BACKEND_URL
@@ -16,12 +17,14 @@ async function googleSync() {
   })
   usersWithCalendar.forEach((user) => {
     const credentials = user.settings.googleCalendarCredentials
-    const userId = user._id
-    startWatch(credentials, userId)
+    startWatch(credentials, user)
   })
 }
 
-export const startWatch = async (credentials: any, userId: string) => {
+export const startWatch = async (
+  credentials: any,
+  user: InstanceType<User>
+) => {
   const channelLivingTime = '7776000'
   try {
     const api = getGoogleCalendarApi(credentials)
@@ -29,7 +32,7 @@ export const startWatch = async (credentials: any, userId: string) => {
     const channel = await api.events.watch({
       calendarId: todorantCalendar.id,
       requestBody: {
-        id: userId,
+        id: user._id,
         token: credentials.access_token,
         type: 'web_hook',
         address: `${BACKEND_URL}/google/notifications`,
@@ -40,12 +43,18 @@ export const startWatch = async (credentials: any, userId: string) => {
     })
     const resourceId = channel.data.resourceId
     await UserModel.findOneAndUpdate(
-      { _id: userId },
+      { _id: user._id },
       { googleCalendarResourceId: resourceId }
     )
   } catch (err) {
-    if (err.message !== `Channel id ${userId} not unique`) {
+    if (err.message !== `Channel id ${user._id} is not unique`) {
       console.log(err.message)
+    }
+    // Invalid Google Calendar credentials, remove them from the user
+    if (err.message === 'invalid_grant') {
+      user.googleCalendarResourceId = undefined
+      user.settings.googleCalendarCredentials = undefined
+      await user.save()
     }
   }
 }
