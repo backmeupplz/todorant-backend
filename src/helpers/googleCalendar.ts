@@ -136,6 +136,7 @@ export async function updateTodos(
             reminders: {
               useDefault: true,
             },
+            colorId: todoEvent.colorId,
           },
         })
       }
