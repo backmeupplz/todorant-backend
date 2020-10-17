@@ -11,8 +11,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET, {
 
 @Controller('/subscription')
 export default class {
-  @Get('/session/:plan', authenticate)
+  @Post('/session/:plan', authenticate)
   async getPlanning(ctx: Context) {
+    const locales = ['de', 'en', 'es', 'it', 'pt-BR', 'ru']
+    let locale = ctx.request.body.locale
+    if (!locales.includes(locale)) {
+      locale = 'auto'
+    }
     // Parameters
     const plan = ctx.params.plan
     const plans = ['yearly', 'monthly']
@@ -29,6 +34,7 @@ export default class {
       success_url: `${process.env.BASE_URL}/payment_success`,
       cancel_url: `${process.env.BASE_URL}/payment_failure`,
       client_reference_id: ctx.state.user.id,
+      locale: locale,
     })
     // Respond
     ctx.body = {
