@@ -126,6 +126,7 @@ export class User extends Typegoose {
 
   // Mongo property
   _doc: any
+  createdAt: Date
 }
 
 export const UserModel = new User().getModelForClass(User, {

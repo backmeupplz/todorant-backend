@@ -7,6 +7,7 @@ import Facebook = require('facebook-node-sdk')
 import { InstanceType } from 'typegoose'
 import { errors } from '../helpers/errors'
 import { authenticate } from '../middlewares/authenticate'
+import todo from './todo'
 const TelegramLogin = require('node-telegram-login')
 const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
 
@@ -88,6 +89,8 @@ export default class {
         todo.user = originalUser.id
         await todo.save()
       }
+      // Change created at
+      originalUser.createdAt = existingUser.createdAt
       // Remove existing user
       await existingUser.remove()
     }
