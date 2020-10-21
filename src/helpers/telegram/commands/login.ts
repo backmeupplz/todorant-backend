@@ -1,6 +1,6 @@
-import { ContextMessageUpdate, Markup } from 'telegraf'
+import { Context, Markup } from 'telegraf'
 
-export function sendLogin(ctx: ContextMessageUpdate) {
+export function sendLogin(ctx: Context) {
   return ctx.reply(
     ctx.dbuser && ctx.i18n
       ? ctx.i18n.t('login')

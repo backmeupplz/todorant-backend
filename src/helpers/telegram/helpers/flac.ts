@@ -1,4 +1,4 @@
-import { tryDeletingFile } from './deleteFile'
+import { tryDeletingFile } from '@helpers/telegram/helpers/deleteFile'
 const ffmpeg = require('fluent-ffmpeg')
 const temp = require('temp')
 

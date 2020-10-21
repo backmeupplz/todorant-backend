@@ -1,5 +1,5 @@
-import { ContextMessageUpdate } from 'telegraf'
+import { Context } from 'telegraf'
 
-export async function sendSubscriptions(ctx: ContextMessageUpdate) {
+export async function sendSubscriptions(ctx: Context) {
   return ctx.reply('noice')
 }

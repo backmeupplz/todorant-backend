@@ -1,15 +1,16 @@
-// Dependencies
 import * as mongoose from 'mongoose'
+import { setGlobalOptions, Severity } from '@typegoose/typegoose'
 
-// Connect to mongoose
-mongoose.connect(process.env.MONGO, { useNewUrlParser: true })
+mongoose.connect(process.env.MONGO, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
 
 mongoose.set('useCreateIndex', true)
 mongoose.set('useFindAndModify', false)
 
-// Export models
-export * from './user'
-export * from './todo'
-export * from './tag'
-export * from './report'
-export * from './hero'
+setGlobalOptions({
+  options: {
+    allowMixed: Severity.ALLOW,
+  },
+})

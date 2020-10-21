@@ -1,9 +1,8 @@
-// Dependencies
 import { Controller, Post, Put } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
-import { requestSync } from '../sockets'
-import { getGoogleCalendarApi } from '../helpers/googleCalendar'
+import { authenticate } from '@middlewares/authenticate'
+import { requestSync } from '@sockets/index'
+import { getGoogleCalendarApi } from '@helpers/googleCalendar'
 
 @Controller('/settings')
 export default class {

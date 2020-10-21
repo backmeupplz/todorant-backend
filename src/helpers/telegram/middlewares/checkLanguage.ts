@@ -1,7 +1,7 @@
-import { ContextMessageUpdate } from 'telegraf'
-import { sendLanguage } from '../commands/language'
+import { Context } from 'telegraf'
+import { sendLanguage } from '@helpers/telegram/commands/language'
 
-export function checkLanguage(ctx: ContextMessageUpdate, next) {
+export function checkLanguage(ctx: Context, next) {
   if (ctx.dbuser.telegramLanguage) {
     return next()
   }

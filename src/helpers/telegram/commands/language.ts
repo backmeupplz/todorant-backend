@@ -1,10 +1,10 @@
-import { ContextMessageUpdate, Markup as m, Extra } from 'telegraf'
+import { Context, Markup as m, Extra } from 'telegraf'
 import { readdirSync, readFileSync } from 'fs'
 import { safeLoad } from 'js-yaml'
-import { TelegramLanguage } from '../../../models'
+import { TelegramLanguage } from '@models/user'
 import { ExtraEditMessage } from 'telegraf/typings/telegram-types'
 
-export function sendLanguage(ctx: ContextMessageUpdate) {
+export function sendLanguage(ctx: Context) {
   return ctx.reply(
     ctx.i18n && ctx.dbuser.telegramLanguage
       ? ctx.i18n.t('language')
@@ -17,7 +17,7 @@ export function sendLanguage(ctx: ContextMessageUpdate) {
   )
 }
 
-export async function handleLanguage(ctx: ContextMessageUpdate) {
+export async function handleLanguage(ctx: Context) {
   ctx.dbuser.telegramLanguage = ctx.callbackQuery.data as TelegramLanguage
   ctx.dbuser = await ctx.dbuser.save()
   const message = ctx.callbackQuery.message

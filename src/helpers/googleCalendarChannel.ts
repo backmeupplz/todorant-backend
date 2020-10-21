@@ -1,5 +1,9 @@
-import { UserModel } from '../models/user'
-import { getTodorantCalendar, getGoogleCalendarApi } from './googleCalendar'
+import { DocumentType } from '@typegoose/typegoose'
+import { UserModel, User } from '@models/user'
+import {
+  getTodorantCalendar,
+  getGoogleCalendarApi,
+} from '@helpers/googleCalendar'
 
 const BACKEND_URL = process.env.BACKEND_URL
 
@@ -16,12 +20,14 @@ async function googleSync() {
   })
   usersWithCalendar.forEach((user) => {
     const credentials = user.settings.googleCalendarCredentials
-    const userId = user._id
-    startWatch(credentials, userId)
+    startWatch(credentials, user)
   })
 }
 
-export const startWatch = async (credentials: any, userId: string) => {
+export const startWatch = async (
+  credentials: any,
+  user: DocumentType<User>
+) => {
   const channelLivingTime = '7776000'
   try {
     const api = getGoogleCalendarApi(credentials)
@@ -29,7 +35,7 @@ export const startWatch = async (credentials: any, userId: string) => {
     const channel = await api.events.watch({
       calendarId: todorantCalendar.id,
       requestBody: {
-        id: userId,
+        id: user._id,
         token: credentials.access_token,
         type: 'web_hook',
         address: `${BACKEND_URL}/google/notifications`,
@@ -40,12 +46,24 @@ export const startWatch = async (credentials: any, userId: string) => {
     })
     const resourceId = channel.data.resourceId
     await UserModel.findOneAndUpdate(
-      { _id: userId },
+      { _id: user._id },
       { googleCalendarResourceId: resourceId }
     )
   } catch (err) {
-    if (err.message !== `Channel id ${userId} not unique`) {
-      console.log(err.message)
+    if (`${err.message}`.indexOf('not unique') < 0) {
+      console.log('Start watching Google Calendar error', err.message)
+    }
+    // Invalid Google Calendar credentials, remove them from the user
+    if (`${err.message}`.indexOf('invalid_grant') > -1) {
+      await UserModel.findOneAndUpdate(
+        { _id: user._id },
+        {
+          $unset: {
+            googleCalendarResourceId: 1,
+            'settings.googleCalendarCredentials': 1,
+          },
+        }
+      )
     }
   }
 }

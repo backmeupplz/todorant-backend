@@ -1,23 +1,15 @@
-import { Hero, getOrCreateHero, HeroModel } from '../models/hero'
+import { Hero, getOrCreateHero, HeroModel } from '@models/hero'
 import { omit } from 'lodash'
 import { createServer } from 'http'
 import SocketIO = require('socket.io')
-import { getUserFromToken } from '../middlewares/authenticate'
-import { report } from '../helpers/report'
-import {
-  User,
-  TodoModel,
-  Todo,
-  Settings,
-  UserModel,
-  Tag,
-  TagModel,
-} from '../models'
-import { InstanceType } from 'typegoose'
-import { updateTodos, getGoogleCalendarApi } from '../helpers/googleCalendar'
+import { getUserFromToken } from '@middlewares/authenticate'
+import { report } from '@helpers/report'
+import { Tag, TagModel } from '@models/tag'
+import { TodoModel, Todo } from '@models/todo'
+import { User, Settings, UserModel } from '@models/user'
+import { DocumentType } from '@typegoose/typegoose'
+import { updateTodos, getGoogleCalendarApi } from '@helpers/googleCalendar'
 import * as randToken from 'rand-token'
-import { isUserSubscribed } from '../helpers/isUserSubscribed'
-import { errors } from '../helpers/errors'
 
 const server = createServer()
 const io = SocketIO(server)
@@ -26,7 +18,7 @@ function setupSync<T>(
   socket: SocketIO.Socket,
   name: string,
   getObjects: (
-    user: InstanceType<User>,
+    user: DocumentType<User>,
     lastSyncDate: Date | undefined
   ) => Promise<T>,
   onPushObjects: (
@@ -99,14 +91,17 @@ io.on('connection', (socket) => {
       const savedTodos = await Promise.all(
         todos.map(
           (todo) =>
-            new Promise<InstanceType<Todo>>(async (res, rej) => {
+            new Promise<DocumentType<Todo>>(async (res, rej) => {
               try {
                 if (!todo._id) {
                   const dbtodo = new TodoModel({
                     ...omit(todo, '_id'),
                     user: getUser(socket)._id,
                   })
-                  const savedTodo = await dbtodo.save()
+                  if (!dbtodo.date) {
+                    dbtodo.date = undefined
+                  }
+                  const savedTodo = (await dbtodo.save()) as DocumentType<Todo>
                   savedTodo._tempSyncId = todo._tempSyncId
                   res(savedTodo as any)
                 } else {
@@ -120,7 +115,10 @@ io.on('connection', (socket) => {
                     return rej(new Error('Not authorized'))
                   }
                   Object.assign(dbtodo, omit(todo, '_id'))
-                  const savedTodo = await dbtodo.save()
+                  if (!dbtodo.date) {
+                    dbtodo.date = undefined
+                  }
+                  const savedTodo = (await dbtodo.save()) as DocumentType<Todo>
                   savedTodo._tempSyncId = todo._tempSyncId
                   res(savedTodo as any)
                 }
@@ -157,14 +155,14 @@ io.on('connection', (socket) => {
       const savedTags = await Promise.all(
         tags.map(
           (tag) =>
-            new Promise<InstanceType<Tag>>(async (res, rej) => {
+            new Promise<DocumentType<Tag>>(async (res, rej) => {
               try {
                 if (!tag._id) {
                   const dbtag = new TagModel({
                     ...omit(tag, '_id'),
                     user: getUser(socket)._id,
                   })
-                  const savedTag = await dbtag.save()
+                  const savedTag = (await dbtag.save()) as DocumentType<Tag>
                   savedTag._tempSyncId = tag._tempSyncId
                   res(savedTag as any)
                 } else {
@@ -178,7 +176,7 @@ io.on('connection', (socket) => {
                     return rej(new Error('Not authorized'))
                   }
                   Object.assign(dbtag, omit(tag, '_id'))
-                  const savedTag = await dbtag.save()
+                  const savedTag = (await dbtag.save()) as DocumentType<Tag>
                   savedTag._tempSyncId = tag._tempSyncId
                   res(savedTag as any)
                 }
@@ -348,7 +346,7 @@ function setAuthorized(socket: SocketIO.Socket, authorized: boolean) {
   ;(socket as any).authorized = authorized
 }
 
-function setUser(socket: SocketIO.Socket, user: InstanceType<User>) {
+function setUser(socket: SocketIO.Socket, user: DocumentType<User>) {
   ;(socket as any).user = user
 }
 
@@ -356,7 +354,7 @@ function isAuthorized(socket: SocketIO.Socket) {
   return !!(socket as any).authorized
 }
 
-function getUser(socket: SocketIO.Socket): InstanceType<User> | undefined {
+function getUser(socket: SocketIO.Socket): DocumentType<User> | undefined {
   return (socket as any).user
 }
 

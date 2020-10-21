@@ -1,9 +1,9 @@
-import { errors } from '../helpers/errors'
-import { TagModel } from '../models/tag'
+import { errors } from '@helpers/errors'
+import { TagModel } from '@models/tag'
 import { Context } from 'koa'
 import { Controller, Get, Delete, Put } from 'koa-router-ts'
-import { authenticate } from '../middlewares/authenticate'
-import { requestSync } from '../sockets'
+import { authenticate } from '@middlewares/authenticate'
+import { requestSync } from '@sockets/index'
 
 @Controller('/tag')
 export default class {

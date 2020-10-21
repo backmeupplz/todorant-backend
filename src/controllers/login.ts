@@ -1,18 +1,22 @@
 import axios from 'axios'
 import { Context } from 'koa'
-import { getOrCreateUser, UserModel, SubscriptionStatus, User } from '../models'
+import {
+  getOrCreateUser,
+  UserModel,
+  SubscriptionStatus,
+  User,
+} from '@models/user'
 import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { decode } from 'jsonwebtoken'
-import { sign, verifyAppleToken } from '../helpers/jwt'
+import { sign, verifyAppleToken } from '@helpers/jwt'
 import * as randToken from 'rand-token'
-import { bot } from '../helpers/telegram'
+import { bot } from '@helpers/telegram'
 import { Markup as m } from 'telegraf'
-import { InstanceType } from 'typegoose'
-import { getUserFromToken } from '../middlewares/authenticate'
+import { DocumentType } from '@typegoose/typegoose'
+import { getUserFromToken } from '@middlewares/authenticate'
+import { verifyTelegramPayload } from '@helpers/verifyTelegramPayload'
 
-const TelegramLogin = require('node-telegram-login')
-const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
 const AppleAuth = require('apple-auth')
 
 const telegramLoginRequests = {} as {
@@ -22,7 +26,7 @@ const telegramLoginRequests = {} as {
   }
 }
 
-async function tryPurchasingApple(user: InstanceType<User>, receipt: string) {
+async function tryPurchasingApple(user: DocumentType<User>, receipt: string) {
   const appleUrl =
     process.env.ENVIRONMENT === 'staging'
       ? 'https://sandbox.itunes.apple.com/verifyReceipt'
@@ -75,7 +79,7 @@ export default class {
   async telegram(ctx: Context) {
     const data = ctx.request.body
     // verify the data
-    if (!Login.checkLoginData(data)) {
+    if (!verifyTelegramPayload(data)) {
       return ctx.throw(403)
     }
 

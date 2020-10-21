@@ -1,10 +1,9 @@
-// Dependencies
 import { Controller, Post, Get } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
+import { authenticate } from '@middlewares/authenticate'
 import axios from 'axios'
-import { SubscriptionStatus } from '../models'
-import { bot } from '../helpers/report'
+import { SubscriptionStatus } from '@models/user'
+import { bot } from '@helpers/report'
 
 @Controller('/apple')
 export default class {

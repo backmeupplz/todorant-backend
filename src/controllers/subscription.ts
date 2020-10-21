@@ -1,18 +1,23 @@
 import { Controller, Get, Post } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
+import { authenticate } from '@middlewares/authenticate'
 import Stripe from 'stripe'
-import { User } from '../models/user'
-import { UserModel, SubscriptionStatus } from '../models'
+import { User } from '@models/user'
+import { UserModel, SubscriptionStatus } from '@models/user'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET, {
-  apiVersion: '2020-03-02',
+  apiVersion: '2020-08-27',
 })
 
 @Controller('/subscription')
 export default class {
-  @Get('/session/:plan', authenticate)
+  @Post('/session/:plan', authenticate)
   async getPlanning(ctx: Context) {
+    const locales = ['de', 'en', 'es', 'it', 'pt-BR', 'ru']
+    let locale = ctx.request.body.locale
+    if (!locales.includes(locale)) {
+      locale = 'auto'
+    }
     // Parameters
     const plan = ctx.params.plan
     const plans = ['yearly', 'monthly']
@@ -29,6 +34,7 @@ export default class {
       success_url: `${process.env.BASE_URL}/payment_success`,
       cancel_url: `${process.env.BASE_URL}/payment_failure`,
       client_reference_id: ctx.state.user.id,
+      locale: locale,
     })
     // Respond
     ctx.body = {

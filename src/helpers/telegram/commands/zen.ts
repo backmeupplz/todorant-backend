@@ -1,7 +1,7 @@
-import { ContextMessageUpdate, Extra } from 'telegraf'
+import { Context, Extra } from 'telegraf'
 import { ExtraReplyMessage } from 'telegraf/typings/telegram-types'
 
-export async function handleZen(ctx: ContextMessageUpdate) {
+export async function handleZen(ctx: Context) {
   ctx.dbuser.telegramZen = !ctx.dbuser.telegramZen
   await ctx.dbuser.save()
   // Respond

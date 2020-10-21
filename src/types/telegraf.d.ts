@@ -1,10 +1,9 @@
-import { User } from '../models'
-import * as tt from '../../node_modules/telegraf/typings/telegram-types.d'
+import { User } from '../models/user'
 import { InstanceType } from 'typegoose'
 import I18N from 'telegraf-i18n'
 
 declare module 'telegraf' {
-  export class ContextMessageUpdate {
+  export class Context {
     public dbuser: InstanceType<User>
     i18n: I18N
   }

@@ -1,11 +1,12 @@
-import { User, Todo, UserModel, TodoModel } from '../../../models'
-import { InstanceType } from 'typegoose'
-import { getTodos } from '../../../controllers/todo'
+import { Todo, TodoModel } from '@models/todo'
+import { User, UserModel } from '@models/user'
+import { DocumentType } from '@typegoose/typegoose'
+import { getTodos } from '@controllers/todo'
 import moment = require('moment')
 
 export async function findCurrentForUser(
-  user: InstanceType<User>
-): Promise<{ todo: InstanceType<Todo> | undefined; count: number }> {
+  user: DocumentType<User>
+): Promise<{ todo: DocumentType<Todo> | undefined; count: number }> {
   // Get date
   const now = new Date()
   const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000)

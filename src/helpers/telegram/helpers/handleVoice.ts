@@ -1,7 +1,7 @@
-import { ContextMessageUpdate } from 'telegraf'
-import { handleMessage } from './voice'
+import { Context } from 'telegraf'
+import { handleMessage } from '@helpers/telegram/helpers/voice'
 
-export function handleVoice(ctx: ContextMessageUpdate) {
+export function handleVoice(ctx: Context) {
   // Handle voice
   handleMessage(ctx)
 }

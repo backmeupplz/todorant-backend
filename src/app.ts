@@ -1,20 +1,23 @@
+// Setup @ aliases for modules
+import 'module-alias/register'
 // Get environment variables
 import * as dotenv from 'dotenv'
 dotenv.config({ path: `${__dirname}/../.env` })
-// Dependencies
+
 import 'reflect-metadata'
 import * as Koa from 'koa'
-import bodyParser from 'koa-bodyparser-ts'
+import '@models/index'
+import * as bodyParser from 'koa-bodyparser'
 import { loadControllers } from 'koa-router-ts'
 import * as cors from '@koa/cors'
-import { bot } from './helpers/telegram'
+import { bot } from '@helpers/telegram'
 import * as GracefulShutdown from 'http-graceful-shutdown'
-import './helpers/bouncersMessage'
-import './helpers/powerUsersMessage'
-import './helpers/checkAppleSubscribers'
-import './helpers/checkGoogleSubscribers'
-import './helpers/googleCalendarChannel'
-import './sockets'
+import '@helpers/bouncersMessage'
+import '@helpers/powerUsersMessage'
+import '@helpers/checkAppleSubscribers'
+import '@helpers/checkGoogleSubscribers'
+import '@helpers/googleCalendarChannel'
+import '@sockets'
 const logger = require('koa-logger')
 
 const app = new Koa()
@@ -31,7 +34,7 @@ app.listen(1337)
 console.log('Koa application is up and running on port 1337')
 
 GracefulShutdown(app, {
-  onShutdown: async (signal) => {
+  onShutdown: async () => {
     bot.stop()
   },
 })

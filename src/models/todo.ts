@@ -1,9 +1,8 @@
-// Dependencies
-import { prop, Typegoose, instanceMethod, Ref } from 'typegoose'
+import { prop, Ref, getModelForClass } from '@typegoose/typegoose'
 import { omit } from 'lodash'
-import { User } from './user'
+import { User } from '@models/user'
 
-export class Todo extends Typegoose {
+export class Todo {
   @prop({ required: true, ref: User })
   user: Ref<User>
 
@@ -63,7 +62,6 @@ export class Todo extends Typegoose {
   @prop()
   delegateAccepted?: boolean
 
-  @instanceMethod
   stripped() {
     const stripFields = ['__v', 'user']
     const delegator =
@@ -87,6 +85,6 @@ export function getTitle(todo: { monthAndYear?: string; date?: string }) {
   return `${todo.monthAndYear}${todo.date ? `-${todo.date}` : ''}`
 }
 
-export const TodoModel = new Todo().getModelForClass(Todo, {
+export const TodoModel = getModelForClass(Todo, {
   schemaOptions: { timestamps: true },
 })

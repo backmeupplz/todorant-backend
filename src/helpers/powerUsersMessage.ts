@@ -1,7 +1,8 @@
-import { UserModel, User, TodoModel } from '../models'
-import { bot } from './telegram'
-import { sendPowerUserMessage } from './sendEmail'
-import { InstanceType } from 'typegoose'
+import { UserModel, User } from '@models/user'
+import { TodoModel } from '@models/todo'
+import { bot } from '@helpers/telegram'
+import { sendPowerUserMessage } from '@helpers/sendEmail'
+import { DocumentType } from '@typegoose/typegoose'
 
 async function sendMessageToPowerUsers() {
   if (process.env.DEBUG) {
@@ -120,7 +121,7 @@ If you have any additional questions please contact me directly — @borodutch. 
   console.log(`Sent message to ${numberOfValidPowerUsers} email power users`)
 }
 
-async function countTodos(user: InstanceType<User>) {
+async function countTodos(user: DocumentType<User>) {
   const todoCount = await TodoModel.countDocuments({ user: user._id })
   return todoCount
 }

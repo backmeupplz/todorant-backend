@@ -1,26 +1,26 @@
-import { Todo, TodoModel, getTitle } from '../models/todo'
-import { User } from '../models/user'
-import { InstanceType } from 'typegoose'
+import { Todo, TodoModel, getTitle } from '@models/todo'
+import { User } from '@models/user'
+import { DocumentType } from '@typegoose/typegoose'
 
 export async function fixOrder(
-  user: InstanceType<User>,
+  user: DocumentType<User>,
   titlesInvolved: string[],
   addTodosOnTop = [] as Todo[],
   addTodosToBottom = [] as Todo[],
   timeTodosToYield = [] as Todo[]
 ) {
   const allTodos = await TodoModel.find({ user: user._id, deleted: false })
-  const completedTodos = allTodos.filter(t => t.completed)
-  const uncompletedTodos = allTodos.filter(t => !t.completed)
+  const completedTodos = allTodos.filter((t) => t.completed)
+  const uncompletedTodos = allTodos.filter((t) => !t.completed)
   const completedTodosMap = completedTodos.reduce(mapTodos, {})
   const uncompletedTodosMap = uncompletedTodos.reduce(mapTodos, {})
   const addTodosOnTopIds = addTodosOnTop
-    ? addTodosOnTop.map(t => t._id.toString())
+    ? addTodosOnTop.map((t) => t._id.toString())
     : []
   const addTodosToBottomIds = addTodosToBottom
-    ? addTodosToBottom.map(t => t._id.toString())
+    ? addTodosToBottom.map((t) => t._id.toString())
     : []
-  const todosToSave = [] as InstanceType<Todo>[]
+  const todosToSave = [] as DocumentType<Todo>[]
   for (const titleInvolved of titlesInvolved) {
     // Go over completed
     const orderedCompleted = (completedTodosMap[titleInvolved] || []).sort(
@@ -54,8 +54,8 @@ export async function fixOrder(
 }
 
 function mapTodos(
-  prev: { [index: string]: InstanceType<Todo>[] },
-  cur: InstanceType<Todo>
+  prev: { [index: string]: DocumentType<Todo>[] },
+  cur: DocumentType<Todo>
 ) {
   if (prev[getTitle(cur)]) {
     prev[getTitle(cur)].push(cur)
@@ -86,7 +86,9 @@ function isTimeSorted(todos: Todo[]) {
 }
 
 function fixOneTodoTime(todos: Todo[], timeTodosToYield: Todo[]) {
-  const timeTodosToYieldIds = timeTodosToYield.map(t => t._id || t._tempSyncId)
+  const timeTodosToYieldIds = timeTodosToYield.map(
+    (t) => t._id || t._tempSyncId
+  )
   let time: number | undefined
   let prevTodoWithTimeIndex: number | undefined
   let i = 0
@@ -125,12 +127,12 @@ function fixOneTodoTime(todos: Todo[], timeTodosToYield: Todo[]) {
 }
 
 function minutesFromTime(time: string) {
-  const components = time.split(':').map(c => parseInt(c, 10))
+  const components = time.split(':').map((c) => parseInt(c, 10))
   return components[0] * 60 + components[1]
 }
 
 function sortTodos(todosOnTopIds: string[], todosOnBottomIds: string[]) {
-  return (a: InstanceType<Todo>, b: InstanceType<Todo>) => {
+  return (a: DocumentType<Todo>, b: DocumentType<Todo>) => {
     const aId = a._id.toString()
     const bId = b._id.toString()
     if (

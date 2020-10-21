@@ -1,5 +1,4 @@
-// Dependencies
-import { Todo } from '../models'
+import { Todo } from '@models/todo'
 
 function getDateFromTime(date: string, time: string) {
   return new Date(

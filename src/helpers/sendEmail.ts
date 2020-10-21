@@ -1,4 +1,3 @@
-// Dependencies
 import * as nodemailer from 'nodemailer'
 
 const transport = nodemailer.createTransport({
