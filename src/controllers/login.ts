@@ -82,6 +82,7 @@ export default class {
     if (!verifyTelegramPayload(data)) {
       return ctx.throw(403)
     }
+    console.log(data)
 
     const { created, user } = await getOrCreateUser({
       name: `${data.first_name}${data.last_name ? ` ${data.last_name}` : ''}`,
