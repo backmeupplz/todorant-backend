@@ -1,4 +1,3 @@
-// Dependencies
 import { ContextMessageUpdate } from 'telegraf'
 
 export function checkIfPrivate(ctx: ContextMessageUpdate, next) {

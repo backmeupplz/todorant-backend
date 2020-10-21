@@ -1,10 +1,9 @@
-// Dependencies
-import { User } from '../models/user'
+import { User } from '@models/user'
 import { Context } from 'koa'
-import { errors } from '../helpers/errors'
+import { errors } from '@helpers/errors'
 import { InstanceType } from 'typegoose'
-import { report } from '../helpers/report'
-import { isUserSubscribed } from '../helpers/isUserSubscribed'
+import { report } from '@helpers/report'
+import { isUserSubscribed } from '@helpers/isUserSubscribed'
 
 export async function checkSubscription(ctx: Context, next: Function) {
   try {

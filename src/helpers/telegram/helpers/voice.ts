@@ -1,8 +1,8 @@
 import { ContextMessageUpdate } from 'telegraf'
-import { urlToText } from './urlToText'
-import { addTodoWithText } from '../commands/todo'
-import { languageForCode } from './witLanguage'
-import { capitalizeSentence } from '../../../helpers/capitalizeSentence'
+import { urlToText } from '@helpers/telegram/helpers/urlToText'
+import { addTodoWithText } from '@helpers/telegram/commands/todo'
+import { languageForCode } from '@helpers/telegram/helpers/witLanguage'
+import { capitalizeSentence } from '@helpers/capitalizeSentence'
 
 export async function handleMessage(ctx: ContextMessageUpdate) {
   try {

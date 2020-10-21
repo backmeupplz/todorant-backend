@@ -1,6 +1,9 @@
 import { InstanceType } from 'typegoose'
-import { UserModel, User } from '../models/user'
-import { getTodorantCalendar, getGoogleCalendarApi } from './googleCalendar'
+import { UserModel, User } from '@models/user'
+import {
+  getTodorantCalendar,
+  getGoogleCalendarApi,
+} from '@helpers/googleCalendar'
 
 const BACKEND_URL = process.env.BACKEND_URL
 

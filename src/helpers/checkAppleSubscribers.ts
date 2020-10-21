@@ -1,7 +1,6 @@
-import { SubscriptionStatus } from './../models/user'
-import { UserModel } from '../models/user'
+import { SubscriptionStatus, UserModel } from '@models/user'
 import axios from 'axios'
-import { bot } from './report'
+import { bot } from '@helpers/report'
 
 async function checkAppleSubscribers() {
   if (process.env.DEBUG) {

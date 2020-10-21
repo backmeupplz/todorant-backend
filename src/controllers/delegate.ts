@@ -1,14 +1,14 @@
-import { errors } from '../helpers/errors'
-import { TodoModel, getTitle } from '../models/todo'
-import { User, UserModel } from '../models/user'
+import { errors } from '@helpers/errors'
+import { TodoModel, getTitle } from '@models/todo'
+import { User, UserModel } from '@models/user'
 import { Controller, Post, Get, Delete } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
+import { authenticate } from '@middlewares/authenticate'
 import * as randToken from 'rand-token'
 import { InstanceType } from 'typegoose'
-import { fixOrder } from '../helpers/fixOrder'
-import { requestSync } from '../sockets'
-import { updateTodos } from '../helpers/googleCalendar'
+import { fixOrder } from '@helpers/fixOrder'
+import { requestSync } from '@sockets/index'
+import { updateTodos } from '@helpers/googleCalendar'
 
 @Controller('/delegate')
 export default class {

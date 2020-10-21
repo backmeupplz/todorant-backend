@@ -1,6 +1,7 @@
-import { UserModel, User, TodoModel } from '../models'
-import { bot } from './telegram'
-import { sendPowerUserMessage } from './sendEmail'
+import { UserModel, User } from '@models/user'
+import { TodoModel } from '@models/todo'
+import { bot } from '@helpers/telegram'
+import { sendPowerUserMessage } from '@helpers/sendEmail'
 import { InstanceType } from 'typegoose'
 
 async function sendMessageToPowerUsers() {

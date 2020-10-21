@@ -1,7 +1,6 @@
-// Dependencies
 import { prop, Typegoose, instanceMethod, Ref } from 'typegoose'
 import { omit } from 'lodash'
-import { User, UserModel } from './user'
+import { User, UserModel } from '@models/user'
 
 export class Report extends Typegoose {
   @prop({ required: true, index: true, unique: true })

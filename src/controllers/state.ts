@@ -1,12 +1,11 @@
-// Dependencies
 import { Controller, Get } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
-import { errors } from '../helpers/errors'
-import { isTodoOld } from '../helpers/isTodoOld'
-import { getTodos } from './todo'
+import { authenticate } from '@middlewares/authenticate'
+import { errors } from '@helpers/errors'
+import { isTodoOld } from '@helpers/isTodoOld'
+import { getTodos } from '@controllers/todo'
 import { pick } from 'lodash'
-import { SubscriptionStatus } from '../models/user'
+import { SubscriptionStatus } from '@models/user'
 
 enum SubscriptionType {
   none = 'none',

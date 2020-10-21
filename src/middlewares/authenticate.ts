@@ -1,10 +1,9 @@
-// Dependencies
-import { UserModel, User } from '../models/user'
+import { UserModel, User } from '@models/user'
 import { Context } from 'koa'
-import { verify } from '../helpers/jwt'
-import { errors } from '../helpers/errors'
+import { verify } from '@helpers/jwt'
+import { errors } from '@helpers/errors'
 import { InstanceType } from 'typegoose'
-import { report } from '../helpers/report'
+import { report } from '@helpers/report'
 
 export async function authenticate(ctx: Context, next: Function) {
   try {

@@ -1,7 +1,7 @@
 import { Controller, Get } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
-import { getOrCreateHero } from '../models/hero'
+import { authenticate } from '@middlewares/authenticate'
+import { getOrCreateHero } from '@models/hero'
 
 @Controller('/hero')
 export default class {

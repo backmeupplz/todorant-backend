@@ -1,15 +1,20 @@
 import axios from 'axios'
 import { Context } from 'koa'
-import { getOrCreateUser, UserModel, SubscriptionStatus, User } from '../models'
+import {
+  getOrCreateUser,
+  UserModel,
+  SubscriptionStatus,
+  User,
+} from '@models/user'
 import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { decode } from 'jsonwebtoken'
-import { sign, verifyAppleToken } from '../helpers/jwt'
+import { sign, verifyAppleToken } from '@helpers/jwt'
 import * as randToken from 'rand-token'
-import { bot } from '../helpers/telegram'
+import { bot } from '@helpers/telegram'
 import { Markup as m } from 'telegraf'
 import { InstanceType } from 'typegoose'
-import { getUserFromToken } from '../middlewares/authenticate'
+import { getUserFromToken } from '@middlewares/authenticate'
 
 const TelegramLogin = require('node-telegram-login')
 const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)

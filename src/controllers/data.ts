@@ -1,12 +1,11 @@
-// Dependencies
 import { Controller, Post, Get } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
+import { authenticate } from '@middlewares/authenticate'
 import { path } from 'temp'
 import { writeFileSync, unlinkSync } from 'fs'
-import { bot } from '../helpers/report'
-import { _d } from '../helpers/encryption'
-import { getTodos } from './todo'
+import { bot } from '@helpers/report'
+import { _d } from '@helpers/encryption'
+import { getTodos } from '@controllers/todo'
 
 @Controller('/data')
 export default class {

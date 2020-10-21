@@ -1,6 +1,7 @@
-import { User, Todo, UserModel, TodoModel } from '../../../models'
+import { Todo, TodoModel } from '@models/todo'
+import { User, UserModel } from '@models/user'
 import { InstanceType } from 'typegoose'
-import { getTodos } from '../../../controllers/todo'
+import { getTodos } from '@controllers/todo'
 import moment = require('moment')
 
 export async function findCurrentForUser(

@@ -1,10 +1,11 @@
 import { ContextMessageUpdate, Markup } from 'telegraf'
-import { findCurrentForUser } from '../helpers/findCurrent'
-import { User, TodoModel, getTitle } from '../../../models'
+import { findCurrentForUser } from '@helpers/telegram/helpers/findCurrent'
+import { User } from '@models/user'
+import { TodoModel, getTitle } from '@models/todo'
 import { InstanceType } from 'typegoose'
-import { compareTodos } from '../../../controllers/todo'
-import { fixOrder } from '../../../helpers/fixOrder'
-import { requestSync } from '../../../sockets'
+import { compareTodos } from '@controllers/todo'
+import { fixOrder } from '@helpers/fixOrder'
+import { requestSync } from '@sockets/index'
 
 export async function handleCurrent(ctx: ContextMessageUpdate) {
   // Get user

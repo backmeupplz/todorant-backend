@@ -1,10 +1,12 @@
 import { Controller, Get } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
-import { User, TodoModel, ReportModel } from '../models'
+import { authenticate } from '@middlewares/authenticate'
+import { User } from '@models/user'
+import { TodoModel } from '@models/todo'
 import { InstanceType } from 'typegoose'
 import * as randToken from 'rand-token'
-import { _d } from '../helpers/encryption'
+import { _d } from '@helpers/encryption'
+import { ReportModel } from '@models/report'
 
 @Controller('/report')
 export default class {

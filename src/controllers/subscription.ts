@@ -1,9 +1,9 @@
 import { Controller, Get, Post } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
+import { authenticate } from '@middlewares/authenticate'
 import Stripe from 'stripe'
-import { User } from '../models/user'
-import { UserModel, SubscriptionStatus } from '../models'
+import { User } from '@models/user'
+import { UserModel, SubscriptionStatus } from '@models/user'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET, {
   apiVersion: '2020-03-02',

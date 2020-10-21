@@ -1,5 +1,5 @@
-import { witLanguages } from './witLanguage'
-import { tryDeletingFile } from './deleteFile'
+import { witLanguages } from '@helpers/telegram/helpers/witLanguage'
+import { tryDeletingFile } from '@helpers/telegram/helpers/deleteFile'
 const temp = require('temp')
 const ffmpeg = require('fluent-ffmpeg')
 const https = require('https')

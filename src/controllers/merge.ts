@@ -1,13 +1,12 @@
-// Dependencies
 import axios from 'axios'
 import { Context } from 'koa'
-import { UserModel, User, SubscriptionStatus, TodoModel } from '../models'
+import { UserModel, User, SubscriptionStatus } from '@models/user'
+import { TodoModel } from '@models/todo'
 import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
 import { InstanceType } from 'typegoose'
-import { errors } from '../helpers/errors'
-import { authenticate } from '../middlewares/authenticate'
-import todo from './todo'
+import { errors } from '@helpers/errors'
+import { authenticate } from '@middlewares/authenticate'
 const TelegramLogin = require('node-telegram-login')
 const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
 

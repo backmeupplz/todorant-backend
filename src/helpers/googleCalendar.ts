@@ -1,8 +1,8 @@
-import { Todo } from '../models/todo'
+import { Todo } from '@models/todo'
 import { google, calendar_v3 } from 'googleapis'
-import { report } from './report'
+import { report } from '@helpers/report'
 import moment = require('moment')
-import { _d } from './encryption'
+import { _d } from '@helpers/encryption'
 
 export interface GoogleCalendarCredentials {
   refresh_token?: string | null

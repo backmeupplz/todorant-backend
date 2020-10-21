@@ -1,18 +1,19 @@
-import { Todo } from '../models/todo'
+import { Todo } from '@models/todo'
 import { Controller, Post, Get } from 'koa-router-ts'
 import { Context } from 'koa'
-import { authenticate } from '../middlewares/authenticate'
-import { SubscriptionStatus, UserModel, TodoModel, getTitle } from '../models'
+import { authenticate } from '@middlewares/authenticate'
+import { TodoModel, getTitle } from '@models/todo'
+import { SubscriptionStatus, UserModel } from '@models/user'
 import {
   getGoogleCalendarOAuthURL,
   getGoogleCalendarToken,
   getTodorantCalendar,
   getGoogleEvents,
   getGoogleCalendarApi,
-} from '../helpers/googleCalendar'
-import { startWatch } from '../helpers/googleCalendarChannel'
-import { requestSync } from '../sockets'
-import { fixOrder } from '../helpers/fixOrder'
+} from '@helpers/googleCalendar'
+import { startWatch } from '@helpers/googleCalendarChannel'
+import { requestSync } from '@sockets/index'
+import { fixOrder } from '@helpers/fixOrder'
 const Verifier = require('google-play-billing-validator')
 
 const googleCredentials = require('../../assets/api-4987639842126744234-562450-c85efe0aadfc.json')

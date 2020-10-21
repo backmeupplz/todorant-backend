@@ -1,8 +1,7 @@
-// Dependencies
 import { Controller, Post } from 'koa-router-ts'
 import { Context } from 'koa'
-import { getUserFromToken } from '../middlewares/authenticate'
-import { bot } from '../helpers/report'
+import { getUserFromToken } from '@middlewares/authenticate'
+import { bot } from '@helpers/report'
 
 @Controller('/feedback')
 export default class {

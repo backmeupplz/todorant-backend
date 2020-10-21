@@ -1,6 +1,5 @@
-// Dependencies
-import { User, SubscriptionStatus } from '../models'
-import { daysBetween } from './daysBetween'
+import { User, SubscriptionStatus } from '@models/user'
+import { daysBetween } from '@helpers/daysBetween'
 
 export function isUserSubscribed(user: User) {
   return !(

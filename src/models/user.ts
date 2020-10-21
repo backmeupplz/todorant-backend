@@ -1,4 +1,4 @@
-import { sign } from '../helpers/jwt'
+import { sign } from '@helpers/jwt'
 import {
   prop,
   Typegoose,
@@ -8,7 +8,7 @@ import {
   Ref,
 } from 'typegoose'
 import { omit } from 'lodash'
-import { GoogleCalendarCredentials } from '../helpers/googleCalendar'
+import { GoogleCalendarCredentials } from '@helpers/googleCalendar'
 import * as randToken from 'rand-token'
 
 export enum SubscriptionStatus {

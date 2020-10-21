@@ -1,6 +1,5 @@
-import { SubscriptionStatus } from '../models/user'
-import { UserModel } from '../models/user'
-import { bot } from './report'
+import { SubscriptionStatus, UserModel } from '@models/user'
+import { bot } from '@helpers/report'
 
 async function checkGoogleSubscribers() {
   if (process.env.DEBUG) {

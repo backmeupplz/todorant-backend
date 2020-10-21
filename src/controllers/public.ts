@@ -1,4 +1,3 @@
-// Dependencies
 import { Controller, Get } from 'koa-router-ts'
 import { Context } from 'koa'
 import showdown = require('showdown')

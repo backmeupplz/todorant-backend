@@ -1,7 +1,6 @@
-// Dependencies
-import { UserModel } from '../../../models'
+import { UserModel } from '@models/user'
 import { ContextMessageUpdate } from 'telegraf'
-import { sendLogin } from '../commands/login'
+import { sendLogin } from '@helpers/telegram/commands/login'
 
 export async function checkAndAttachUser(ctx: ContextMessageUpdate, next) {
   const dbuser = await UserModel.findOne({ telegramId: `${ctx.from.id}` })

@@ -1,5 +1,5 @@
-import { Todo, TodoModel, getTitle } from '../models/todo'
-import { User } from '../models/user'
+import { Todo, TodoModel, getTitle } from '@models/todo'
+import { User } from '@models/user'
 import { InstanceType } from 'typegoose'
 
 export async function fixOrder(
@@ -10,15 +10,15 @@ export async function fixOrder(
   timeTodosToYield = [] as Todo[]
 ) {
   const allTodos = await TodoModel.find({ user: user._id, deleted: false })
-  const completedTodos = allTodos.filter(t => t.completed)
-  const uncompletedTodos = allTodos.filter(t => !t.completed)
+  const completedTodos = allTodos.filter((t) => t.completed)
+  const uncompletedTodos = allTodos.filter((t) => !t.completed)
   const completedTodosMap = completedTodos.reduce(mapTodos, {})
   const uncompletedTodosMap = uncompletedTodos.reduce(mapTodos, {})
   const addTodosOnTopIds = addTodosOnTop
-    ? addTodosOnTop.map(t => t._id.toString())
+    ? addTodosOnTop.map((t) => t._id.toString())
     : []
   const addTodosToBottomIds = addTodosToBottom
-    ? addTodosToBottom.map(t => t._id.toString())
+    ? addTodosToBottom.map((t) => t._id.toString())
     : []
   const todosToSave = [] as InstanceType<Todo>[]
   for (const titleInvolved of titlesInvolved) {
@@ -86,7 +86,9 @@ function isTimeSorted(todos: Todo[]) {
 }
 
 function fixOneTodoTime(todos: Todo[], timeTodosToYield: Todo[]) {
-  const timeTodosToYieldIds = timeTodosToYield.map(t => t._id || t._tempSyncId)
+  const timeTodosToYieldIds = timeTodosToYield.map(
+    (t) => t._id || t._tempSyncId
+  )
   let time: number | undefined
   let prevTodoWithTimeIndex: number | undefined
   let i = 0
@@ -125,7 +127,7 @@ function fixOneTodoTime(todos: Todo[], timeTodosToYield: Todo[]) {
 }
 
 function minutesFromTime(time: string) {
-  const components = time.split(':').map(c => parseInt(c, 10))
+  const components = time.split(':').map((c) => parseInt(c, 10))
   return components[0] * 60 + components[1]
 }
 

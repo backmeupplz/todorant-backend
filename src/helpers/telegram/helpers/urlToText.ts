@@ -1,6 +1,6 @@
-import { getText } from './speechApi'
-import { tryDeletingFile } from './deleteFile'
-import { getDuration } from './flac'
+import { getText } from '@helpers/telegram/helpers/speechApi'
+import { tryDeletingFile } from '@helpers/telegram/helpers/deleteFile'
+import { getDuration } from '@helpers/telegram/helpers/flac'
 const temp = require('temp')
 const fs = require('fs')
 const download = require('download')

@@ -1,9 +1,10 @@
-import { linkify } from '../../linkify'
+import { linkify } from '@helpers/linkify'
 import { ContextMessageUpdate } from 'telegraf'
-import { isUserSubscribed } from '../../isUserSubscribed'
-import { TodoModel, getTitle, addTags } from '../../../models'
-import { fixOrder } from '../../../helpers/fixOrder'
-import { requestSync } from '../../../sockets'
+import { isUserSubscribed } from '@helpers/isUserSubscribed'
+import { TodoModel, getTitle } from '@models/todo'
+import { addTags } from '@models/tag'
+import { fixOrder } from '@helpers/fixOrder'
+import { requestSync } from '@sockets/index'
 import { Message } from 'telegraf/typings/telegram-types'
 const dehumanize = require('dehumanize-date')
 
