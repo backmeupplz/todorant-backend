@@ -51,6 +51,7 @@ async function getReport(ctx: Context) {
     user: user._id,
     completed: true,
     date: { $exists: true },
+    deleted: false,
   })
   todos = todos.filter((t) => !!t.date)
   todos.forEach((todo) => {
