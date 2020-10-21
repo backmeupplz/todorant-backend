@@ -11,7 +11,7 @@ export enum SubscriptionStatus {
   inactive = 'inactive',
 }
 
-export class Settings {
+export interface Settings {
   showTodayOnAddTodo?: boolean
   firstDayOfWeek?: number
   startTimeOfDay?: string
@@ -43,7 +43,7 @@ export class User {
   appleSubId?: string
   @prop({ required: true, index: true })
   name: string
-  @prop({ required: true, default: { preserveOrderByTime: true } })
+  @prop({ required: true, default: { preserveOrderByTime: true }, _id: false })
   settings: Settings
 
   @prop({ required: true, index: true, unique: true })
