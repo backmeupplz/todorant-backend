@@ -1,21 +1,20 @@
+import { verifyTelegramPayload } from '@helpers/verifyTelegramPayload'
 import axios from 'axios'
 import { Context } from 'koa'
 import { UserModel, User, SubscriptionStatus } from '@models/user'
 import { TodoModel } from '@models/todo'
 import { Controller, Post } from 'koa-router-ts'
 import Facebook = require('facebook-node-sdk')
-import { InstanceType } from 'typegoose'
+import { DocumentType } from '@typegoose/typegoose'
 import { errors } from '@helpers/errors'
 import { authenticate } from '@middlewares/authenticate'
-const TelegramLogin = require('node-telegram-login')
-const Login = new TelegramLogin(process.env.TELEGRAM_LOGIN_TOKEN)
 
 @Controller('/merge')
 export default class {
   @Post('/facebook', authenticate)
   async facebook(ctx: Context) {
     // Get original user
-    const originalUser = ctx.state.user as InstanceType<User>
+    const originalUser = ctx.state.user as DocumentType<User>
     // Check if original user has facebook
     if (originalUser.facebookId) {
       return ctx.throw(errors.facebookAlreadyConnected)
@@ -24,7 +23,7 @@ export default class {
     const fbProfile: any = await getFBUser(ctx.request.body.accessToken)
     // Get existing user if exists
     const existingUser:
-      | InstanceType<User>
+      | DocumentType<User>
       | undefined = await UserModel.findOne({
       facebookId: fbProfile.id,
     })
@@ -58,18 +57,18 @@ export default class {
   async telegram(ctx: Context) {
     const data = ctx.request.body
     // verify the data
-    if (!Login.checkLoginData(data)) {
+    if (!verifyTelegramPayload(data)) {
       return ctx.throw(403)
     }
     // Get original user
-    const originalUser = ctx.state.user as InstanceType<User>
+    const originalUser = ctx.state.user as DocumentType<User>
     // Check if original user has telegram
     if (originalUser.telegramId) {
       return ctx.throw(errors.telegramAlreadyConnected)
     }
     // Get existing user if exists
     const existingUser:
-      | InstanceType<User>
+      | DocumentType<User>
       | undefined = await UserModel.findOne({ telegramId: data.id })
     // Add data if required
     originalUser.telegramId = data.id
@@ -110,14 +109,14 @@ export default class {
       )
     ).data
     // Get original user
-    const originalUser = ctx.state.user as InstanceType<User>
+    const originalUser = ctx.state.user as DocumentType<User>
     // Check if original user has telegram
     if (originalUser.email) {
       return ctx.throw(errors.googleAlreadyConnected)
     }
     // Get existing user if exists
     const existingUser:
-      | InstanceType<User>
+      | DocumentType<User>
       | undefined = await UserModel.findOne({ email: userData.email })
     // Add data if required
     originalUser.email = userData.email

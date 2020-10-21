@@ -1,8 +1,8 @@
-import { ContextMessageUpdate } from 'telegraf'
+import { Context } from 'telegraf'
 import { getSvg } from 'cnf-qrcode'
 import { convert } from 'convert-svg-to-png'
 
-export function sendQR(ctx: ContextMessageUpdate) {
+export function sendQR(ctx: Context) {
   getSvg(ctx.dbuser.token, undefined, async (err: any, svg: string) => {
     if (err) {
       console.log(err)

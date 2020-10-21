@@ -1,13 +1,13 @@
-import { ContextMessageUpdate, Markup } from 'telegraf'
+import { Context, Markup } from 'telegraf'
 import { findCurrentForUser } from '@helpers/telegram/helpers/findCurrent'
 import { User } from '@models/user'
 import { TodoModel, getTitle } from '@models/todo'
-import { InstanceType } from 'typegoose'
+import { DocumentType } from '@typegoose/typegoose'
 import { compareTodos } from '@controllers/todo'
 import { fixOrder } from '@helpers/fixOrder'
 import { requestSync } from '@sockets/index'
 
-export async function handleCurrent(ctx: ContextMessageUpdate) {
+export async function handleCurrent(ctx: Context) {
   // Get user
   const user = ctx.dbuser
   // Get current
@@ -34,7 +34,7 @@ export async function handleCurrent(ctx: ContextMessageUpdate) {
   }
 }
 
-export async function handleDone(ctx: ContextMessageUpdate) {
+export async function handleDone(ctx: Context) {
   // Get user
   const user = ctx.dbuser
   // Get current
@@ -53,7 +53,7 @@ export async function handleDone(ctx: ContextMessageUpdate) {
   return update(ctx, user)
 }
 
-export async function handleSkip(ctx: ContextMessageUpdate) {
+export async function handleSkip(ctx: Context) {
   // Get user
   const user = ctx.dbuser
   // Get current
@@ -111,7 +111,7 @@ export async function handleSkip(ctx: ContextMessageUpdate) {
   return update(ctx, user)
 }
 
-export async function handleRefresh(ctx: ContextMessageUpdate) {
+export async function handleRefresh(ctx: Context) {
   // Get user
   const user = ctx.dbuser
   // Respond
@@ -120,7 +120,7 @@ export async function handleRefresh(ctx: ContextMessageUpdate) {
   return update(ctx, user)
 }
 
-async function update(ctx: ContextMessageUpdate, user: InstanceType<User>) {
+async function update(ctx: Context, user: DocumentType<User>) {
   // Get current
   const { todo, count } = await findCurrentForUser(user)
   const current = todo

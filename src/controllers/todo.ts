@@ -6,7 +6,7 @@ import { errors } from '@helpers/errors'
 import { UserModel, User } from '@models/user'
 import { addTags, TagModel } from '@models/tag'
 import { HeroModel } from '@models/hero'
-import { InstanceType } from 'typegoose'
+import { DocumentType } from '@typegoose/typegoose'
 import { isTodoOld } from '@helpers/isTodoOld'
 import { checkSubscription } from '@middlewares/checkSubscription'
 import { requestSync } from '@sockets/index'
@@ -69,7 +69,7 @@ export default class {
         await addEpicPoints(ctx.state.user, tagsArray)
       }
 
-      let delegate: InstanceType<User> | undefined
+      let delegate: DocumentType<User> | undefined
       if (todo.delegate) {
         delegate = await UserModel.findById(todo.delegate)
         if (!delegate) {
@@ -94,10 +94,10 @@ export default class {
         (ctx.state.user.settings.newTodosGoFirst &&
           todo.goFirst === undefined) ||
         todo.goFirst === true
-      const dbtodo = await new TodoModel({
+      const dbtodo = (await new TodoModel({
         ...todo,
         user: delegate ? delegate._id : ctx.state.user._id,
-      }).save()
+      }).save()) as DocumentType<Todo>
       if (!todo.delegator) {
         if (goingOnTop) {
           todosGoingOnTop.push(dbtodo)
@@ -498,7 +498,7 @@ export default class {
         : cur.monthAndYear
       prev[title] = (prev[title] || []).concat([cur])
       return prev
-    }, {} as { [index: string]: InstanceType<Todo>[] })
+    }, {} as { [index: string]: DocumentType<Todo>[] })
     const oldTodoMap = oldTodos.reduce((prev, cur) => {
       const title = cur.date
         ? `${cur.monthAndYear}-${cur.date}`
@@ -508,11 +508,11 @@ export default class {
         todo: cur,
       }
       return prev
-    }, {} as { [index: string]: { title: string; todo: InstanceType<Todo> } })
+    }, {} as { [index: string]: { title: string; todo: DocumentType<Todo> } })
     // Get new todo sections
     const newTodoSections = ctx.request.body.todos as {
       title: string
-      todos: InstanceType<Todo>[]
+      todos: DocumentType<Todo>[]
     }[]
     // Placeholder for modified todos
     const modifiedTodos = new Set<Todo>()
@@ -578,9 +578,10 @@ export default class {
       }
     }
     // Save
-    const savedTodos = await TodoModel.create(
-      Array.from(modifiedTodos.values())
-    )
+    const todosToSave = Array.from(modifiedTodos.values())
+    const savedTodos = ((await TodoModel.create(
+      todosToSave
+    )) as any) as DocumentType<Todo>[] // weird bug in the mongoose types forces us to do this casting
     // Reorder if required
     if (ctx.state.user.settings.preserveOrderByTime) {
       fixOrder(ctx.state.user, Array.from(titlesToReorder))
@@ -599,7 +600,7 @@ export default class {
 }
 
 export async function getTodos(
-  user: InstanceType<User>,
+  user: DocumentType<User>,
   completed: Boolean,
   hash: string,
   queryString?: string,
@@ -630,7 +631,7 @@ export async function getTodos(
   }
   results = results
     .map((todo) => todo.stripped())
-    .sort(compareTodos(completed)) as InstanceType<Todo>[]
+    .sort(compareTodos(completed)) as DocumentType<Todo>[]
   if (!queryString) {
     return results.map((todo) => {
       ;(todo as any).decryptedText = undefined
@@ -660,7 +661,7 @@ export async function getTodos(
 }
 
 export function compareTodos(completed: Boolean) {
-  return (a: InstanceType<Todo>, b: InstanceType<Todo>) => {
+  return (a: DocumentType<Todo>, b: DocumentType<Todo>) => {
     if (a.date === b.date && a.monthAndYear === b.monthAndYear) {
       if (a.frog && b.frog) {
         return a.order < b.order ? -1 : 1

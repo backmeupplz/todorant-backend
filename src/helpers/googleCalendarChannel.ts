@@ -1,4 +1,4 @@
-import { InstanceType } from 'typegoose'
+import { DocumentType } from '@typegoose/typegoose'
 import { UserModel, User } from '@models/user'
 import {
   getTodorantCalendar,
@@ -26,7 +26,7 @@ async function googleSync() {
 
 export const startWatch = async (
   credentials: any,
-  user: InstanceType<User>
+  user: DocumentType<User>
 ) => {
   const channelLivingTime = '7776000'
   try {

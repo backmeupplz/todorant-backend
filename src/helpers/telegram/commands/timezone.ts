@@ -1,7 +1,7 @@
-import { ContextMessageUpdate } from 'telegraf'
+import { Context } from 'telegraf'
 import * as moment from 'moment'
 
-export async function handleTimezone(ctx: ContextMessageUpdate) {
+export async function handleTimezone(ctx: Context) {
   // Get and check timezone
   const timezone = ctx.message.text.substr(10).replace('+', '')
   if (

@@ -7,7 +7,7 @@ dotenv.config({ path: `${__dirname}/../.env` })
 import 'reflect-metadata'
 import * as Koa from 'koa'
 import '@models/index'
-import bodyParser from 'koa-bodyparser-ts'
+import * as bodyParser from 'koa-bodyparser'
 import { loadControllers } from 'koa-router-ts'
 import * as cors from '@koa/cors'
 import { bot } from '@helpers/telegram'
@@ -34,7 +34,7 @@ app.listen(1337)
 console.log('Koa application is up and running on port 1337')
 
 GracefulShutdown(app, {
-  onShutdown: async (signal) => {
+  onShutdown: async () => {
     bot.stop()
   },
 })

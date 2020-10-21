@@ -1,9 +1,9 @@
 import { Todo, TodoModel, getTitle } from '@models/todo'
 import { User } from '@models/user'
-import { InstanceType } from 'typegoose'
+import { DocumentType } from '@typegoose/typegoose'
 
 export async function fixOrder(
-  user: InstanceType<User>,
+  user: DocumentType<User>,
   titlesInvolved: string[],
   addTodosOnTop = [] as Todo[],
   addTodosToBottom = [] as Todo[],
@@ -20,7 +20,7 @@ export async function fixOrder(
   const addTodosToBottomIds = addTodosToBottom
     ? addTodosToBottom.map((t) => t._id.toString())
     : []
-  const todosToSave = [] as InstanceType<Todo>[]
+  const todosToSave = [] as DocumentType<Todo>[]
   for (const titleInvolved of titlesInvolved) {
     // Go over completed
     const orderedCompleted = (completedTodosMap[titleInvolved] || []).sort(
@@ -54,8 +54,8 @@ export async function fixOrder(
 }
 
 function mapTodos(
-  prev: { [index: string]: InstanceType<Todo>[] },
-  cur: InstanceType<Todo>
+  prev: { [index: string]: DocumentType<Todo>[] },
+  cur: DocumentType<Todo>
 ) {
   if (prev[getTitle(cur)]) {
     prev[getTitle(cur)].push(cur)
@@ -132,7 +132,7 @@ function minutesFromTime(time: string) {
 }
 
 function sortTodos(todosOnTopIds: string[], todosOnBottomIds: string[]) {
-  return (a: InstanceType<Todo>, b: InstanceType<Todo>) => {
+  return (a: DocumentType<Todo>, b: DocumentType<Todo>) => {
     const aId = a._id.toString()
     const bId = b._id.toString()
     if (

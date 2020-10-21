@@ -1,21 +1,22 @@
+import { DocumentType } from '@typegoose/typegoose'
 import { linkify } from '@helpers/linkify'
-import { ContextMessageUpdate } from 'telegraf'
+import { Context } from 'telegraf'
 import { isUserSubscribed } from '@helpers/isUserSubscribed'
-import { TodoModel, getTitle } from '@models/todo'
+import { TodoModel, getTitle, Todo } from '@models/todo'
 import { addTags } from '@models/tag'
 import { fixOrder } from '@helpers/fixOrder'
 import { requestSync } from '@sockets/index'
 import { Message } from 'telegraf/typings/telegram-types'
 const dehumanize = require('dehumanize-date')
 
-export function addTodo(ctx: ContextMessageUpdate) {
+export function addTodo(ctx: Context) {
   let todoText = ctx.message.text.substr(6).trim()
   return addTodoWithText(todoText, ctx)
 }
 
 export async function addTodoWithText(
   todoText: string,
-  ctx: ContextMessageUpdate,
+  ctx: Context,
   sentMessage?: Message,
   voice?: boolean
 ) {
@@ -132,7 +133,10 @@ export async function addTodoWithText(
         ? ctx.message.text.substr(1, 4) === 'done'
         : false,
     }
-    const dbtodo = await new TodoModel({ ...todo, user: user._id }).save()
+    const dbtodo = (await new TodoModel({
+      ...todo,
+      user: user._id,
+    }).save()) as DocumentType<Todo>
     // Fix order
     fixOrder(
       user,

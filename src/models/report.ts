@@ -1,8 +1,8 @@
-import { prop, Typegoose, instanceMethod, Ref } from 'typegoose'
+import { prop, Ref, getModelForClass } from '@typegoose/typegoose'
 import { omit } from 'lodash'
 import { User, UserModel } from '@models/user'
 
-export class Report extends Typegoose {
+export class Report {
   @prop({ required: true, index: true, unique: true })
   uuid: string
 
@@ -13,7 +13,6 @@ export class Report extends Typegoose {
   @prop()
   hash?: string
 
-  @instanceMethod
   async strippedAndFilled() {
     const stripFields = ['__v', 'user']
     const result = omit(this._doc, stripFields) as any
@@ -26,6 +25,6 @@ export class Report extends Typegoose {
   _doc: any
 }
 
-export const ReportModel = new Report().getModelForClass(Report, {
+export const ReportModel = getModelForClass(Report, {
   schemaOptions: { timestamps: true },
 })

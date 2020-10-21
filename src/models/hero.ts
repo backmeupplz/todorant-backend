@@ -1,14 +1,13 @@
 import { User } from '@models/user'
-import { prop, Typegoose, instanceMethod, Ref } from 'typegoose'
+import { prop, Ref, getModelForClass } from '@typegoose/typegoose'
 import { omit } from 'lodash'
 
-export class Hero extends Typegoose {
+export class Hero {
   @prop({ required: true, ref: User })
   user: Ref<User>
   @prop({ required: true, default: 0 })
   points: number
 
-  @instanceMethod
   stripped() {
     const stripFields = ['__v', 'createdAt']
     return omit(this._doc, stripFields)
@@ -18,7 +17,7 @@ export class Hero extends Typegoose {
   _doc: any
 }
 
-export const HeroModel = new Hero().getModelForClass(Hero, {
+export const HeroModel = getModelForClass(Hero, {
   schemaOptions: { timestamps: true },
 })
 

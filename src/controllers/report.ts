@@ -3,7 +3,7 @@ import { Context } from 'koa'
 import { authenticate } from '@middlewares/authenticate'
 import { User } from '@models/user'
 import { TodoModel } from '@models/todo'
-import { InstanceType } from 'typegoose'
+import { DocumentType } from '@typegoose/typegoose'
 import * as randToken from 'rand-token'
 import { _d } from '@helpers/encryption'
 import { ReportModel } from '@models/report'
@@ -42,7 +42,7 @@ export default class {
 }
 
 async function getReport(ctx: Context) {
-  const user = ctx.state.user as InstanceType<User>
+  const user = ctx.state.user as DocumentType<User>
   const hash = ctx.query.hash
   const startDate = ctx.query.startDate || undefined
   const endDate = ctx.query.endDate || undefined

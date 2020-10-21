@@ -1,8 +1,8 @@
-import { prop, Typegoose, instanceMethod, Ref, InstanceType } from 'typegoose'
+import { prop, Ref, DocumentType, getModelForClass } from '@typegoose/typegoose'
 import { omit } from 'lodash'
 import { User } from '@models/user'
 
-export class Tag extends Typegoose {
+export class Tag {
   @prop({ required: true, ref: User })
   user: Ref<User>
   @prop({ required: true, default: false })
@@ -25,7 +25,6 @@ export class Tag extends Typegoose {
   @prop({ default: 0 })
   numberOfUses?: number
 
-  @instanceMethod
   stripped() {
     const stripFields = ['__v', 'user']
     return omit(
@@ -41,11 +40,11 @@ export class Tag extends Typegoose {
   _tempSyncId?: string
 }
 
-export const TagModel = new Tag().getModelForClass(Tag, {
+export const TagModel = getModelForClass(Tag, {
   schemaOptions: { timestamps: true },
 })
 
-export async function addTags(user: InstanceType<User>, tags: string[]) {
+export async function addTags(user: DocumentType<User>, tags: string[]) {
   const dbtags = await TagModel.find({ user: user._id, deleted: false })
   const tagsCountMap = tags.reduce((p, c) => {
     if (p[c]) {

@@ -5,7 +5,7 @@ import { Controller, Post, Get, Delete } from 'koa-router-ts'
 import { Context } from 'koa'
 import { authenticate } from '@middlewares/authenticate'
 import * as randToken from 'rand-token'
-import { InstanceType } from 'typegoose'
+import { DocumentType } from '@typegoose/typegoose'
 import { fixOrder } from '@helpers/fixOrder'
 import { requestSync } from '@sockets/index'
 import { updateTodos } from '@helpers/googleCalendar'
@@ -63,7 +63,7 @@ export default class {
 
   @Delete('/delegate/:id', authenticate)
   async deleteDelegate(ctx: Context) {
-    const user = ctx.state.user as InstanceType<User>
+    const user = ctx.state.user as DocumentType<User>
     user.delegates = user.delegates.filter(
       (id) => id.toString() !== ctx.params.id
     )
@@ -73,7 +73,7 @@ export default class {
 
   @Delete('/delegator/:id', authenticate)
   async deleteDelegator(ctx: Context) {
-    const user = ctx.state.user as InstanceType<User>
+    const user = ctx.state.user as DocumentType<User>
     const delegators = await UserModel.find({ delegates: user._id })
     for (const delegator of delegators) {
       delegator.delegates = delegator.delegates.filter(

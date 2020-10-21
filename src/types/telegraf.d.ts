@@ -3,7 +3,7 @@ import { InstanceType } from 'typegoose'
 import I18N from 'telegraf-i18n'
 
 declare module 'telegraf' {
-  export class ContextMessageUpdate {
+  export class Context {
     public dbuser: InstanceType<User>
     i18n: I18N
   }

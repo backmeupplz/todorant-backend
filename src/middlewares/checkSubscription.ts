@@ -1,13 +1,13 @@
 import { User } from '@models/user'
 import { Context } from 'koa'
 import { errors } from '@helpers/errors'
-import { InstanceType } from 'typegoose'
+import { DocumentType } from '@typegoose/typegoose'
 import { report } from '@helpers/report'
 import { isUserSubscribed } from '@helpers/isUserSubscribed'
 
 export async function checkSubscription(ctx: Context, next: Function) {
   try {
-    const user = ctx.state.user as InstanceType<User>
+    const user = ctx.state.user as DocumentType<User>
     if (!isUserSubscribed(user)) {
       return ctx.throw(403, errors.subscription)
     }

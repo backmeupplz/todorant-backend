@@ -6,7 +6,7 @@ import { User } from '@models/user'
 import { UserModel, SubscriptionStatus } from '@models/user'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET, {
-  apiVersion: '2020-03-02',
+  apiVersion: '2020-08-27',
 })
 
 @Controller('/subscription')
