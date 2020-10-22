@@ -25,7 +25,9 @@ export class Todo {
   encrypted: boolean
 
   @prop({
-    required: true,
+    required: function () {
+      return !this.delegator
+    },
     index: true,
     minlength: 7,
     maxlength: 7,
@@ -39,7 +41,7 @@ export class Todo {
       },
     ],
   })
-  monthAndYear: string // e.g. "08-2019" or "01-2020"
+  monthAndYear?: string // e.g. "08-2019" or "01-2020"
   @prop({
     index: true,
     minlength: 2,
@@ -83,7 +85,7 @@ export class Todo {
   _tempSyncId?: string
 }
 
-export function getTitle(todo: { monthAndYear: string; date?: string }) {
+export function getTitle(todo: { monthAndYear?: string; date?: string }) {
   return `${todo.monthAndYear}${todo.date ? `-${todo.date}` : ''}`
 }
 

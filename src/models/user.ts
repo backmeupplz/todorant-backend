@@ -79,7 +79,7 @@ export class User {
 
   @prop({ index: true, unique: true })
   delegateInviteToken?: string
-  @prop({ itemsRef: User, required: true, default: [], index: true })
+  @prop({ ref: User, required: true, default: [], index: true })
   delegates: Ref<User>[]
 
   @prop()
