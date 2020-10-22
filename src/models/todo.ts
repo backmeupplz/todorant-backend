@@ -44,7 +44,11 @@ export class Todo {
     index: true,
     minlength: 2,
     maxlength: 2,
-    validate: [/^\d{2}$/, (v) => +v <= 31 && +v > 0],
+    validate: {
+      validator(v) {
+        return v === undefined || (/^\d{2}$/.test(v) && +v <= 31 && +v > 0)
+      },
+    },
   })
   date?: string // e.g. "01" or "31"
   @prop({
