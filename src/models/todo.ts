@@ -31,15 +31,18 @@ export class Todo {
     index: true,
     minlength: 7,
     maxlength: 7,
-    validate: [
-      /^\d{4}-\d{2}$/,
-      (v) => {
-        const components = v.split('-')
-        const date = +components[1]
-        const year = +components[0]
-        return date <= 31 && date > 0 && year > 2018
+    validate: {
+      validator(v) {
+        if (v === null) {
+          return true
+        } else if (/^\d{4}-\d{2}$/.test(v)) {
+          const components = v.split('-')
+          const date = +components[1]
+          const year = +components[0]
+          return date <= 31 && date > 0 && year > 2018
+        }
       },
-    ],
+    },
   })
   monthAndYear?: string // e.g. "08-2019" or "01-2020"
   @prop({
@@ -48,6 +51,9 @@ export class Todo {
     maxlength: 2,
     validate: {
       validator(v) {
+        if (v === null) {
+          return true
+        }
         return v === undefined || (/^\d{2}$/.test(v) && +v <= 31 && +v > 0)
       },
     },
