@@ -95,7 +95,6 @@ export default class {
         { delegateAccepted: { $exists: false } },
       ],
     }).populate('delegator')
-    console.log(todos)
     ctx.body = todos.map((t) => t.stripped())
   }
 
