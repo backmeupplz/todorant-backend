@@ -72,8 +72,19 @@ export class Todo {
   @prop()
   delegateAccepted?: boolean
 
-  stripped() {
-    const stripFields = ['__v', 'user']
+  stripped(withUserName = false) {
+    const stripFields = ['__v']
+    if (withUserName) {
+      const user =
+        typeof this.user === 'object'
+          ? { name: (this.user as any).name }
+          : this.user
+      return omit(
+        { ...this._doc, ...{ _tempSyncId: this._tempSyncId, user } },
+        stripFields
+      ) as Todo
+    }
+    stripFields.push('user')
     const delegator =
       typeof this.delegator === 'object'
         ? { name: (this.delegator as any).name }

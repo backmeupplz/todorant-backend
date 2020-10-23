@@ -132,6 +132,6 @@ export default class {
       user: { $exists: true },
       delegator: ctx.state.user._id,
     }).populate('user')
-    ctx.body = todos
+    ctx.body = todos.map((t) => t.stripped(true))
   }
 }
