@@ -131,11 +131,7 @@ export default class {
       deleted: false,
       user: { $exists: true },
       delegator: ctx.state.user._id,
-    })
-    for (const todo of todos) {
-      const user = await UserModel.findById(todo.user)
-      todo.user = user
-    }
+    }).populate('user')
     ctx.body = todos
   }
 }
