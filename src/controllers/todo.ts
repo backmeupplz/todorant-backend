@@ -394,7 +394,10 @@ export default class {
 
   @Get('/current', authenticate)
   async getCurrent(ctx: Context) {
-    if (ctx.request.headers['user-agent'].includes('build:90')) {
+    if (
+      ctx.state.user._id.toString() === '5d92983b24c527204fbd6509' &&
+      ctx.request.headers['user-agent'].includes('build:90')
+    ) {
       console.log(ctx.headers)
     }
     // Parameters
