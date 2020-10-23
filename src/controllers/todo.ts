@@ -394,7 +394,9 @@ export default class {
 
   @Get('/current', authenticate)
   async getCurrent(ctx: Context) {
-    console.log(ctx.request.body, ctx.headers)
+    if (ctx.request.headers['user-agent'].includes('build:90')) {
+      console.log(ctx.headers)
+    }
     // Parameters
     const date = ctx.query.date
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
