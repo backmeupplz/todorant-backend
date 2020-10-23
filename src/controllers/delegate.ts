@@ -124,4 +124,18 @@ export default class {
       ctx.headers.password
     )
   }
+
+  @Get('/todos', authenticate)
+  async getDelegatedTodos(ctx: Context) {
+    const todos = await TodoModel.find({
+      deleted: false,
+      user: { $exists: true },
+      delegator: ctx.state.user._id,
+    })
+    for (const todo of todos) {
+      const user = await UserModel.findById(todo.user)
+      todo.user = user
+    }
+    ctx.body = todos
+  }
 }
