@@ -394,12 +394,6 @@ export default class {
 
   @Get('/current', authenticate)
   async getCurrent(ctx: Context) {
-    if (
-      ctx.state.user._id.toString() === '5d92983b24c527204fbd6509' &&
-      ctx.request.headers['user-agent'].includes('build:90')
-    ) {
-      console.log(ctx.headers)
-    }
     // Parameters
     const date = ctx.query.date
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -424,16 +418,6 @@ export default class {
       incompleteTodos[0].encrypted &&
       !!ctx.headers['password-to-decrypt']
     ) {
-      if (
-        ctx.state.user._id.toString() === '5d92983b24c527204fbd6509' &&
-        ctx.request.headers['user-agent'].includes('build:90')
-      ) {
-        console.log(
-          `Decrypting`,
-          incompleteTodos[0],
-          ctx.headers['password-to-decrypt']
-        )
-      }
       const decryptedText = _d(
         incompleteTodos[0].text,
         ctx.headers['password-to-decrypt']
