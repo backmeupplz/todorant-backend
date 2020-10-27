@@ -11,7 +11,7 @@ export default class {
   docs(ctx: Context) {
     try {
       const converter = new showdown.Converter()
-      const md = readFileSync(`${__dirname}/../../docs/README.md`)
+      const md = readFileSync(`${__dirname}/../../docs/README.md`, 'utf8')
       const css = readFileSync(`${__dirname}/../../docs/style.css`)
       ctx.body = `<style>${css}</style><div class="markdown-body">${converter.makeHtml(
         md
