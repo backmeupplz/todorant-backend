@@ -4,6 +4,7 @@ import { Context } from 'koa'
 import { Controller, Get, Delete, Put } from 'koa-router-ts'
 import { authenticate } from '@middlewares/authenticate'
 import { requestSync } from '@sockets/index'
+import { changeTagInTodos } from '@helpers/changeTagInTodos'
 
 @Controller('/tag')
 export default class {
@@ -53,7 +54,7 @@ export default class {
   async put(ctx: Context) {
     // Parameters
     const id = ctx.params.id
-    const { color, epic, epicCompleted, epicGoal } = ctx.request.body
+    const { color, epic, epicCompleted, epicGoal, newName } = ctx.request.body
     // Find todo
     const tag = await TagModel.findById(id)
     // Check ownership
@@ -69,6 +70,10 @@ export default class {
     tag.epic = epic || false
     tag.epicCompleted = epicCompleted || false
     tag.epicGoal = epicGoal || 0
+    if (!!newName.match(/^[\S]+$/)) {
+      await changeTagInTodos(`#${tag.tag}`, newName, ctx.state.user._id)
+      tag.tag = newName
+    }
     await tag.save()
     // Respond
     ctx.status = 200
