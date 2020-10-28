@@ -1,7 +1,5 @@
 import { TodoModel } from '@models/todo'
 
-// $text: { $search: { originalTag } },
-
 export async function changeTagInTodos(
   originalTag: string,
   newTag: string,
@@ -11,9 +9,15 @@ export async function changeTagInTodos(
     user: userId,
     text: { $regex: originalTag, $options: 'i' },
   })
-  todosWithTag.forEach((todo) => {
-    todo.text = todo.text.replace(originalTag, `#${newTag}`)
+  todosWithTag.forEach(async (todo) => {
+    todo.text = todo.text
+      .split(' ')
+      .map((word) => {
+        if (word !== originalTag) return word
+        return `#${newTag}`
+      })
+      .join(' ')
     todo.markModified('text')
-    todo.save()
+    await todo.save()
   })
 }
