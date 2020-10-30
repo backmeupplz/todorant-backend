@@ -1,19 +1,20 @@
-import { Controller, Post, Get } from 'koa-router-ts'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@middlewares/authenticate'
+import { authenticate } from '@/middlewares/authenticate'
 import axios from 'axios'
-import { SubscriptionStatus } from '@models/user'
-import { bot } from '@helpers/report'
+import { SubscriptionStatus } from '@/models/user'
+import { bot } from '@/helpers/report'
 
 @Controller('/apple')
-export default class {
+export default class AppleController {
   @Get('/')
-  firefoxBug(ctx: Context) {
+  firefoxBug(@Ctx() ctx: Context) {
     ctx.redirect(`https://todorant.com/apple_firefox_error`)
   }
 
-  @Post('/subscription', authenticate)
-  async subscription(ctx: Context) {
+  @Post('/subscription')
+  @Flow(authenticate)
+  async subscription(@Ctx() ctx: Context) {
     const appleUrl =
       process.env.ENVIRONMENT === 'staging'
         ? 'https://sandbox.itunes.apple.com/verifyReceipt'
@@ -43,7 +44,7 @@ export default class {
   }
 
   @Post('/subscriptionNotification-FgA3JNgNy49dNnrVaQ9PCKGJ')
-  async subscriptionNotification(ctx: Context) {
+  async subscriptionNotification(@Ctx() ctx: Context) {
     const body = ctx.request.body
     if (!body || body.notification_type !== 'CANCEL') {
       return

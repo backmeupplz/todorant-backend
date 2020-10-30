@@ -1,20 +1,22 @@
-import { errors } from '@helpers/errors'
-import { TagModel } from '@models/tag'
+import { errors } from '@/helpers/errors'
+import { TagModel } from '@/models/tag'
 import { Context } from 'koa'
-import { Controller, Get, Delete, Put } from 'koa-router-ts'
-import { authenticate } from '@middlewares/authenticate'
-import { requestSync } from '@sockets/index'
-import { changeTagInTodos } from '@helpers/changeTagInTodos'
+import { Controller, Ctx, Delete, Flow, Put, Get } from 'koa-ts-controllers'
+import { authenticate } from '@/middlewares/authenticate'
+import { requestSync } from '@/sockets/index'
+import { changeTagInTodos } from '@/helpers/changeTagInTodos'
 
 @Controller('/tag')
-export default class {
-  @Get('/', authenticate)
-  async get(ctx: Context) {
-    ctx.body = await getTagsBody(ctx)
+export default class TagController {
+  @Get('/')
+  @Flow(authenticate)
+  async get(@Ctx() ctx: Context) {
+    return await getTagsBody(ctx)
   }
 
-  @Delete('/all', authenticate)
-  async deleteAll(ctx: Context) {
+  @Delete('/all')
+  @Flow(authenticate)
+  async deleteAll(@Ctx() ctx: Context) {
     // Update todos
     await TagModel.updateMany(
       {
@@ -31,8 +33,9 @@ export default class {
     requestSync(ctx.state.user._id)
   }
 
-  @Delete('/:id', authenticate)
-  async delete(ctx: Context) {
+  @Delete('/:id')
+  @Flow(authenticate)
+  async delete(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
     // Find todo
@@ -50,8 +53,9 @@ export default class {
     requestSync(ctx.state.user._id)
   }
 
-  @Put('/:id', authenticate)
-  async put(ctx: Context) {
+  @Put('/:id')
+  @Flow(authenticate)
+  async put(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
     const { color, epic, epicCompleted, epicGoal, newName } = ctx.request.body
@@ -70,7 +74,7 @@ export default class {
     tag.epic = epic || false
     tag.epicCompleted = epicCompleted || false
     tag.epicGoal = epicGoal || 0
-    if (!!newName.match(/^[\S]+$/)) {
+    if (newName && !!newName.match(/^[\S]+$/)) {
       await changeTagInTodos(`#${tag.tag}`, newName, ctx.state.user._id)
       tag.tag = newName
     }

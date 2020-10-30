@@ -1,6 +1,6 @@
 import { prop, Ref, getModelForClass } from '@typegoose/typegoose'
 import { omit } from 'lodash'
-import { User, UserModel } from '@models/user'
+import { User, UserModel } from '@/models/user'
 
 export class Report {
   @prop({ required: true, index: true, unique: true })

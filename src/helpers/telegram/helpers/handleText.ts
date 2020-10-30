@@ -1,5 +1,5 @@
 import { Context } from 'telegraf'
-import { addTodoWithText } from '@helpers/telegram/commands/todo'
+import { addTodoWithText } from '@/helpers/telegram/commands/todo'
 
 export function handleText(ctx: Context) {
   // Check if it's zen

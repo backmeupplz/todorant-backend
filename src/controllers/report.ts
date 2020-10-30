@@ -1,33 +1,35 @@
-import { Controller, Get } from 'koa-router-ts'
+import { Controller, Ctx, Flow, Get } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@middlewares/authenticate'
-import { User } from '@models/user'
-import { TodoModel } from '@models/todo'
+import { authenticate } from '@/middlewares/authenticate'
+import { User } from '@/models/user'
+import { TodoModel } from '@/models/todo'
 import { DocumentType } from '@typegoose/typegoose'
 import * as randToken from 'rand-token'
-import { _d } from '@helpers/encryption'
-import { ReportModel } from '@models/report'
+import { _d } from '@/helpers/encryption'
+import { ReportModel } from '@/models/report'
 
 @Controller('/report')
-export default class {
+export default class ReportController {
   @Get('/public/:uuid')
-  async publicReport(ctx: Context) {
+  async publicReport(@Ctx() ctx: Context) {
     const uuid = ctx.params.uuid
     const report = await ReportModel.findOne({ uuid })
     if (!report) {
       return ctx.throw(404)
     }
-    ctx.body = await report.strippedAndFilled()
+    return await report.strippedAndFilled()
   }
 
-  @Get('/', authenticate)
-  async report(ctx: Context) {
+  @Get('/')
+  @Flow(authenticate)
+  async report(@Ctx() ctx: Context) {
     const report = await getReport(ctx)
-    ctx.body = report
+    return report
   }
 
-  @Get('/share', authenticate)
-  async share(ctx: Context) {
+  @Get('/share')
+  @Flow(authenticate)
+  async share(@Ctx() ctx: Context) {
     const report = await getReport(ctx)
     const dbreport = await new ReportModel({
       meta: report,
@@ -35,7 +37,7 @@ export default class {
       uuid: randToken.generate(16),
       hash: ctx.query.hash ? ctx.query.hash : undefined,
     }).save()
-    ctx.body = {
+    return {
       uuid: dbreport.uuid,
     }
   }

@@ -1,7 +1,7 @@
 import { Context, Markup as m, Extra } from 'telegraf'
 import { readdirSync, readFileSync } from 'fs'
 import { safeLoad } from 'js-yaml'
-import { TelegramLanguage } from '@models/user'
+import { TelegramLanguage } from '@/models/user'
 import { ExtraEditMessage } from 'telegraf/typings/telegram-types'
 
 export function sendLanguage(ctx: Context) {

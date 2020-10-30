@@ -1,5 +1,5 @@
 import { Context } from 'telegraf'
-import { sendLanguage } from '@helpers/telegram/commands/language'
+import { sendLanguage } from '@/helpers/telegram/commands/language'
 
 export function checkLanguage(ctx: Context, next) {
   if (ctx.dbuser.telegramLanguage) {

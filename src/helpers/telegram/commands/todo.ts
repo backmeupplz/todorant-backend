@@ -1,11 +1,11 @@
 import { DocumentType } from '@typegoose/typegoose'
-import { linkify } from '@helpers/linkify'
+import { linkify } from '@/helpers/linkify'
 import { Context } from 'telegraf'
-import { isUserSubscribed } from '@helpers/isUserSubscribed'
-import { TodoModel, getTitle, Todo } from '@models/todo'
-import { addTags } from '@models/tag'
-import { fixOrder } from '@helpers/fixOrder'
-import { requestSync } from '@sockets/index'
+import { isUserSubscribed } from '@/helpers/isUserSubscribed'
+import { TodoModel, getTitle, Todo } from '@/models/todo'
+import { addTags } from '@/models/tag'
+import { fixOrder } from '@/helpers/fixOrder'
+import { requestSync } from '@/sockets/index'
 import { Message } from 'telegraf/typings/telegram-types'
 const dehumanize = require('dehumanize-date')
 

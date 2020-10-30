@@ -1,15 +1,16 @@
-import { Controller, Get } from 'koa-router-ts'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
+
 import { Context } from 'koa'
 import { readFileSync } from 'fs'
 
 @Controller('/md')
-export default class {
+export default class DocsController {
   @Get('/')
-  docs(ctx: Context) {
+  docs(@Ctx() ctx: Context) {
     try {
-      ctx.body = readFileSync(`${__dirname}/../../docs/README.md`)
+      return readFileSync(`${__dirname}/../../docs/README.md`)
     } catch (err) {
-      ctx.status = 500
+      ctx.throw(500)
     }
   }
 }

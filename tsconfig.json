@@ -8,11 +8,7 @@
     "outDir": "dist",
     "baseUrl": "src",
     "paths": {
-      "@controllers/*": ["controllers/*"],
-      "@helpers/*": ["helpers/*"],
-      "@middlewares/*": ["middlewares/*"],
-      "@models/*": ["models/*"],
-      "@sockets/*": ["sockets/*"]
+      "@/*": ["*"]
     },
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true

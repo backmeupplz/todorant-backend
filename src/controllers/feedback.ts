@@ -1,12 +1,12 @@
-import { Controller, Post } from 'koa-router-ts'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { getUserFromToken } from '@middlewares/authenticate'
-import { bot } from '@helpers/report'
+import { getUserFromToken } from '@/middlewares/authenticate'
+import { bot } from '@/helpers/report'
 
 @Controller('/feedback')
-export default class {
+export default class FeedbackController {
   @Post('/')
-  async feedback(ctx: Context) {
+  async feedback(@Ctx() ctx: Context) {
     let name = `Not registered`
     const token =
       ctx.headers.token !== 'undefined' ? ctx.headers.token : undefined

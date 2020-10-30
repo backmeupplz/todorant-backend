@@ -1,18 +1,19 @@
-import { Controller, Get, Post } from 'koa-router-ts'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@middlewares/authenticate'
+import { authenticate } from '@/middlewares/authenticate'
 import Stripe from 'stripe'
-import { User } from '@models/user'
-import { UserModel, SubscriptionStatus } from '@models/user'
+import { User } from '@/models/user'
+import { UserModel, SubscriptionStatus } from '@/models/user'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET, {
   apiVersion: '2020-08-27',
 })
 
 @Controller('/subscription')
-export default class {
-  @Post('/session/:plan', authenticate)
-  async getPlanning(ctx: Context) {
+export default class SubscriptionController {
+  @Post('/session/:plan')
+  @Flow(authenticate)
+  async getPlanning(@Ctx() ctx: Context) {
     const locales = ['de', 'en', 'es', 'it', 'pt-BR', 'ru']
     let locale = ctx.request.body.locale
     if (!locales.includes(locale)) {
@@ -37,13 +38,14 @@ export default class {
       locale: locale,
     })
     // Respond
-    ctx.body = {
+    return {
       session: session.id,
     }
   }
 
-  @Post('/cancel', authenticate)
-  async cancelSubscription(ctx: Context) {
+  @Post('/cancel')
+  @Flow(authenticate)
+  async cancelSubscription(@Ctx() ctx: Context) {
     // Delete susbcription
     const subscriptionId = ctx.state.user.subscriptionId
     await stripe.subscriptions.del(subscriptionId)
@@ -51,8 +53,9 @@ export default class {
     ctx.status = 200
   }
 
-  @Get('/manageUrl', authenticate)
-  async manageSubscriptionUrl(ctx: Context) {
+  @Get('/manageUrl')
+  @Flow(authenticate)
+  async manageSubscriptionUrl(@Ctx() ctx: Context) {
     const user = ctx.state.user as User
     if (!user.subscriptionId) {
       return ctx.throw(404)
@@ -66,14 +69,14 @@ export default class {
         customer: customerId,
       })
     ).url
-    ctx.body = {
+    ctx.status = 200
+    return {
       url,
     }
-    ctx.status = 200
   }
 
   @Post('/webhook')
-  async webhook(ctx: Context) {
+  async webhook(@Ctx() ctx: Context) {
     try {
       // Construct event
       const event = stripe.webhooks.constructEvent(
@@ -114,7 +117,7 @@ export default class {
         await user.save()
       }
       // Respond
-      ctx.body = { received: true }
+      return { received: true }
     } catch (err) {
       return ctx.throw(400, `Webhook Error: ${err.message}`)
     }
