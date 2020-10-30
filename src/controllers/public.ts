@@ -6,7 +6,7 @@ import { readFileSync } from 'fs'
 showdown.setFlavor('github')
 
 @Controller('/')
-export default class {
+export default class PublicController {
   @Get('/')
   docs(@Ctx() ctx: Context) {
     try {
