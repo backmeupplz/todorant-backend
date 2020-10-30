@@ -1,7 +1,6 @@
 import * as request from 'supertest'
 import * as mongoose from 'mongoose'
 import app from '@/app'
-// import * as dbHandler from '@/__tests__/dbHandler';
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import { runMongo } from '@/models/index'
 
