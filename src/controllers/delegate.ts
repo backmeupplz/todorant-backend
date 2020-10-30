@@ -1,27 +1,29 @@
-import { errors } from '@helpers/errors'
-import { TodoModel, getTitle } from '@models/todo'
-import { User, UserModel } from '@models/user'
-import { Controller, Post, Get, Delete } from 'koa-router-ts'
+import { errors } from '@/helpers/errors'
+import { TodoModel, getTitle } from '@/models/todo'
+import { User, UserModel } from '@/models/user'
+import { Controller, Ctx, Flow, Get, Post, Delete } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@middlewares/authenticate'
+import { authenticate } from '@/middlewares/authenticate'
 import * as randToken from 'rand-token'
 import { DocumentType } from '@typegoose/typegoose'
-import { fixOrder } from '@helpers/fixOrder'
-import { requestSync } from '@sockets/index'
-import { updateTodos } from '@helpers/googleCalendar'
+import { fixOrder } from '@/helpers/fixOrder'
+import { requestSync } from '@/sockets/index'
+import { updateTodos } from '@/helpers/googleCalendar'
 
 @Controller('/delegate')
-export default class {
-  @Post('/generateToken', authenticate)
-  async generateToken(ctx: Context) {
+export default class DelegateController {
+  @Post('/generateToken')
+  @Flow(authenticate)
+  async generateToken(@Ctx() ctx: Context) {
     const token = randToken.generate(16)
     ctx.state.user.delegateInviteToken = token
     await ctx.state.user.save()
-    ctx.body = token
+    return token
   }
 
-  @Post('/useToken', authenticate)
-  async useToken(ctx: Context) {
+  @Post('/useToken')
+  @Flow(authenticate)
+  async useToken(@Ctx() ctx: Context) {
     const token = ctx.request.body.token
     const delegator = await UserModel.findOne({ delegateInviteToken: token })
     if (!delegator) {
@@ -41,8 +43,9 @@ export default class {
     ctx.status = 200
   }
 
-  @Get('/', authenticate)
-  async getDelegateInfo(ctx: Context) {
+  @Get('/')
+  @Flow(authenticate)
+  async getDelegateInfo(@Ctx() ctx: Context) {
     const delegates = (
       await UserModel.findById(ctx.state.user._id).populate('delegates')
     ).delegates.map((d: User) => d.stripped(false, false))
@@ -54,15 +57,16 @@ export default class {
       await ctx.state.user.save()
     }
     const token = ctx.state.user.delegateInviteToken
-    ctx.body = {
+    return {
       delegates,
       delegators,
       token,
     }
   }
 
-  @Delete('/delegate/:id', authenticate)
-  async deleteDelegate(ctx: Context) {
+  @Delete('/delegate/:id')
+  @Flow(authenticate)
+  async deleteDelegate(@Ctx() ctx: Context) {
     const user = ctx.state.user as DocumentType<User>
     user.delegates = user.delegates.filter(
       (id) => id.toString() !== ctx.params.id
@@ -71,8 +75,9 @@ export default class {
     ctx.status = 200
   }
 
-  @Delete('/delegator/:id', authenticate)
-  async deleteDelegator(ctx: Context) {
+  @Delete('/delegator/:id')
+  @Flow(authenticate)
+  async deleteDelegator(@Ctx() ctx: Context) {
     const user = ctx.state.user as DocumentType<User>
     const delegators = await UserModel.find({ delegates: user._id })
     for (const delegator of delegators) {
@@ -84,8 +89,9 @@ export default class {
     ctx.status = 200
   }
 
-  @Get('/unaccepted', authenticate)
-  async getUnaccepted(ctx: Context) {
+  @Get('/unaccepted')
+  @Flow(authenticate)
+  async getUnaccepted(@Ctx() ctx: Context) {
     const todos = await TodoModel.find({
       deleted: false,
       user: ctx.state.user._id,
@@ -95,11 +101,12 @@ export default class {
         { delegateAccepted: { $exists: false } },
       ],
     }).populate('delegator')
-    ctx.body = todos.map((t) => t.stripped())
+    return todos.map((t) => t.stripped())
   }
 
-  @Post('/accept/:id', authenticate)
-  async acceptTodo(ctx: Context) {
+  @Post('/accept/:id')
+  @Flow(authenticate)
+  async acceptTodo(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
     // Find todo

@@ -1,18 +1,19 @@
-import { verifyTelegramPayload } from '@helpers/verifyTelegramPayload'
+import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
 import axios from 'axios'
 import { Context } from 'koa'
-import { UserModel, User, SubscriptionStatus } from '@models/user'
-import { TodoModel } from '@models/todo'
-import { Controller, Post } from 'koa-router-ts'
+import { UserModel, User, SubscriptionStatus } from '@/models/user'
+import { TodoModel } from '@/models/todo'
+import { Controller, Ctx, Flow, Post } from 'koa-ts-controllers'
 import Facebook = require('facebook-node-sdk')
 import { DocumentType } from '@typegoose/typegoose'
-import { errors } from '@helpers/errors'
-import { authenticate } from '@middlewares/authenticate'
+import { errors } from '@/helpers/errors'
+import { authenticate } from '@/middlewares/authenticate'
 
 @Controller('/merge')
-export default class {
-  @Post('/facebook', authenticate)
-  async facebook(ctx: Context) {
+export default class MergeController {
+  @Post('/facebook')
+  @Flow(authenticate)
+  async facebook(@Ctx() ctx: Context) {
     // Get original user
     const originalUser = ctx.state.user as DocumentType<User>
     // Check if original user has facebook
@@ -53,8 +54,9 @@ export default class {
     ctx.status = 200
   }
 
-  @Post('/telegram', authenticate)
-  async telegram(ctx: Context) {
+  @Post('/telegram')
+  @Flow(authenticate)
+  async telegram(@Ctx() ctx: Context) {
     const data = ctx.request.body
     // verify the data
     if (!verifyTelegramPayload(data)) {
@@ -95,12 +97,13 @@ export default class {
     // Save it
     await originalUser.save()
     // Respond
-    ctx.body = { telegramId: originalUser.telegramId }
+    return { telegramId: originalUser.telegramId }
     ctx.status = 200
   }
 
-  @Post('/google', authenticate)
-  async google(ctx: Context) {
+  @Post('/google')
+  @Flow(authenticate)
+  async google(@Ctx() ctx: Context) {
     const accessToken = ctx.request.body.accessToken
 
     const userData: any = (

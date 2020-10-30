@@ -1,4 +1,4 @@
-import { TodoModel } from '@models/todo'
+import { TodoModel } from '@/models/todo'
 
 export async function changeTagInTodos(
   originalTag: string,

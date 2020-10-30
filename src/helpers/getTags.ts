@@ -1,6 +1,6 @@
-import { Todo } from '@models/todo'
-import { linkify } from '@helpers/linkify'
-import { _d } from '@helpers/encryption'
+import { Todo } from '@/models/todo'
+import { linkify } from '@/helpers/linkify'
+import { _d } from '@/helpers/encryption'
 
 export function getTags(todos: Todo[], password: any) {
   return todos

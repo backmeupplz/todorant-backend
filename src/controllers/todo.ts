@@ -1,28 +1,38 @@
 import { Context } from 'koa'
-import { Controller, Post, Put, Get, Delete } from 'koa-router-ts'
-import { Todo, TodoModel, getTitle } from '@models/todo'
-import { authenticate } from '@middlewares/authenticate'
-import { errors } from '@helpers/errors'
-import { UserModel, User } from '@models/user'
-import { addTags, TagModel } from '@models/tag'
-import { HeroModel } from '@models/hero'
+import {
+  Controller,
+  Ctx,
+  Post,
+  Delete,
+  Flow,
+  Put,
+  Get,
+} from 'koa-ts-controllers'
+import { Todo, TodoModel, getTitle } from '@/models/todo'
+import { authenticate } from '@/middlewares/authenticate'
+import { errors } from '@/helpers/errors'
+import { UserModel, User } from '@/models/user'
+import { addTags, TagModel } from '@/models/tag'
+import { HeroModel } from '@/models/hero'
 import { DocumentType } from '@typegoose/typegoose'
-import { isTodoOld } from '@helpers/isTodoOld'
-import { checkSubscription } from '@middlewares/checkSubscription'
-import { requestSync } from '@sockets/index'
-import { fixOrder } from '@helpers/fixOrder'
-import { getStateBody } from '@controllers/state'
-import { getTagsBody } from '@controllers/tag'
-import { getPoints } from '@controllers/hero'
-import { updateTodos } from '@helpers/googleCalendar'
-import { _d } from '@helpers/encryption'
-import { getTags } from '@helpers/getTags'
+import { isTodoOld } from '@/helpers/isTodoOld'
+import { checkSubscription } from '@/middlewares/checkSubscription'
+import { requestSync } from '@/sockets/index'
+import { fixOrder } from '@/helpers/fixOrder'
+import { getStateBody } from '@/controllers/state'
+import { getTagsBody } from '@/controllers/tag'
+import { getPoints } from '@/controllers/hero'
+import { updateTodos } from '@/helpers/googleCalendar'
+import { _d } from '@/helpers/encryption'
+import { getTags } from '@/helpers/getTags'
 const fuzzysort = require('fuzzysort')
 
 @Controller('/todo')
-export default class {
-  @Post('/', authenticate, checkSubscription)
-  async create(ctx: Context) {
+export default class TodoController {
+  @Post('/')
+  @Flow(authenticate)
+  @Flow(checkSubscription)
+  async create(@Ctx() ctx: Context) {
     if (ctx.request.body.todos) {
       ctx.request.body = ctx.request.body.todos
     }
@@ -138,8 +148,9 @@ export default class {
     )
   }
 
-  @Delete('/all', authenticate)
-  async deleteAll(ctx: Context) {
+  @Delete('/all')
+  @Flow(authenticate)
+  async deleteAll(@Ctx() ctx: Context) {
     // Find user and populate todos
     const user = await UserModel.findById(ctx.state.user.id)
     // Get todos
@@ -156,8 +167,9 @@ export default class {
     requestSync(ctx.state.user._id)
   }
 
-  @Put('/:id', authenticate)
-  async edit(ctx: Context) {
+  @Put('/:id')
+  @Flow(authenticate)
+  async edit(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
     const {
@@ -237,8 +249,9 @@ export default class {
     )
   }
 
-  @Put('/:id/done', authenticate)
-  async done(ctx: Context) {
+  @Put('/:id/done')
+  @Flow(authenticate)
+  async done(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
     const password = ctx.headers.password
@@ -272,8 +285,9 @@ export default class {
     )
   }
 
-  @Put('/:id/skip', authenticate)
-  async skip(ctx: Context) {
+  @Put('/:id/skip')
+  @Flow(authenticate)
+  async skip(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
     // Find todo
@@ -336,8 +350,9 @@ export default class {
     requestSync(ctx.state.user._id)
   }
 
-  @Put('/:id/undone', authenticate)
-  async undone(ctx: Context) {
+  @Put('/:id/undone')
+  @Flow(authenticate)
+  async undone(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
     // Find todo
@@ -365,8 +380,9 @@ export default class {
     )
   }
 
-  @Delete('/:id', authenticate)
-  async delete(ctx: Context) {
+  @Delete('/:id')
+  @Flow(authenticate)
+  async delete(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
     // Find todo
@@ -392,8 +408,9 @@ export default class {
     )
   }
 
-  @Get('/current', authenticate)
-  async getCurrent(ctx: Context) {
+  @Get('/current')
+  @Flow(authenticate)
+  async getCurrent(@Ctx() ctx: Context) {
     // Parameters
     const date = ctx.query.date
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -427,7 +444,7 @@ export default class {
       }
     }
     // Respond
-    ctx.body = {
+    return {
       todosCount: completeTodos.length + incompleteTodos.length,
       incompleteTodosCount: incompleteTodos.length,
       todo: incompleteTodos.length ? incompleteTodos[0] : undefined,
@@ -437,8 +454,9 @@ export default class {
     }
   }
 
-  @Get('/', authenticate)
-  async get(ctx: Context) {
+  @Get('/')
+  @Flow(authenticate)
+  async get(@Ctx() ctx: Context) {
     // Parameters
     const completed = ctx.query.completed === 'true'
     const hash = decodeURI(ctx.query.hash || '')
@@ -478,7 +496,7 @@ export default class {
       )
     }
     // Respond
-    ctx.body = {
+    return {
       todos,
       state: await getStateBody(ctx),
       tags: await getTagsBody(ctx),
@@ -486,8 +504,9 @@ export default class {
     }
   }
 
-  @Post('/rearrange', authenticate)
-  async rearrange(ctx: Context) {
+  @Post('/rearrange')
+  @Flow(authenticate)
+  async rearrange(@Ctx() ctx: Context) {
     const today = ctx.request.body.today
     if (!today) {
       return ctx.throw(403)

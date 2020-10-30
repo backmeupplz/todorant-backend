@@ -1,6 +1,6 @@
 import { prop, Ref, DocumentType, getModelForClass } from '@typegoose/typegoose'
 import { omit } from 'lodash'
-import { User } from '@models/user'
+import { User } from '@/models/user'
 
 export class Tag {
   @prop({ required: true, ref: User })

@@ -1,7 +1,7 @@
-import { UserModel, User } from '@models/user'
-import { TodoModel } from '@models/todo'
-import { bot } from '@helpers/telegram'
-import { sendPowerUserMessage } from '@helpers/sendEmail'
+import { UserModel, User } from '@/models/user'
+import { TodoModel } from '@/models/todo'
+import { bot } from '@/helpers/telegram'
+import { sendPowerUserMessage } from '@/helpers/sendEmail'
 import { DocumentType } from '@typegoose/typegoose'
 
 async function sendMessageToPowerUsers() {

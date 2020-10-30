@@ -1,4 +1,4 @@
-import { Todo } from '@models/todo'
+import { Todo } from '@/models/todo'
 
 function getDateFromTime(date: string, time: string) {
   return new Date(

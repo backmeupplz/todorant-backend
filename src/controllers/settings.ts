@@ -1,13 +1,14 @@
-import { Controller, Post, Put } from 'koa-router-ts'
+import { Controller, Ctx, Flow, Post, Put } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@middlewares/authenticate'
-import { requestSync } from '@sockets/index'
-import { getGoogleCalendarApi } from '@helpers/googleCalendar'
+import { authenticate } from '@/middlewares/authenticate'
+import { requestSync } from '@/sockets/index'
+import { getGoogleCalendarApi } from '@/helpers/googleCalendar'
 
 @Controller('/settings')
-export default class {
-  @Post('/', authenticate)
-  async post(ctx: Context) {
+export default class SettingsController {
+  @Post('/')
+  @Flow(authenticate)
+  async post(@Ctx() ctx: Context) {
     if (
       ctx.request.body.googleCalendarCredentials === null &&
       ctx.state.user.settings.googleCalendarCredentials
@@ -43,8 +44,9 @@ export default class {
     requestSync(ctx.state.user._id)
   }
 
-  @Put('/', authenticate)
-  async put(ctx: Context) {
+  @Put('/')
+  @Flow(authenticate)
+  async put(@Ctx() ctx: Context) {
     if (
       ctx.request.body.googleCalendarCredentials === null &&
       ctx.state.user.settings.googleCalendarCredentials
@@ -94,8 +96,9 @@ export default class {
     requestSync(ctx.state.user._id)
   }
 
-  @Post('/username', authenticate)
-  async setUserName(ctx: Context) {
+  @Post('/username')
+  @Flow(authenticate)
+  async setUserName(@Ctx() ctx: Context) {
     ctx.state.user.name = ctx.request.body.name || ctx.state.user.name
     await ctx.state.user.save()
     // Respond
