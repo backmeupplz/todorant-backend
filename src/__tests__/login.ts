@@ -4,7 +4,7 @@ import app from '@/app'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import { runMongo } from '@/models/index'
 
-describe('Something', () => {
+describe('Login', () => {
   const mongoServer = new MongoMemoryServer()
 
   beforeAll(async () => {
@@ -22,9 +22,11 @@ describe('Something', () => {
 
   afterAll(async () => app.close())
 
-  describe('Something', () => {
-    it('should do something', async () => {
-      expect('Something').toBe('Something')
-    })
+  test('google login route test', async () => {
+    const response = await request(app)
+      .post('/login/google')
+      .send({ accessToken: 'test' })
+    expect(response.body.name).toBe('Alexander Brennenburg')
+    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
   })
 })
