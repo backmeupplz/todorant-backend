@@ -83,9 +83,18 @@ io.on('connection', (socket) => {
       if (lastSyncDate) {
         query.updatedAt = { $gt: lastSyncDate }
       }
-      return (await TodoModel.find(query).populate('delegator')).map((t) =>
-        t.stripped()
-      )
+      const usualTodos: Todo[] = (
+        await TodoModel.find(query).populate('delegator')
+      ).map((t) => t.stripped())
+      const delegatedTodos: Todo[] = (
+        await TodoModel.find({
+          deleted: false,
+          user: { $exists: true },
+          delegator: query.user._id,
+        }).populate('user')
+      ).map((t) => t.stripped(true))
+
+      return [...usualTodos, ...delegatedTodos]
     },
     async (todos, password) => {
       const savedTodos = await Promise.all(
