@@ -1,11 +1,11 @@
-import { Controller, Get } from 'koa-router-ts'
+import { Controller, Ctx, Flow, Get } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@middlewares/authenticate'
-import { errors } from '@helpers/errors'
-import { isTodoOld } from '@helpers/isTodoOld'
-import { getTodos } from '@controllers/todo'
+import { authenticate } from '@/middlewares/authenticate'
+import { errors } from '@/helpers/errors'
+import { isTodoOld } from '@/helpers/isTodoOld'
+import { getTodos } from '@/controllers/todo'
 import { pick } from 'lodash'
-import { SubscriptionStatus } from '@models/user'
+import { SubscriptionStatus } from '@/models/user'
 
 enum SubscriptionType {
   none = 'none',
@@ -15,10 +15,11 @@ enum SubscriptionType {
 }
 
 @Controller('/state')
-export default class {
-  @Get('/', authenticate)
-  async getState(ctx: Context) {
-    ctx.body = await getStateBody(ctx)
+export default class StateController {
+  @Get('/')
+  @Flow(authenticate)
+  async getState(@Ctx() ctx: Context) {
+    return await getStateBody(ctx)
   }
 }
 

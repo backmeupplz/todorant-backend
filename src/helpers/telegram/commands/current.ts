@@ -1,11 +1,11 @@
 import { Context, Markup } from 'telegraf'
-import { findCurrentForUser } from '@helpers/telegram/helpers/findCurrent'
-import { User } from '@models/user'
-import { TodoModel, getTitle } from '@models/todo'
+import { findCurrentForUser } from '@/helpers/telegram/helpers/findCurrent'
+import { User } from '@/models/user'
+import { TodoModel, getTitle } from '@/models/todo'
 import { DocumentType } from '@typegoose/typegoose'
-import { compareTodos } from '@controllers/todo'
-import { fixOrder } from '@helpers/fixOrder'
-import { requestSync } from '@sockets/index'
+import { compareTodos } from '@/controllers/todo'
+import { fixOrder } from '@/helpers/fixOrder'
+import { requestSync } from '@/sockets/index'
 
 export async function handleCurrent(ctx: Context) {
   // Get user

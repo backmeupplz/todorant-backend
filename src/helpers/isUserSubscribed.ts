@@ -1,5 +1,5 @@
-import { User, SubscriptionStatus } from '@models/user'
-import { daysBetween } from '@helpers/daysBetween'
+import { User, SubscriptionStatus } from '@/models/user'
+import { daysBetween } from '@/helpers/daysBetween'
 
 export function isUserSubscribed(user: User) {
   return !(

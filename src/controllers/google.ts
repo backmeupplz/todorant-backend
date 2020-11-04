@@ -1,19 +1,19 @@
-import { Todo } from '@models/todo'
-import { Controller, Post, Get } from 'koa-router-ts'
+import { Todo } from '@/models/todo'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@middlewares/authenticate'
-import { TodoModel, getTitle } from '@models/todo'
-import { SubscriptionStatus, UserModel } from '@models/user'
+import { authenticate } from '@/middlewares/authenticate'
+import { TodoModel, getTitle } from '@/models/todo'
+import { SubscriptionStatus, UserModel } from '@/models/user'
 import {
   getGoogleCalendarOAuthURL,
   getGoogleCalendarToken,
   getTodorantCalendar,
   getGoogleEvents,
   getGoogleCalendarApi,
-} from '@helpers/googleCalendar'
-import { startWatch } from '@helpers/googleCalendarChannel'
-import { requestSync } from '@sockets/index'
-import { fixOrder } from '@helpers/fixOrder'
+} from '@/helpers/googleCalendar'
+import { startWatch } from '@/helpers/googleCalendarChannel'
+import { requestSync } from '@/sockets/index'
+import { fixOrder } from '@/helpers/fixOrder'
 const Verifier = require('google-play-billing-validator')
 
 const googleCredentials = require('../../assets/api-4987639842126744234-562450-c85efe0aadfc.json')
@@ -24,9 +24,10 @@ const verifier = new Verifier({
 })
 
 @Controller('/google')
-export default class {
-  @Post('/subscription', authenticate)
-  async subscription(ctx: Context) {
+export default class GoogleController {
+  @Post('/subscription')
+  @Flow(authenticate)
+  async subscription(@Ctx() ctx: Context) {
     await verifier.verifySub(ctx.request.body)
     ctx.state.user.subscriptionStatus = SubscriptionStatus.active
     ctx.state.user.googleReceipt = ctx.request.body.purchaseToken
@@ -34,13 +35,15 @@ export default class {
     ctx.status = 200
   }
 
-  @Get('/calendarAuthenticationURL', authenticate)
-  async calendarAuthenticationURL(ctx: Context) {
-    ctx.body = await getGoogleCalendarOAuthURL(!!ctx.query.web)
+  @Get('/calendarAuthenticationURL')
+  @Flow(authenticate)
+  async calendarAuthenticationURL(@Ctx() ctx: Context) {
+    return await getGoogleCalendarOAuthURL(!!ctx.query.web)
   }
 
-  @Post('/calendarAuthorize', authenticate)
-  async calendarAuthorize(ctx: Context) {
+  @Post('/calendarAuthorize')
+  @Flow(authenticate)
+  async calendarAuthorize(@Ctx() ctx: Context) {
     const code = ctx.request.body.code
     if (!code) {
       return ctx.throw(403)
@@ -51,11 +54,11 @@ export default class {
     )
     const userId = ctx.state.user._id
     startWatch(credentials, userId)
-    ctx.body = credentials
+    return credentials
   }
 
   @Post('/notifications')
-  async post(ctx: Context) {
+  async post(@Ctx() ctx: Context) {
     try {
       const id = ctx.request.header['x-goog-channel-id']
       const user = await UserModel.findOne({

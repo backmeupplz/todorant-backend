@@ -1,4 +1,4 @@
-import { User } from '@models/user'
+import { User } from '@/models/user'
 import { prop, Ref, getModelForClass } from '@typegoose/typegoose'
 import { omit } from 'lodash'
 

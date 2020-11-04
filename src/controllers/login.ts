@@ -5,17 +5,17 @@ import {
   UserModel,
   SubscriptionStatus,
   User,
-} from '@models/user'
-import { Controller, Post } from 'koa-router-ts'
+} from '@/models/user'
+import { Controller, Ctx, Get, Post } from 'koa-ts-controllers'
 import Facebook = require('facebook-node-sdk')
 import { decode } from 'jsonwebtoken'
-import { sign, verifyAppleToken } from '@helpers/jwt'
+import { sign, verifyAppleToken } from '@/helpers/jwt'
 import * as randToken from 'rand-token'
-import { bot } from '@helpers/telegram'
+import { bot } from '@/helpers/telegram'
 import { Markup as m } from 'telegraf'
 import { DocumentType } from '@typegoose/typegoose'
-import { getUserFromToken } from '@middlewares/authenticate'
-import { verifyTelegramPayload } from '@helpers/verifyTelegramPayload'
+import { getUserFromToken } from '@/middlewares/authenticate'
+import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
 
 const AppleAuth = require('apple-auth')
 
@@ -55,9 +55,9 @@ async function tryPurchasingApple(user: DocumentType<User>, receipt: string) {
 }
 
 @Controller('/login')
-export default class {
+export default class LoginController {
   @Post('/facebook')
-  async facebook(ctx: Context) {
+  async facebook(@Ctx() ctx: Context) {
     const fbProfile: any = await getFBUser(ctx.request.body.accessToken)
     const { created, user } = await getOrCreateUser({
       name: fbProfile.name,
@@ -72,11 +72,11 @@ export default class {
     if (ctx.request.body.appleReceipt) {
       tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
-    ctx.body = user.stripped(true)
+    return user.stripped(true)
   }
 
   @Post('/telegram')
-  async telegram(ctx: Context) {
+  async telegram(@Ctx() ctx: Context) {
     const data = ctx.request.body
     // verify the data
     if (!verifyTelegramPayload(data)) {
@@ -94,18 +94,21 @@ export default class {
     if (ctx.request.body.appleReceipt) {
       tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
-    ctx.body = user.stripped(true)
+    return user.stripped(true)
   }
 
   @Post('/google')
-  async google(ctx: Context) {
+  async google(@Ctx() ctx: Context) {
     const accessToken = ctx.request.body.accessToken
 
-    const userData: any = (
-      await axios(
-        `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
-      )
-    ).data
+    const userData: any =
+      process.env.TESTING === 'true'
+        ? testingGoogleMock()
+        : (
+            await axios(
+              `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
+            )
+          ).data
 
     const { created, user } = await getOrCreateUser({
       name: userData.name,
@@ -119,11 +122,11 @@ export default class {
     if (ctx.request.body.appleReceipt) {
       tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
-    ctx.body = user.stripped(true)
+    return user.stripped(true)
   }
 
   @Post('/google-firebase')
-  async googleFirebase(ctx: Context) {
+  async googleFirebase(@Ctx() ctx: Context) {
     const accessToken = ctx.request.body.accessToken
 
     const userData: any = (
@@ -146,11 +149,11 @@ export default class {
     if (ctx.request.body.appleReceipt) {
       tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
-    ctx.body = user.stripped(true)
+    return user.stripped(true)
   }
 
   @Post('/anonymous')
-  async anonymous(ctx: Context) {
+  async anonymous(@Ctx() ctx: Context) {
     const { created, user } = await getOrCreateUser({
       name: 'Anonymous user',
       anonymousToken: randToken.generate(16),
@@ -162,11 +165,11 @@ export default class {
     if (ctx.request.body.appleReceipt) {
       tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
-    ctx.body = user.stripped(true)
+    return user.stripped(true)
   }
 
   @Post('/apple')
-  async apple(ctx: Context) {
+  async apple(@Ctx() ctx: Context) {
     const appleAuth = new AppleAuth(
       {
         client_id:
@@ -219,8 +222,7 @@ export default class {
       // Try to find this user
       let user = await UserModel.findOne({ appleSubId })
       if (user) {
-        ctx.body = user.stripped(true)
-        return
+        return user.stripped(true)
       }
       user = await new UserModel({
         ...params,
@@ -234,7 +236,7 @@ export default class {
       if (ctx.request.body.appleReceipt) {
         tryPurchasingApple(user, ctx.request.body.appleReceipt)
       }
-      ctx.body = user.stripped(true)
+      return user.stripped(true)
     } else {
       let user = await UserModel.findOne({ appleSubId })
       if (!user) {
@@ -256,12 +258,12 @@ export default class {
       if (ctx.request.body.appleReceipt) {
         tryPurchasingApple(user, ctx.request.body.appleReceipt)
       }
-      ctx.body = user.stripped(true)
+      return user.stripped(true)
     }
   }
 
   @Post('/apple-firebase')
-  async appleFirebase(ctx: Context) {
+  async appleFirebase(@Ctx() ctx: Context) {
     const idToken = (await verifyAppleToken(
       ctx.request.body.credential.oauthIdToken,
       'com.todorant.web'
@@ -281,8 +283,7 @@ export default class {
 
     let user = await UserModel.findOne({ appleSubId })
     if (user) {
-      ctx.body = user.stripped(true)
-      return
+      return user.stripped(true)
     }
     const params = {
       name,
@@ -296,11 +297,11 @@ export default class {
       token: await sign(params),
     }).save()
 
-    ctx.body = user.stripped(true)
+    return user.stripped(true)
   }
 
   @Post('/telegram_mobile')
-  async telegramMobile(ctx: Context) {
+  async telegramMobile(@Ctx() ctx: Context) {
     let { uuid, id } = ctx.request.body as {
       uuid: string
       id?: string
@@ -342,14 +343,14 @@ export default class {
       telegramLoginRequests[uuid] = {
         user: dbuser.stripped(true) as User,
       }
-      ctx.status = 200
+      return
     } catch (err) {
       return ctx.throw(404, 'Cannot send message')
     }
   }
 
   @Post('/telegram_mobile_check')
-  async telegramMobileCheck(ctx: Context) {
+  async telegramMobileCheck(@Ctx() ctx: Context) {
     let { uuid } = ctx.request.body as {
       uuid: string
     }
@@ -361,18 +362,17 @@ export default class {
       if (!result) {
         return ctx.throw(404, 'No request found')
       }
-      ctx.body = {
+      return {
         allowed: result.allowed,
         user: result.allowed ? result.user : undefined,
       }
-      ctx.status = 200
     } catch (err) {
       return ctx.throw(new Error())
     }
   }
 
   @Post('/token')
-  async token(ctx: Context) {
+  async token(@Ctx() ctx: Context) {
     const token = ctx.request.body.token
     if (!token) {
       return ctx.throw(403)
@@ -381,7 +381,7 @@ export default class {
     if (ctx.request.body.appleReceipt) {
       tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
-    ctx.body = user.stripped(true)
+    return user.stripped(true)
   }
 }
 
@@ -410,4 +410,11 @@ function getFBUser(accessToken: string) {
       return err ? rej(err) : res(user)
     })
   })
+}
+
+function testingGoogleMock() {
+  return {
+    name: 'Alexander Brennenburg',
+    email: 'alexanderrennenburg@gmail.com',
+  }
 }

@@ -1,13 +1,14 @@
-import { Controller, Get } from 'koa-router-ts'
+import { Controller, Ctx, Flow, Get } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@middlewares/authenticate'
-import { getOrCreateHero } from '@models/hero'
+import { authenticate } from '@/middlewares/authenticate'
+import { getOrCreateHero } from '@/models/hero'
 
 @Controller('/hero')
-export default class {
-  @Get('/', authenticate)
-  async get(ctx: Context) {
-    ctx.body = await getPoints(ctx)
+export default class HeroController {
+  @Get('/')
+  @Flow(authenticate)
+  async get(@Ctx() ctx: Context) {
+    return await getPoints(ctx)
   }
 }
 

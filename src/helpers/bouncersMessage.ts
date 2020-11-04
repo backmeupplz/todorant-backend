@@ -1,6 +1,6 @@
-import { UserModel } from '@models/user'
-import { bot } from '@helpers/telegram'
-import { sendBouncerMessage } from '@helpers/sendEmail'
+import { UserModel } from '@/models/user'
+import { bot } from '@/helpers/telegram'
+import { sendBouncerMessage } from '@/helpers/sendEmail'
 
 async function sendMessageToBouncers() {
   if (process.env.DEBUG) {

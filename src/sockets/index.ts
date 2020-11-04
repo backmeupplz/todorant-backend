@@ -1,14 +1,14 @@
-import { Hero, getOrCreateHero, HeroModel } from '@models/hero'
+import { Hero, getOrCreateHero, HeroModel } from '@/models/hero'
 import { omit } from 'lodash'
 import { createServer } from 'http'
 import SocketIO = require('socket.io')
-import { getUserFromToken } from '@middlewares/authenticate'
-import { report } from '@helpers/report'
-import { Tag, TagModel } from '@models/tag'
-import { TodoModel, Todo } from '@models/todo'
-import { User, Settings, UserModel } from '@models/user'
+import { getUserFromToken } from '@/middlewares/authenticate'
+import { report } from '@/helpers/report'
+import { Tag, TagModel } from '@/models/tag'
+import { TodoModel, Todo } from '@/models/todo'
+import { User, Settings, UserModel } from '@/models/user'
 import { DocumentType } from '@typegoose/typegoose'
-import { updateTodos, getGoogleCalendarApi } from '@helpers/googleCalendar'
+import { updateTodos, getGoogleCalendarApi } from '@/helpers/googleCalendar'
 import * as randToken from 'rand-token'
 
 const server = createServer()

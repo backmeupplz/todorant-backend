@@ -9,13 +9,14 @@
   "private": true,
   "scripts": {
     "distribute": "yarn build-ts && node dist/app.js",
-    "develop": "yarn kill-server && concurrently -i -k -p \"[{name}]\" -n \"Node, TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\"",
+    "develop": "concurrently -i -k -p \"[{name}]\" -n \"Node, TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\"",
     "build-ts": "tsc --skipLibCheck",
     "watch-ts": "tsc -w --skipLibCheck",
     "watch-js": "nodemon dist/app.js -d 1",
     "upload-translations": "node scripts/upload.js",
     "download-translations": "node scripts/download.js && yarn prettier --single-quote --no-semi --write ./locales/errors.js",
-    "kill-server": "lsof -ti:1337 | xargs kill"
+    "kill-server": "lsof -ti:1337 | xargs kill",
+    "test": "TESTING=true yarn jest --runInBand --forceExit"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.0.1",
@@ -40,8 +41,10 @@
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@typegoose/typegoose": "^7.4.1",
+    "@types/jest": "^26.0.15",
     "apple-auth": "^1.0.6",
     "axios": "^0.20.0",
+    "class-validator": "^0.12.2",
     "cnf-qrcode": "^1.0.13",
     "convert-svg-to-png": "^0.5.0",
     "crypto": "^1.0.1",
@@ -56,32 +59,33 @@
     "googleapis": "^61.0.0",
     "http": "^0.0.1-security",
     "http-graceful-shutdown": "^2.3.2",
+    "jest": "^26.6.1",
     "js-yaml": "^3.14.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.10.1",
     "koa": "^2.13.0",
     "koa-bodyparser": "^4.3.0",
     "koa-logger": "^3.2.1",
-    "koa-router-ts": "^3.0.0",
+    "koa-router": "^9.4.0",
+    "koa-ts-controllers": "^2.3.0",
     "linkify-it": "^3.0.2",
     "lodash": "^4.17.20",
     "module-alias": "^2.2.2",
+    "mongodb-memory-server": "^6.9.2",
     "mongoose": "^5.10.9",
     "nodemailer": "^6.4.14",
     "rand-token": "^1.0.1",
     "showdown": "^1.9.1",
     "socket.io": "^2.3.0",
     "stripe": "^8.115.0",
+    "supertest": "^6.0.0",
     "telegraf": "^3.38.0",
     "telegraf-i18n": "^6.6.0",
     "temp": "^0.9.1",
+    "ts-jest": "^26.4.3",
     "typescript": "^4.0.3"
   },
   "_moduleAliases": {
-    "@controllers": "dist/controllers",
-    "@helpers": "dist/helpers",
-    "@middlewares": "dist/middlewares",
-    "@models": "dist/models",
-    "@sockets": "dist/sockets"
+    "@": "dist"
   }
 }
