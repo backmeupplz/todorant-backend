@@ -1,7 +1,6 @@
 import { capitalizeSentence } from '@/helpers/capitalizeSentence'
 
 describe('capitalizeSentence helper function', () => {
-
   test('should capitalize first letters in simple strings', () => {
     expect(capitalizeSentence('do this')).toBe('Do this')
     expect(capitalizeSentence('Do that')).toBe('Do that')
@@ -20,9 +19,12 @@ describe('capitalizeSentence helper function', () => {
     expect(capitalizeSentence('do this! do that')).toBe('Do this! Do that')
   })
 
-  test('should capitalize first letters in strings with with combinations of punctuation marks', () => {
-    expect(capitalizeSentence('count 3 * 2.3. then have phun')).toBe('Count 3 * 2.3. Then have phun')
-    expect(capitalizeSentence('do this?! do that?!')).toBe('Do this?! Do that?!')
+  test('should capitalize first letters in strings with combinations of punctuation marks', () => {
+    expect(capitalizeSentence('count 3 * 2.3. then have phun')).toBe(
+      'Count 3 * 2.3. Then have phun'
+    )
+    expect(capitalizeSentence('do this?! do that?!')).toBe(
+      'Do this?! Do that?!'
+    )
   })
-
 })
