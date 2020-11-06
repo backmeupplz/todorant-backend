@@ -1,6 +1,6 @@
 import { capitalizeSentence } from '@/helpers/capitalizeSentence'
 
-describe('capitalizeSentence', () => {
+describe('capitalizeSentence helper function', () => {
 
   test('capitalizes first letters in simple strings', () => {
     expect(capitalizeSentence('do this')).toBe('Do this')
