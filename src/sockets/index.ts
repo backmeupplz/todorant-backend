@@ -14,6 +14,8 @@ import SocketIO = require('socket.io')
 const server = createServer()
 const io = SocketIO(server)
 
+const apiVersion = 1
+
 function setupSync<T>(
   socket: SocketIO.Socket,
   name: string,
@@ -61,10 +63,13 @@ function setupSync<T>(
 }
 
 io.on('connection', (socket) => {
-  socket.on('authorize', async (token: string) => {
+  socket.on('authorize', async (token: string, version: string) => {
     try {
       if (!token) {
         throw new Error('No token provided')
+      }
+      if (!version || +version < apiVersion) {
+        throw new Error('Old API version, please, update the app')
       }
       const user = await getUserFromToken(token)
       if (!user) {
