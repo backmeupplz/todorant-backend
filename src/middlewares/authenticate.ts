@@ -5,13 +5,22 @@ import { errors } from '@/helpers/errors'
 import { DocumentType } from '@typegoose/typegoose'
 import { report } from '@/helpers/report'
 
-export async function authenticate(ctx: Context, next: Function) {
+interface mockCtx {
+  headers: { token: string }
+  state: any
+  throw: (statusCode: number, errorMessage: string) => void
+}
+
+export async function authenticate(ctx: Context | mockCtx, next: Function) {
   try {
     const token = ctx.headers.token
     if (!token) {
       return ctx.throw(403, errors.noTokenProvided)
     }
-    const user = await getUserFromToken(token)
+    const user =
+      process.env.TESTING === 'true'
+        ? testingUserMock(token)
+        : await getUserFromToken(token)
     if (!user) {
       return ctx.throw(403, errors.noUser)
     }
@@ -42,4 +51,14 @@ export async function getUserFromToken(token: string) {
     })
   }
   return user
+}
+
+function testingUserMock(token) {
+  if (token === '123') {
+    return {
+      name: 'Alexander Brennenburg',
+      email: 'alexanderrennenburg@gmail.com',
+      token: '123',
+    }
+  }
 }

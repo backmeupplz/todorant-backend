@@ -109,7 +109,7 @@ export default class LoginController {
               `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
             )
           ).data
-
+    if (process.env.TESTING === 'true') return userData
     const { created, user } = await getOrCreateUser({
       name: userData.name,
 
@@ -416,5 +416,6 @@ function testingGoogleMock() {
   return {
     name: 'Alexander Brennenburg',
     email: 'alexanderrennenburg@gmail.com',
+    token: '123',
   }
 }
