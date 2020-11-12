@@ -3,7 +3,14 @@ import 'module-alias/register'
 // Get environment variables
 import * as dotenv from 'dotenv'
 dotenv.config({ path: `${__dirname}/../.env` })
-
+// Setup typegoose
+import { setGlobalOptions, Severity } from '@typegoose/typegoose'
+setGlobalOptions({
+  options: {
+    allowMixed: Severity.ALLOW,
+  },
+})
+// Get the rest of dependencies
 import 'reflect-metadata'
 import * as Koa from 'koa'
 import * as bodyParser from 'koa-bodyparser'
