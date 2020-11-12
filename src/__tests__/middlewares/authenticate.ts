@@ -1,9 +1,9 @@
-import { authenticate } from '@/middlewares/authenticate'
-import * as mongoose from 'mongoose'
 import app from '@/app'
-import { MongoMemoryServer } from 'mongodb-memory-server'
+import { authenticate } from '@/middlewares/authenticate'
 import { runMongo } from '@/models/index'
 import { User, UserModel } from '@/models/user'
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import * as mongoose from 'mongoose'
 
 describe('Authenticate', () => {
   const mongoServer = new MongoMemoryServer()
