@@ -64,26 +64,6 @@ describe('CheckSubscription', () => {
       '{"en":"You have to buy the subscription","ru":"Вам нужно приобрести подписку"}'
     )
   })
-
-  it('should fail on a request from undefined user', async () => {
-    const ctx: any = {
-      state: {
-        status: 0,
-        message: '',
-      },
-      throw: (statusCode: number, errorMessage: string) => {
-        ctx.state.status = statusCode
-        ctx.state.message = errorMessage
-      },
-    }
-    // Simply pass a noop function as `next` argumen
-    const noop = () => {}
-    await checkSubscription(ctx, noop)
-    expect(ctx.state.status).toBe(403)
-    expect(ctx.state.message).toBe(
-      '{"en":"Authentication failed","ru":"Аутентификация провалилась"}'
-    )
-  })
 })
 
 const userSubscriptionActive = {
