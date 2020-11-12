@@ -23,7 +23,7 @@ describe('CheckSubscription', () => {
 
   afterAll(async () => app.close())
 
-  test('checkSubscription', async () => {
+  it('should complete on a request from a subscribed user', async () => {
     const user = await UserModel.create(userSubscriptionActive)
     const ctx: any = {
       state: { user: user },
@@ -43,7 +43,7 @@ describe('CheckSubscription', () => {
     expect(mockSubscription.completed).toBe(true)
   })
 
-  test('checkSubscription', async () => {
+  it('should fail on a request from an unsubscribed user', async () => {
     const user = await UserModel.create(userSubscriptionInactive)
     const ctx: any = {
       state: {
@@ -65,7 +65,7 @@ describe('CheckSubscription', () => {
     )
   })
 
-  test('checkSubscription', async () => {
+  it('should fail on a request from undefined user', async () => {
     const ctx: any = {
       state: {
         status: 0,
