@@ -29,7 +29,9 @@ export async function report(err: Error) {
         return
       }
     }
-    await bot.telegram.sendMessage(process.env.ADMIN, text)
+    if (process.env.ADMIN && process.env.TELEGRAM_LOGIN_TOKEN) {
+      await bot.telegram.sendMessage(process.env.ADMIN, text)
+    }
   } catch (error) {
     console.error(err)
     console.error(error)
