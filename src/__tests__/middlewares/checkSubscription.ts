@@ -1,68 +1,27 @@
-import app from '@/app'
 import { checkSubscription } from '@/middlewares/checkSubscription'
-import { runMongo } from '@/models/index'
-import { UserModel } from '@/models/user'
-import { MongoMemoryServer } from 'mongodb-memory-server'
-import * as mongoose from 'mongoose'
 
-describe('CheckSubscription', () => {
-  const mongoServer = new MongoMemoryServer()
-
-  beforeAll(async () => {
-    runMongo(await mongoServer.getUri())
-  })
-
-  beforeEach(async () => {
-    const collections = mongoose.connection.collections
-
-    for (const key in collections) {
-      const collection = collections[key]
-      await collection.deleteMany({})
-    }
-  })
-
-  afterAll(async () => app.close())
-
-  it('should complete on a request from a subscribed user', async () => {
-    const user = await UserModel.create(userSubscriptionActive)
+describe('Check subscription middleware', () => {
+  it('should continue on a request from a subscribed user', async () => {
     const ctx: any = {
-      state: { user: user },
-      throw: (statusCode: number, errorMessage: string) => {
-        const err: any = new Error(errorMessage)
-        err.status = statusCode
-        err.expose = true
-        throw err
-      },
+      state: { user: userSubscriptionActive },
     }
-    const mockSubscription: any = { completed: false }
-    // Simply pass a noop function as `next` argument
-    const noop = () => {
-      mockSubscription.completed = true
-    }
-    await checkSubscription(ctx, noop)
-    expect(mockSubscription.completed).toBe(true)
+    const mockNext = jest.fn()
+    await checkSubscription(ctx, mockNext)
+    expect(mockNext.mock.calls.length).toBe(1)
   })
 
   it('should fail on a request from an unsubscribed user', async () => {
-    const user = await UserModel.create(userSubscriptionInactive)
+    const mockThrow = jest.fn()
     const ctx: any = {
       state: {
-        user: user,
-        status: 0,
-        message: '',
+        user: userSubscriptionInactive,
       },
-      throw: (statusCode: number, errorMessage: string) => {
-        ctx.state.status = statusCode
-        ctx.state.message = errorMessage
-      },
+      throw: mockThrow,
     }
-    // Simply pass a noop function as `next` argument
-    const noop = () => {}
-    await checkSubscription(ctx, noop)
-    expect(ctx.state.status).toBe(403)
-    expect(ctx.state.message).toBe(
-      '{"en":"You have to buy the subscription","ru":"Вам нужно приобрести подписку"}'
-    )
+    const mockNext = jest.fn()
+    await checkSubscription(ctx, mockNext)
+    expect(mockNext.mock.calls.length).toBe(0)
+    expect(mockThrow.mock.calls.length).toBe(1)
   })
 })
 
