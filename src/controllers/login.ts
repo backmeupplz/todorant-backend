@@ -101,14 +101,11 @@ export default class LoginController {
   async google(@Ctx() ctx: Context) {
     const accessToken = ctx.request.body.accessToken
 
-    const userData: any =
-      process.env.TESTING === 'true'
-        ? testingGoogleMock()
-        : (
-            await axios(
-              `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
-            )
-          ).data
+    const userData: any = (
+      await axios(
+        `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
+      )
+    ).data
 
     const { created, user } = await getOrCreateUser({
       name: userData.name,
@@ -410,11 +407,4 @@ function getFBUser(accessToken: string) {
       return err ? rej(err) : res(user)
     })
   })
-}
-
-function testingGoogleMock() {
-  return {
-    name: 'Alexander Brennenburg',
-    email: 'alexanderrennenburg@gmail.com',
-  }
 }

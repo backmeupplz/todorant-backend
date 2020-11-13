@@ -1,4 +1,4 @@
-import { User } from '@/models/user'
+import { User } from '@/models/user/User'
 import { Context } from 'koa'
 import { errors } from '@/helpers/errors'
 import { DocumentType } from '@typegoose/typegoose'

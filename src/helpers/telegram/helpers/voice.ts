@@ -1,3 +1,4 @@
+import { report } from '@/helpers/report'
 import { Context } from 'telegraf'
 import { urlToText } from '@/helpers/telegram/helpers/urlToText'
 import { addTodoWithText } from '@/helpers/telegram/commands/todo'
@@ -19,10 +20,10 @@ export async function handleMessage(ctx: Context) {
     try {
       await sendTranscription(ctx, voiceUrl, witLanguage)
     } catch (err) {
-      console.log(err.message)
+      report(err.message)
     }
   } catch (err) {
-    console.log(err.message)
+    report(err.message)
   }
 }
 
@@ -40,7 +41,7 @@ async function sendTranscription(ctx, url, witLanguage) {
   } catch (err) {
     // In case of error, send it
     await updateMessagewithError(ctx, sentMessage)
-    console.log(err.message)
+    report(err.message)
   }
 }
 
@@ -60,7 +61,7 @@ async function updateMessagewithError(ctx, msg) {
       }
     )
   } catch (err) {
-    console.log(err.message)
+    report(err.message)
   }
 }
 
