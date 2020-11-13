@@ -1,11 +1,21 @@
+import { app } from '@/app'
+import { Server } from 'http'
 import * as request from 'supertest'
-import app from '@/app'
+import { startKoa, stopServer } from './testUtils'
 
-describe('Docs', () => {
-  afterAll(async () => app.close())
+describe('Docs endpoint', () => {
+  let server: Server
 
-  test('docs route test', async () => {
-    const response = await request(app).get('/md')
+  beforeAll(async () => {
+    server = await startKoa(app)
+  })
+
+  afterAll(async () => {
+    await stopServer(server)
+  })
+
+  it('should respond to docs md endpoint with 200', async () => {
+    const response = await request(server).get('/md')
     expect(response.status).toBe(200)
   })
 })

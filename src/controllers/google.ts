@@ -124,7 +124,6 @@ export default class GoogleController {
       requestSync(user._id)
       ctx.status = 200
     } catch (err) {
-      console.log(err.message)
       ctx.status = 500
     }
   }

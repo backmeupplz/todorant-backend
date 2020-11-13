@@ -6,12 +6,10 @@ async function checkAppleSubscribers() {
   if (process.env.DEBUG) {
     return
   }
-  console.log('Checking apple subscribers...')
   const appleSubscribers = await UserModel.find({
     appleReceipt: { $exists: true },
     subscriptionStatus: { $ne: 'earlyAdopter' },
   })
-  console.log(`Got ${appleSubscribers.length} apple subscribers to check`)
   let numberOfDeactivatedSubscribers = 0
   for (const appleSubscriber of appleSubscribers) {
     const receipt = appleSubscriber.appleReceipt
@@ -46,11 +44,12 @@ async function checkAppleSubscribers() {
     appleSubscriber.appleReceipt = latestReceipt
     await appleSubscriber.save()
   }
-  await bot.telegram.sendMessage(
-    76104711,
-    `Apple subscription deactivated for ${numberOfDeactivatedSubscribers} users`
-  )
-  console.log('Finished checking apple subscribers')
+  if (process.env.TELEGRAM_LOGIN_TOKEN) {
+    await bot.telegram.sendMessage(
+      76104711,
+      `Apple subscription deactivated for ${numberOfDeactivatedSubscribers} users`
+    )
+  }
 }
 
 checkAppleSubscribers()

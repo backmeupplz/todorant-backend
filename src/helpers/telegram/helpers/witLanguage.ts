@@ -1,4 +1,4 @@
-export const witLanguages = JSON.parse(process.env.WIT_LANGUAGES)
+export const witLanguages = JSON.parse(process.env.WIT_LANGUAGES || '{}')
 
 const witCodes = {
   English: 'en',

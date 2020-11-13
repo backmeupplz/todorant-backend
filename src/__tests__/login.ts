@@ -1,29 +1,43 @@
-import * as request from 'supertest'
-import * as mongoose from 'mongoose'
-import app from '@/app'
+import { app } from '@/app'
+import { runMongo, stopMongo } from '@/models/index'
+import { UserModel } from '@/models/user'
+import axios from 'axios'
+import MockAdapter from 'axios-mock-adapter'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-import { runMongo } from '@/models/index'
+import * as request from 'supertest'
+import {
+  completeUser,
+  dropMongo,
+  startKoa,
+  stopServer,
+} from '@/__tests__/testUtils'
+import { Server } from 'http'
 
-describe('Login', () => {
-  const mongoServer = new MongoMemoryServer()
+describe('Login endpoint', () => {
+  const axiosMock = new MockAdapter(axios)
+  let server: Server
 
   beforeAll(async () => {
-    runMongo(await mongoServer.getUri())
+    const mongoServer = new MongoMemoryServer()
+    await runMongo(await mongoServer.getUri())
+    await dropMongo()
+    await UserModel.create(completeUser)
+    server = await startKoa(app)
   })
 
-  beforeEach(async () => {
-    const collections = mongoose.connection.collections
-
-    for (const key in collections) {
-      const collection = collections[key]
-      await collection.deleteMany({})
-    }
+  afterAll(async () => {
+    await stopMongo()
+    await stopServer(server)
   })
 
-  afterAll(async () => app.close())
-
-  test('google login route test', async () => {
-    const response = await request(app)
+  it('should return user for valid /google request', async () => {
+    axiosMock
+      .onGet('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=test')
+      .reply(200, {
+        name: 'Alexander Brennenburg',
+        email: 'alexanderrennenburg@gmail.com',
+      })
+    const response = await request(server)
       .post('/login/google')
       .send({ accessToken: 'test' })
     expect(response.body.name).toBe('Alexander Brennenburg')
