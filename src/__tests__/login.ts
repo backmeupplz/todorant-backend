@@ -8,7 +8,7 @@ import * as request from 'supertest'
 import { completeUser, dropMongo, startKoa, stopServer } from './testUtils'
 import { Server } from 'http'
 
-describe('/login', () => {
+describe('Login endpoint', () => {
   const axiosMock = new MockAdapter(axios)
   let server: Server
 

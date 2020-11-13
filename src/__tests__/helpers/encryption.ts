@@ -1,28 +1,7 @@
-import app from '@/app'
 import { _d, _e } from '@/helpers/encryption'
-import { runMongo } from '@/models/index'
-import { MongoMemoryServer } from 'mongodb-memory-server'
-import * as mongoose from 'mongoose'
 
-describe('Encryption', () => {
-  const mongoServer = new MongoMemoryServer()
-
-  beforeAll(async () => {
-    runMongo(await mongoServer.getUri())
-  })
-
-  beforeEach(async () => {
-    const collections = mongoose.connection.collections
-
-    for (const key in collections) {
-      const collection = collections[key]
-      await collection.deleteMany({})
-    }
-  })
-
-  afterAll(async () => app.close())
-
-  test('correct password', async () => {
+describe('Encryption helper', () => {
+  it('should decrypt with the correct password', async () => {
     const text = 'some text'
     const password = 'test'
     const encrypted = _e(text, password)
@@ -30,7 +9,7 @@ describe('Encryption', () => {
     expect(decrypted).toBe(text)
   })
 
-  test('wrong password', async () => {
+  it('should return empty string on incorrect password', async () => {
     const text = 'some text'
     const password = 'test'
     const encrypted = _e(text, password)
