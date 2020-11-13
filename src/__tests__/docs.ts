@@ -3,7 +3,7 @@ import { Server } from 'http'
 import * as request from 'supertest'
 import { startKoa, stopServer } from './testUtils'
 
-describe('Docs', () => {
+describe('Docs endpoint', () => {
   let server: Server
 
   beforeAll(async () => {
