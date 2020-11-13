@@ -5,7 +5,12 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import * as request from 'supertest'
-import { completeUser, dropMongo, startKoa, stopServer } from './testUtils'
+import {
+  completeUser,
+  dropMongo,
+  startKoa,
+  stopServer,
+} from '@/__tests__/testUtils'
 import { Server } from 'http'
 
 describe('Login endpoint', () => {
