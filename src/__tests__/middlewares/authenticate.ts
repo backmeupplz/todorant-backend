@@ -1,72 +1,80 @@
-import app from '@/app'
+import { sign } from '@/helpers/jwt'
+import { app } from '@/app'
 import { authenticate } from '@/middlewares/authenticate'
-import { runMongo } from '@/models/index'
-import { User, UserModel } from '@/models/user'
+import { runMongo, stopMongo } from '@/models/index'
+import { UserModel } from '@/models/user'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-import * as mongoose from 'mongoose'
+import { Server } from 'http'
+import { dropMongo, startKoa, stopServer } from '@/__tests__/testUtils'
 
 describe('Authenticate', () => {
-  const mongoServer = new MongoMemoryServer()
+  let server: Server
 
   beforeAll(async () => {
-    runMongo(await mongoServer.getUri())
+    const mongoServer = new MongoMemoryServer()
+    await runMongo(await mongoServer.getUri())
+    server = await startKoa(app)
   })
 
   beforeEach(async () => {
-    const collections = mongoose.connection.collections
-
-    for (const key in collections) {
-      const collection = collections[key]
-      await collection.deleteMany({})
-    }
+    await dropMongo()
   })
 
-  afterAll(async () => app.close())
+  afterAll(async () => {
+    await stopMongo()
+    await stopServer(server)
+  })
 
-  test('authenticate', async () => {
-    const user = await UserModel.create(userComplete)
+  it('should call next if everything is ok', async () => {
+    process.env.JWT = 'test_secret'
+    const token = await sign(user)
+    console.log(token)
+    await UserModel.create({ ...user, token })
+    const ctx = await check(true, token)
+    expect(ctx.state.user.name).toBe(user.name)
+    expect(ctx.state.user.email).toBe(user.email)
+  })
+
+  it('should throw if no JWT key was provided', async () => {
+    await check(false)
+  })
+
+  it('shoud throw an error if there is no user with such token', async () => {
+    process.env.JWT = 'test_secret'
+    const tokenOfNonexistentUser = await sign({
+      email: 'alexanderrennenburg@gmail.com',
+    })
+    await check(false, tokenOfNonexistentUser)
+  })
+
+  it('shoud throw an error if the token is malformed', async () => {
+    process.env.JWT = 'test_secret'
+    await check(false, 'Invalid token')
+  })
+
+  it('shoud throw an error if the token is absent', async () => {
+    process.env.JWT = 'test_secret'
+    await check(false)
+  })
+
+  async function check(shouldSucceed: boolean, token?: string) {
+    const mockThrow = jest.fn()
     const ctx: any = {
+      throw: mockThrow,
       headers: {
-        token: user.token,
+        token,
       },
-      state: { user: User },
-      throw: (statusCode: number, errorMessage: string) => {
-        const err: any = new Error(errorMessage)
-        err.status = statusCode
-        err.expose = true
-        throw err
-      },
+      state: {},
     }
-    // Simply pass a noop function as `next` argument
-    const noop = () => {}
-    await authenticate(ctx, noop)
-    expect(ctx.state.user.name).toBe('Alexander Brennenburg')
-  })
-
-  test('authenticate', async () => {
-    const ctx: any = {
-      state: {
-        status: 0,
-        message: '',
-      },
-      throw: (statusCode, message) => {
-        ctx.state.status = statusCode
-        ctx.state.message = message
-      },
-    }
-    // Simply pass a noop function as `next` argument
-    const noop = () => {}
-    await authenticate(ctx, noop)
-    expect(ctx.state.status).toBe(403)
-    expect(ctx.state.message).toBe(
-      '{"en":"Authentication failed","ru":"Аутентификация провалилась"}'
-    )
-  })
+    const mockNext = jest.fn()
+    await authenticate(ctx, mockNext)
+    expect(mockNext.mock.calls.length).toBe(shouldSucceed ? 1 : 0)
+    expect(mockThrow.mock.calls.length).toBe(shouldSucceed ? 0 : 1)
+    return ctx
+  }
 })
 
-const userComplete = {
+const user = {
   name: 'Alexander Brennenburg',
   email: 'alexanderrennenburg@gmail.com',
-  token:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWxleGFuZGVyIEJyZW5uZW5idXJnIiwic3Vic2NyaXB0aW9uU3RhdHVzIjoidHJpYWwiLCJkZWxlZ2F0ZUludml0ZVRva2VuIjoiR090WWwyRUVaSE1OMmF1cSIsImVtYWlsIjoiYWxleGFuZGVycmVubmVuYnVyZ0BnbWFpbC5jb20iLCJpYXQiOjE2MDUxMjY5MTF9.Z17DwU2HuIcqBgvrzl65X47q3iRMuvybbYLmz9yc5ns',
 }

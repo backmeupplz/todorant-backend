@@ -20,9 +20,11 @@ describe('Login endpoint', () => {
   beforeAll(async () => {
     const mongoServer = new MongoMemoryServer()
     await runMongo(await mongoServer.getUri())
-    await dropMongo()
-    await UserModel.create(completeUser)
     server = await startKoa(app)
+  })
+
+  beforeEach(async () => {
+    await dropMongo()
   })
 
   afterAll(async () => {
@@ -31,6 +33,7 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /google request', async () => {
+    await UserModel.create(completeUser)
     axiosMock
       .onGet('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=test')
       .reply(200, {

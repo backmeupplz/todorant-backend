@@ -1,11 +1,9 @@
 import * as jwt from 'jsonwebtoken'
 import * as jwksClient from 'jwks-rsa'
 
-const secret = process.env.JWT
-
-export function sign(payload: object) {
+export function sign(payload: object): Promise<string> {
   return new Promise((res, rej) => {
-    jwt.sign(payload, secret, undefined, (err, token) => {
+    jwt.sign(payload, process.env.JWT, undefined, (err, token) => {
       return err ? rej(err) : res(token)
     })
   })
