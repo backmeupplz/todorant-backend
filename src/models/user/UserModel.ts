@@ -1,4 +1,4 @@
-import { User } from '@/models/user/User'
+import { User, SubscriptionStatus } from '@/models/user/User'
 import { sign } from '@/helpers/jwt'
 import { DocumentType, getModelForClass } from '@typegoose/typegoose'
 import * as randToken from 'rand-token'
