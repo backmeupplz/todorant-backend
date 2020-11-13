@@ -1,6 +1,6 @@
 import { checkSubscription } from '@/middlewares/checkSubscription'
 
-describe('Check subscription middleware', () => {
+describe('Subscription middleware', () => {
   it('should continue on a request from a subscribed user', async () => {
     const ctx: any = {
       state: { user: userSubscriptionActive },
