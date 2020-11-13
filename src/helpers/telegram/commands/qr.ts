@@ -1,3 +1,4 @@
+import { report } from '@/helpers/report'
 import { Context } from 'telegraf'
 import { getSvg } from 'cnf-qrcode'
 import { convert } from 'convert-svg-to-png'
@@ -5,7 +6,7 @@ import { convert } from 'convert-svg-to-png'
 export function sendQR(ctx: Context) {
   getSvg(ctx.dbuser.token, undefined, async (err: any, svg: string) => {
     if (err) {
-      console.log(err)
+      report(err)
     } else {
       const png = await convert(svg, {
         width: 300,
@@ -19,7 +20,7 @@ export function sendQR(ctx: Context) {
         try {
           await ctx.telegram.deleteMessage(ctx.chat.id, msg.message_id)
         } catch (err) {
-          console.log(err.message)
+          report(err)
         }
       }, 5 * 60 * 1000)
     }

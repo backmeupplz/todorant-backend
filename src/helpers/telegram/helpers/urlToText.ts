@@ -1,3 +1,4 @@
+import { report } from '@/helpers/report'
 import { getText } from '@/helpers/telegram/helpers/speechApi'
 import { tryDeletingFile } from '@/helpers/telegram/helpers/deleteFile'
 import { getDuration } from '@/helpers/telegram/helpers/flac'
@@ -12,7 +13,7 @@ export async function urlToText(url, witLanguage) {
     fs.writeFileSync(ogaPath, data)
   } catch (err) {
     tryDeletingFile(ogaPath)
-    console.log(err.message)
+    report(err.message)
     throw err
   }
   let flacPath
@@ -23,7 +24,7 @@ export async function urlToText(url, witLanguage) {
     duration = result.duration
   } catch (err) {
     tryDeletingFile(ogaPath)
-    console.log(err.message)
+    report(err.message)
     throw err
   }
   try {
@@ -32,7 +33,7 @@ export async function urlToText(url, witLanguage) {
     // Return result
     return textArr
   } catch (err) {
-    console.log(err.message)
+    report(err.message)
     throw err
   } finally {
     tryDeletingFile(flacPath)

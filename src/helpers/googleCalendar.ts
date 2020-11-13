@@ -87,7 +87,7 @@ export async function updateTodos(
             eventId: todo._id.toString(),
           })
         } catch (err) {
-          console.log(err)
+          report(err)
         }
       } else if (!todo.deleted && !todo.completed && todo.time && todo.date) {
         const startDate = moment(

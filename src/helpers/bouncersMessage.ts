@@ -15,7 +15,6 @@ async function sendMessageToBouncers() {
     telegramId: { $exists: true },
     subscriptionStatus: 'trial',
   })
-  console.log(`Sending message to ${telegramBouncers.length} telegram bouncers`)
   for (const bouncer of telegramBouncers) {
     const telegramId = parseInt(bouncer.telegramId, 10)
     if (!telegramId) {
@@ -55,7 +54,6 @@ If you have any additional questions please contact me directly — @borodutch. 
     email: { $exists: true },
     subscriptionStatus: 'trial',
   })
-  console.log(`Sending message to ${emailBouncers.length} email bouncers`)
   for (const bouncer of emailBouncers) {
     const email = bouncer.email
     if (!email) {

@@ -9,9 +9,10 @@ const BACKEND_URL = process.env.BACKEND_URL
 
 const oneHour = 3600000
 
+export let googleSyncTimeout: NodeJS.Timeout
 if (process.env.ENVIRONMENT !== 'staging') {
   googleSync()
-  setInterval(googleSync, oneHour)
+  googleSyncTimeout = setInterval(googleSync, oneHour)
 }
 
 async function googleSync() {
@@ -50,9 +51,6 @@ export const startWatch = async (
       { googleCalendarResourceId: resourceId }
     )
   } catch (err) {
-    if (`${err.message}`.indexOf('not unique') < 0) {
-      console.log('Start watching Google Calendar error', err.message)
-    }
     // Invalid Google Calendar credentials, remove them from the user
     if (`${err.message}`.indexOf('invalid_grant') > -1) {
       await UserModel.findOneAndUpdate(
