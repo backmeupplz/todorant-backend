@@ -7,16 +7,16 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install modules
-        run: yarn
-      - name: Run tests
-        run: yarn test
+    - uses: actions/checkout@v2
+    - name: Install modules
+      run: yarn
+    - name: Run tests
+      run: yarn test
   compile-code:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install modules
-        run: yarn
-      - name: Compile code
-        run: yarn tsc --skipLibCheck
+    - uses: actions/checkout@v2
+    - name: Install modules
+      run: yarn
+    - name: Compile code
+      run: yarn tsc --skipLibCheck
