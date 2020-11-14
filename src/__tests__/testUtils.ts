@@ -1,6 +1,9 @@
 import * as mongoose from 'mongoose'
 import * as Koa from 'koa'
 import { Server } from 'http'
+import { User } from '@/models/user/User'
+import { Todo } from '@/models/todo'
+import { SubscriptionStatus } from '@/models/user/User'
 
 export function dropMongo() {
   return Promise.all(
@@ -15,6 +18,45 @@ export const completeUser = {
   email: 'alexanderrennenburg@gmail.com',
   token:
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWxleGFuZGVyIEJyZW5uZW5idXJnIiwic3Vic2NyaXB0aW9uU3RhdHVzIjoidHJpYWwiLCJkZWxlZ2F0ZUludml0ZVRva2VuIjoiR090WWwyRUVaSE1OMmF1cSIsImVtYWlsIjoiYWxleGFuZGVycmVubmVuYnVyZ0BnbWFpbC5jb20iLCJpYXQiOjE2MDUxMjY5MTF9.Z17DwU2HuIcqBgvrzl65X47q3iRMuvybbYLmz9yc5ns',
+}
+
+export const createdCompleteUser = {
+  ...completeUser,
+  _id: 'testUserId',
+  createdAt: new Date(),
+  _doc: {
+    createdAt: new Date(),
+  },
+  settings: {},
+  createdAtts: '',
+  timezone: 0,
+  telegramZen: false,
+  subscriptionStatus: SubscriptionStatus.earlyAdopter,
+  bouncerNotified: false,
+  powerUserNotified: false,
+  createdOnApple: false,
+  delegates: [],
+  stripped: new User().stripped,
+}
+
+export const completeTodo = {
+  _id: 'testTodoId',
+  _doc: {
+    createdAt: new Date(),
+  },
+  user: createdCompleteUser,
+  text: 'Do this',
+  completed: false,
+  frog: false,
+  frogFails: 0,
+  skipped: false,
+  order: 0,
+  deleted: false,
+  encrypted: false,
+  monthAndYear: '10-2020',
+  date: '21',
+  time: null,
+  stripped: new Todo().stripped,
 }
 
 export function startKoa(
