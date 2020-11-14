@@ -1,6 +1,6 @@
-import { prop, Ref, getModelForClass } from '@typegoose/typegoose'
+import { prop, Ref } from '@typegoose/typegoose'
 import { omit } from 'lodash'
-import { User } from '@/models/user'
+import { User } from '@/models/user/User'
 
 export class Todo {
   @prop({ required: true, ref: User })
@@ -94,7 +94,3 @@ export class Todo {
 export function getTitle(todo: { monthAndYear?: string; date?: string }) {
   return `${todo.monthAndYear}${todo.date ? `-${todo.date}` : ''}`
 }
-
-export const TodoModel = getModelForClass(Todo, {
-  schemaOptions: { timestamps: true },
-})
