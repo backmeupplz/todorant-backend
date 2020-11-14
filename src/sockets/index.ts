@@ -11,8 +11,8 @@ import { omit } from 'lodash'
 import * as randToken from 'rand-token'
 import SocketIO = require('socket.io')
 
-const server = createServer()
-const io = SocketIO(server)
+export const socketServer = createServer()
+const io = SocketIO(socketServer)
 
 const apiVersion = 1
 
@@ -237,7 +237,7 @@ io.on('connection', (socket) => {
             },
           })
         } catch (err) {
-          console.log(err)
+          report(err)
         }
         user.settings.googleCalendarCredentials = undefined
       }
@@ -370,10 +370,6 @@ function isAuthorized(socket: SocketIO.Socket) {
 function getUser(socket: SocketIO.Socket): DocumentType<User> | undefined {
   return (socket as any).user
 }
-
-server.listen(3000).on('listening', () => {
-  console.log('Sockets are listening on 3000')
-})
 
 export function requestSync(userId: string) {
   io.to(userId).emit('todos_sync_request')

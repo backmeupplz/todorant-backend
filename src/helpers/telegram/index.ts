@@ -67,5 +67,3 @@ bot.on('document', handleText)
 bot.on('voice', handleVoice)
 // Error catch
 bot.catch(console.error)
-// Start bot
-bot.launch().then(() => console.log('@todorant_bot launched'))
