@@ -1,5 +1,6 @@
 name: Todorant Workflows
 on:
+  push:
   pull_request:
     branches:
       - main
