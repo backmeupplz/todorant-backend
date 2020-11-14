@@ -4,7 +4,7 @@ on:
     branches:
       - main
 jobs:
-  runu_tests:
+  run-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,11 +12,3 @@ jobs:
         run: yarn
       - name: Run tests
         run: yarn test
-  compile_code:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install modules
-        run: yarn
-      - name: Compile code
-        run: yarn tsc --skipLibCheck
