@@ -1,9 +1,8 @@
 import * as mongoose from 'mongoose'
 import * as Koa from 'koa'
 import { Server } from 'http'
-import { User } from '@/models/user/User'
-import { Todo } from '@/models/todo'
-import { SubscriptionStatus } from '@/models/user/User'
+import { User, SubscriptionStatus } from '@/models/user/User'
+import { Todo } from '@/models/todo/Todo'
 
 export function dropMongo() {
   return Promise.all(
