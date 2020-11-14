@@ -1,10 +1,18 @@
-name: Compile code
+name: Todorant Workflows
 on:
   pull_request:
     branches:
       - main
 jobs:
-  build:
+  Run tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install modules
+        run: yarn
+      - name: Run tests
+        run: yarn test
+  Compile code:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
