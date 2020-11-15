@@ -1,6 +1,6 @@
 import { daysBetween } from '@/helpers/daysBetween'
 
-describe('daysBetween helper', () => {
+describe('Days between helper', () => {
   it('should count difference between full days', () => {
     let date1 = new Date(2020, 11, 15, 0, 0, 0, 0)
     let date2 = new Date(2020, 11, 18, 0, 0, 0, 0)
