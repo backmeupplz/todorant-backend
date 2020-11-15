@@ -16,6 +16,7 @@ export async function report(err: Error) {
   const dismissableErrors = [
     'No authentication token provided',
     'invalid_grant',
+    'Resource has been deleted',
   ]
   try {
     let text = `Todorant Error:\n${err.message || JSON.stringify(err)}${
