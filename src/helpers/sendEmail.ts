@@ -1,4 +1,5 @@
 import * as nodemailer from 'nodemailer'
+const homedir = require('os').homedir()
 
 const transport = nodemailer.createTransport({
   host: 'smtp.yandex.ru',
@@ -47,5 +48,30 @@ Woah! Over 1000 tasks! 🎉💪🔥
 Hi there! It's @borodutch, the creator of Todorant. Can you please spend just 2 minutes and answer couple of questions what you like and what you don't like about Todorant? You can answer them here: https://forms.gle/C4Byzcypkd7KsXJHA. Just a couple of minutes — but huge help to anyone who uses Todorant! All questions are optional and the answers are anonymous. Thank you a lot in advance!
 
 If you have any additional questions please contact me directly — @borodutch. Thank you!`,
+  })
+}
+
+export async function sendUserSubcribtionMessage(email: string) {
+  await transport.sendMail({
+    from: '"Todorant Support" <support@todorant.com>',
+    to: email,
+    replyTo: 'todorant@borodutch.com',
+    subject: 'Lorem ipsum',
+    html: `<div style="display:flex;flex-direction:column;align-items:center">
+    <h4>Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
+    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+    Ut enim ad minim veniam, quis nostrud exercitation ullamco 
+    laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
+    in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat 
+    cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. </h4>
+    <img src="cid:image@cid.ee"/>
+    </div>`,
+    attachments: [
+      {
+        filename: 'test.png',
+        path: `${homedir}/test.png`,
+        cid: 'image@cid.ee',
+      },
+    ],
   })
 }
