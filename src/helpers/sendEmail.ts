@@ -1,5 +1,4 @@
 import * as nodemailer from 'nodemailer'
-const homedir = require('os').homedir()
 
 const transport = nodemailer.createTransport({
   host: 'smtp.yandex.ru',
@@ -51,27 +50,60 @@ If you have any additional questions please contact me directly — @borodutch. 
   })
 }
 
-export async function sendUserSubcribtionMessage(email: string) {
+export async function sendUserThreeWeekMessage(
+  email: string,
+  chart: any,
+  subject: string
+) {
   await transport.sendMail({
     from: '"Todorant Support" <support@todorant.com>',
     to: email,
     replyTo: 'todorant@borodutch.com',
-    subject: 'Lorem ipsum',
-    html: `<div style="display:flex;flex-direction:column;align-items:center">
-    <h4>Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
-    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-    Ut enim ad minim veniam, quis nostrud exercitation ullamco 
-    laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-    in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat 
-    cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. </h4>
-    <img src="cid:image@cid.ee"/>
-    </div>`,
+    subject: subject,
+    html: html,
     attachments: [
       {
-        filename: 'test.png',
-        path: `${homedir}/test.png`,
-        cid: 'image@cid.ee',
+        filename: 'chart.png',
+        content: chart,
+        cid: 'chart@img.ee',
       },
     ],
   })
 }
+
+const html = `
+<body style="margin: 0; padding: 0;">
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse;">
+    <tr>
+      <td align="center" bgcolor="#ffffff" style="padding: 40px 0 30px 0;">
+        <img src="cid:chart@img.ee" width="700" height="700" style="display: block;" />
+      </td>
+    </tr>
+    <tr>
+      <td bgcolor="#ffffff" style="padding: 40px 30px 40px 30px;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td style="color: #153643; font-family: Arial, sans-serif; font-size: 24px;">
+              <b>Hey there! It's Nikita, the creator of Todorant.</b>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+              You've just finished your third week using Todorant. It means that soon you'll need to make the decision whether to keep using Todorant or not. Just to give you some context, I compiled a chart of how many tasks you finished during these 3 weeks and of how many tasks you are projected to finish in the next 3 weeks if you keep using Todorant!
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+              I used your historical data and the historical data of other people using Todorant to come up with the numbers. Just wanted to share this with you, no strings attached. Email me if you have any questions! Cheers!
+            </td>
+          </tr>
+          <tr>
+            <td align="right" style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+              — Nikita
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>`

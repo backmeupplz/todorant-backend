@@ -1,138 +1,124 @@
 import { bot } from '@/helpers/telegram'
 import { UserModel } from '@/models/user'
-import { sendUserSubcribtionMessage } from '@/helpers/sendEmail'
+import { sendUserThreeWeekMessage } from '@/helpers/sendEmail'
 import { TodoModel } from '@/models/todo'
-import * as fs from 'fs'
 const { CanvasRenderService } = require('chartjs-node-canvas')
 const regression = require('regression')
-const homedir = require('os').homedir()
 
 interface TodosMap {
-  completedTodosMap: number[][]
-  predictedTodosMap: number[][]
+  completedTodosMap: number[]
+  predictedTodosMap: number[]
 }
 
-async function sendMessageToSubscribedUsers() {
+async function sendMessageToThreeWeekUsers() {
   const threeWeeksAgo = {
     start: new Date().setDate(new Date().getDate() - 22),
     end: new Date().setDate(new Date().getDate() - 21),
   }
   // Send to telegram
-  const telegramSubscribedUsers = await UserModel.find({
+  const telegramThreeWeekUsers = await UserModel.find({
     telegramId: { $exists: true },
     createdAt: { $gte: threeWeeksAgo.start, $lt: threeWeeksAgo.end },
     $and: [
       {
         $or: [
-          { userSubscriptionNotified: false },
-          { userSubscriptionNotified: { $exists: false } },
+          { threeWeekUserNotified: false },
+          { threeWeekUserNotified: { $exists: false } },
         ],
       },
       { subscriptionStatus: 'trial' },
     ],
   })
 
-  for (const subscribedUser of telegramSubscribedUsers) {
-    const telegramId = parseInt(subscribedUser.telegramId, 10)
+  for (const threeWeekUser of telegramThreeWeekUsers) {
+    const telegramId = parseInt(threeWeekUser.telegramId, 10)
     if (!telegramId) {
       continue
     }
     const todos = (
       await TodoModel.find({
-        user: subscribedUser._id,
+        user: threeWeekUser._id,
         completed: true,
         date: { $exists: true },
         deleted: false,
       })
     ).filter((t) => !!t.date)
     const { completedTodosMap, predictedTodosMap } = getTodos(todos) as TodosMap
-    const allTodos = completedTodosMap.reduce(
-      (sum, todoMap) => sum + todoMap[1],
-      0
-    )
-    if (!allTodos) {
+    if (!completedTodosMap.reduce((s, t) => s + t, 0)) {
       continue
     }
 
     try {
       const chart = await renderChart(completedTodosMap, predictedTodosMap)
-      await bot.telegram.sendMessage(
-        telegramId,
-        `Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
-        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-        Ut enim ad minim veniam, quis nostrud exercitation ullamco 
-        laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor 
-        in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-        Excepteur sint occaecat cupidatat non proident, 
-        sunt in culpa qui officia deserunt mollit anim id est laborum.`,
-        {
-          disable_web_page_preview: true,
-        }
-      )
-      await bot.telegram.sendPhoto(telegramId, { source: chart })
+      await sendTelegramMessage(telegramId, chart)
+      await sendTelegramMessage(76104711, chart)
       await bot.telegram.sendMessage(
         76104711,
-        `Sent subscribed user message to ${telegramId}`
+        `Sent threeWeek user message to ${telegramId}`
       )
     } catch (err) {
       console.error(err)
     }
 
-    subscribedUser.userSubscriptionNotified = true
-    await subscribedUser.save()
+    threeWeekUser.threeWeekUserNotified = true
+    await threeWeekUser.save()
   }
   // Send to email
-  const emailSubscribedUsers = await UserModel.find({
+  const emailThreeWeekUsers = await UserModel.find({
     email: { $exists: true },
     telegramId: { $exists: false },
     createdAt: { $gte: threeWeeksAgo.start, $lt: threeWeeksAgo.end },
     $and: [
       {
         $or: [
-          { userSubscriptionNotified: false },
-          { userSubscriptionNotified: { $exists: false } },
+          { threeWeekUserNotified: false },
+          { threeWeekUserNotified: { $exists: false } },
         ],
       },
-
       { subscriptionStatus: 'trial' },
     ],
   })
 
-  for (const subscribedUser of emailSubscribedUsers) {
-    const email = subscribedUser.email
+  for (const threeWeekUser of emailThreeWeekUsers) {
+    const email = threeWeekUser.email
     if (!email) {
       continue
     }
     const todos = (
       await TodoModel.find({
-        user: subscribedUser._id,
+        user: threeWeekUser._id,
         completed: true,
         date: { $exists: true },
         deleted: false,
       })
     ).filter((t) => !!t.date)
     const { completedTodosMap, predictedTodosMap } = getTodos(todos) as TodosMap
-    const allTodos = completedTodosMap.reduce(
-      (sum, todoMap) => sum + todoMap[1],
-      0
-    )
-    if (!allTodos) {
+    if (!completedTodosMap.reduce((s, t) => s + t, 0)) {
       continue
     }
 
     try {
-      await renderChart(completedTodosMap, predictedTodosMap)
-      await sendUserSubcribtionMessage(email)
+      const chart = await renderChart(completedTodosMap, predictedTodosMap)
+      await sendUserThreeWeekMessage(
+        email,
+        chart,
+        'Check out your progress at Todorant 💪'
+      )
+      await sendUserThreeWeekMessage(
+        'n@borodutch.com',
+        chart,
+        `Sent threeWeek user message to ${email}`
+      )
       await bot.telegram.sendMessage(
         76104711,
-        `Sent subscribed user message to ${email}`
+        `Sent threeWeek user message to ${email}`
       )
     } catch (err) {
       console.error(err)
     }
 
-    subscribedUser.userSubscriptionNotified = true
-    await subscribedUser.save()
+    threeWeekUser.threeWeekUserNotified = true
+    await threeWeekUser.save()
   }
 }
 
@@ -141,7 +127,7 @@ function getTodos(todos: any) {
   const oneWeek = 604800000
   const twoWeeks = 1209600000
   const threeWeeks = 1814400000
-  const completedTodosMap = [
+  let completedTodosMap: any = [
     [1, 0],
     [2, 0],
     [3, 0],
@@ -160,18 +146,22 @@ function getTodos(todos: any) {
   }
   // calculating linear regression and get the number of predicted todos
   const todosRegression = regression.linear(completedTodosMap)
-  const predictedTodosMap = [undefined, undefined, completedTodosMap[2]]
+  let predictedTodosMap = [undefined, undefined, completedTodosMap[2]]
   predictedTodosMap.push(todosRegression.predict(4))
   predictedTodosMap.push(todosRegression.predict(5))
   predictedTodosMap.push(todosRegression.predict(6))
-
+  // convert data
+  completedTodosMap = completedTodosMap.map((todoMap) => todoMap[1])
+  predictedTodosMap = predictedTodosMap.map((todoMap) =>
+    todoMap ? todoMap[1] : undefined
+  )
   return { completedTodosMap, predictedTodosMap }
 }
 
-async function renderChart(data?: number[][], predictedData?: number[][]) {
+async function renderChart(data: number[], predictedData: number[]) {
   try {
-    const width = 400
-    const height = 400
+    const width = 700
+    const height = 700
     const chartCallback = () => {}
     const canvasRenderService = new CanvasRenderService(
       width,
@@ -193,7 +183,7 @@ async function renderChart(data?: number[][], predictedData?: number[][]) {
         datasets: [
           {
             label: 'Tasks completed',
-            data: data.map((todoMap) => todoMap[1]),
+            data: data,
             backgroundColor: 'rgba(255, 100, 26, 0.2)',
             borderColor: 'rgba(255, 100, 26, 0.8)',
             borderWidth: 1.5,
@@ -215,9 +205,7 @@ async function renderChart(data?: number[][], predictedData?: number[][]) {
           },
           {
             label: 'Tasks predicted',
-            data: predictedData.map((todoMap) =>
-              todoMap ? todoMap[1] : undefined
-            ),
+            data: predictedData,
             backgroundColor: 'rgba(255, 100, 26, 0.2)',
             borderColor: 'rgba(255, 100, 26, 0.8)',
             borderWidth: 1.5,
@@ -251,7 +239,7 @@ async function renderChart(data?: number[][], predictedData?: number[][]) {
         legend: { display: false },
         title: {
           display: true,
-          text: 'Chart header',
+          text: 'Check out your progress at Todorant',
         },
         scales: {
           yAxes: [
@@ -267,12 +255,29 @@ async function renderChart(data?: number[][], predictedData?: number[][]) {
       },
     }
     const image = await canvasRenderService.renderToBuffer(configuration)
-    fs.writeFileSync(`${homedir}/test.png`, image)
     return image
   } catch (err) {
     console.error(err)
   }
 }
 
-sendMessageToSubscribedUsers()
-setInterval(sendMessageToSubscribedUsers, 24 * 60 * 60 * 1000) // once per day
+async function sendTelegramMessage(id: number, chart: any) {
+  await bot.telegram.sendPhoto(
+    id,
+    { source: chart },
+    {
+      caption: `Hey there! It's Nikita, the creator of Todorant.
+
+You've just finished your third week using Todorant. It means that soon you'll need to make the decision whether to keep using Todorant or not. Just to give you some context, I compiled a chart of how many tasks you finished during these 3 weeks and of how many tasks you are projected to finish in the next 3 weeks if you keep using Todorant!
+
+I used your historical data and the historical data of other people using Todorant to come up with the numbers. Just wanted to share this with you, no strings attached. Email me if you have any questions! Cheers!
+
+— Nikita
+
+Contact me — @borodutch — if you have any questions!`,
+    }
+  )
+}
+
+sendMessageToThreeWeekUsers()
+setInterval(sendMessageToThreeWeekUsers, 24 * 60 * 60 * 1000) // once per day

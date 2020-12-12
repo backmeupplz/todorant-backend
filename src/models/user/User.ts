@@ -73,7 +73,7 @@ export class User {
   @prop({ index: true, required: true, default: false })
   powerUserNotified: boolean
   @prop({ index: true, required: true, default: false })
-  userSubscriptionNotified: boolean
+  threeWeekUserNotified: boolean
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
@@ -91,7 +91,7 @@ export class User {
       'todos',
       'bouncerNotified',
       'powerUserNotified',
-      'userSubscriptionNotified',
+      'threeWeekUserNotified',
       'delegates',
       'googleCalendarResourceId',
     ]

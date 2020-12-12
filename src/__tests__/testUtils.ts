@@ -33,7 +33,7 @@ export const createdCompleteUser = {
   subscriptionStatus: SubscriptionStatus.earlyAdopter,
   bouncerNotified: false,
   powerUserNotified: false,
-  userSubscriptionNotified: false,
+  threeWeekUserNotified: false,
   createdOnApple: false,
   delegates: [],
   stripped: new User().stripped,
