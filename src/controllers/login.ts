@@ -383,9 +383,12 @@ export default class LoginController {
 
   @Post('/apple_login_result')
   async appleLoginResult(@Ctx() ctx: Context) {
-    return JSON.stringify(ctx.request.body || {}, undefined, 2)
-    // console.log(ctx.request.body)
-    // ctx.redirect(`https://todorant.com/apple_login_result`)
+    const { code, user } = ctx.request.body
+    console.log(ctx.request.body)
+    const userArg = !!user ? `&user=${JSON.stringify(user)}` : ''
+    return ctx.redirect(
+      `https://todorant.com/apple_login_result#?code=${code}${userArg}`
+    )
   }
 }
 
