@@ -383,11 +383,10 @@ export default class LoginController {
 
   @Post('/apple_login_result')
   async appleLoginResult(@Ctx() ctx: Context) {
-    const { code, user } = ctx.request.body
-    console.log(ctx.request.body)
+    const { id_token, user } = ctx.request.body
     const userArg = !!user ? `&user=${JSON.stringify(user)}` : ''
     ctx.redirect(
-      `https://todorant.com/apple_login_result#?code=${code}${userArg}`
+      `https://todorant.com/apple_login_result#?id_token=${id_token}${userArg}`
     )
     return 'Success!'
   }
