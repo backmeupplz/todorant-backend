@@ -17,6 +17,7 @@ export async function report(err: Error) {
     'No authentication token provided',
     'invalid_grant',
     'Resource has been deleted',
+    'not found for project',
   ]
   try {
     let text = `Todorant Error:\n${err.message || JSON.stringify(err)}${

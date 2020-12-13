@@ -175,7 +175,7 @@ export default class LoginController {
             : 'com.todorant.web',
         team_id: 'ACWP4F58HZ',
         key_id: 'M3N8Y594JS',
-        redirect_uri: 'https://backend.todorant.com/apple',
+        redirect_uri: 'https://todorant.com/apple_login_result',
         scope: 'name email',
       },
       `${__dirname}/../../assets/AppleAuth.p8`
@@ -379,6 +379,13 @@ export default class LoginController {
       tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
     return user.stripped(true)
+  }
+
+  @Post('/apple_login_result')
+  async appleLoginResult(@Ctx() ctx: Context) {
+    return JSON.stringify(ctx.request.body || {}, undefined, 2)
+    // console.log(ctx.request.body)
+    // ctx.redirect(`https://todorant.com/apple_login_result`)
   }
 }
 
