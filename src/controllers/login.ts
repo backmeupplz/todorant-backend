@@ -386,6 +386,10 @@ export default class LoginController {
     const { code, user } = ctx.request.body
     console.log(ctx.request.body)
     const userArg = !!user ? `&user=${JSON.stringify(user)}` : ''
+    console.log(
+      'Redirecting to',
+      `https://todorant.com/apple_login_result#?code=${code}${userArg}`
+    )
     return ctx.redirect(
       `https://todorant.com/apple_login_result#?code=${code}${userArg}`
     )
