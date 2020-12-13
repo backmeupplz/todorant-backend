@@ -278,11 +278,9 @@ async function sendTelegramMessage(id: number, chart: any) {
 
 You've just finished your third week using Todorant. It means that soon you'll need to make the decision whether to keep using Todorant or not. Just to give you some context, I compiled a chart of how many tasks you finished during these 3 weeks and of how many tasks you are projected to finish in the next 3 weeks if you keep using Todorant!
 
-I used your historical data and the historical data of other people using Todorant to come up with the numbers. Just wanted to share this with you, no strings attached. Email me if you have any questions! Cheers!
+I used your historical data and the historical data of other people using Todorant to come up with the numbers. Just wanted to share this with you, no strings attached. Contact me — @borodutch — if you have any questions! Cheers!
 
-— Nikita
-
-Contact me — @borodutch — if you have any questions!`,
+— Nikita`,
     }
   )
 }
