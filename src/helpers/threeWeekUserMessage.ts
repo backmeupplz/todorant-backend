@@ -44,7 +44,11 @@ async function sendMessageToThreeWeekUsers() {
       })
     ).filter((t) => !!t.date)
     const { completedTodosMap, predictedTodosMap } = getTodos(todos) as TodosMap
-    if (!completedTodosMap.reduce((s, t) => s + t, 0)) {
+    const completedTodosSum = completedTodosMap.reduce((s, t) => s + t, 0)
+    const predictedTodosSum = predictedTodosMap
+      .slice(-3)
+      .reduce((s, t) => s + t, 0)
+    if (!(completedTodosSum && completedTodosSum < predictedTodosSum)) {
       continue
     }
 
@@ -93,7 +97,11 @@ async function sendMessageToThreeWeekUsers() {
       })
     ).filter((t) => !!t.date)
     const { completedTodosMap, predictedTodosMap } = getTodos(todos) as TodosMap
-    if (!completedTodosMap.reduce((s, t) => s + t, 0)) {
+    const completedTodosSum = completedTodosMap.reduce((s, t) => s + t, 0)
+    const predictedTodosSum = predictedTodosMap
+      .slice(-3)
+      .reduce((s, t) => s + t, 0)
+    if (!(completedTodosSum && completedTodosSum < predictedTodosSum)) {
       continue
     }
 
