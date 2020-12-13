@@ -383,9 +383,9 @@ export default class LoginController {
 
   @Post('/apple_login_result')
   async appleLoginResult(@Ctx() ctx: Context) {
-    // return JSON.stringify(ctx.body, undefined, 2)
-    console.log(ctx.request.body)
-    ctx.redirect(`https://todorant.com`)
+    return JSON.stringify(ctx.request.body || {}, undefined, 2)
+    // console.log(ctx.request.body)
+    // ctx.redirect(`https://todorant.com/apple_login_result`)
   }
 }
 
