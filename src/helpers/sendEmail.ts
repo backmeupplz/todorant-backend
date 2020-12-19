@@ -49,3 +49,61 @@ Hi there! It's @borodutch, the creator of Todorant. Can you please spend just 2 
 If you have any additional questions please contact me directly — @borodutch. Thank you!`,
   })
 }
+
+export async function sendUserThreeWeekMessage(
+  email: string,
+  chart: any,
+  subject: string
+) {
+  await transport.sendMail({
+    from: '"Todorant Support" <support@todorant.com>',
+    to: email,
+    replyTo: 'todorant@borodutch.com',
+    subject: subject,
+    html: html,
+    attachments: [
+      {
+        filename: 'chart.png',
+        content: chart,
+        cid: 'chart@img.ee',
+      },
+    ],
+  })
+}
+
+const html = `
+<body style="margin: 0; padding: 0;">
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse;">
+    <tr>
+      <td align="center" bgcolor="#ffffff" style="padding: 40px 0 30px 0;">
+        <img src="cid:chart@img.ee" width="700" height="700" style="display: block;" />
+      </td>
+    </tr>
+    <tr>
+      <td bgcolor="#ffffff" style="padding: 40px 30px 40px 30px;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td style="color: #153643; font-family: Arial, sans-serif; font-size: 24px;">
+              <b>Hey there! It's Nikita, the creator of Todorant.</b>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+              You've just finished your third week using Todorant. It means that soon you'll need to make the decision whether to keep using Todorant or not. Just to give you some context, I compiled a chart of how many tasks you finished during these 3 weeks and of how many tasks you are projected to finish in the next 3 weeks if you keep using Todorant!
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+              I used your historical data and the historical data of other people using Todorant to come up with the numbers. Just wanted to share this with you, no strings attached. Email me if you have any questions! Cheers!
+            </td>
+          </tr>
+          <tr>
+            <td align="right" style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+              — Nikita
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>`

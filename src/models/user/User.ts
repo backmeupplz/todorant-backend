@@ -1,6 +1,6 @@
+import { GoogleCalendarCredentials } from '@/helpers/googleCalendar'
 import { prop, Ref } from '@typegoose/typegoose'
 import { omit } from 'lodash'
-import { GoogleCalendarCredentials } from '@/helpers/googleCalendar'
 
 export enum SubscriptionStatus {
   earlyAdopter = 'earlyAdopter',
@@ -72,6 +72,8 @@ export class User {
   bouncerNotified: boolean
   @prop({ index: true, required: true, default: false })
   powerUserNotified: boolean
+  @prop({ index: true, required: true, default: false })
+  threeWeekUserNotified: boolean
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
@@ -89,6 +91,7 @@ export class User {
       'todos',
       'bouncerNotified',
       'powerUserNotified',
+      'threeWeekUserNotified',
       'delegates',
       'googleCalendarResourceId',
     ]
