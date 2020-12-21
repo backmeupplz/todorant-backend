@@ -18,6 +18,7 @@ export async function report(err: Error) {
     'invalid_grant',
     'Resource has been deleted',
     'not found for project',
+    'Old API version',
   ]
   try {
     let text = `Todorant Error:\n${err.message || JSON.stringify(err)}${
