@@ -58,7 +58,14 @@ export default class TagController {
   async put(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
-    const { color, epic, epicCompleted, epicGoal, newName } = ctx.request.body
+    const {
+      color,
+      epic,
+      epicCompleted,
+      epicGoal,
+      newName,
+      epicOrder,
+    } = ctx.request.body
     // Find todo
     const tag = await TagModel.findById(id)
     // Check ownership
@@ -74,6 +81,7 @@ export default class TagController {
     tag.epic = epic || false
     tag.epicCompleted = epicCompleted || false
     tag.epicGoal = epicGoal || 0
+    tag.epicOrder = epicOrder || 0
     if (newName && !!newName.match(/^[\S]+$/)) {
       await changeTagInTodos(`#${tag.tag}`, newName, ctx.state.user._id)
       tag.tag = newName
