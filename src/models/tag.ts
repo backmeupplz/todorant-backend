@@ -21,6 +21,8 @@ export class Tag {
   epicGoal?: number
   @prop({ default: 0 })
   epicPoints?: number
+  @prop({ default: 0 })
+  epicOrder?: number
 
   @prop({ default: 0 })
   numberOfUses?: number
