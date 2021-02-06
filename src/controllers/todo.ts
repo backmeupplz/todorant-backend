@@ -202,7 +202,7 @@ export default class TodoController {
     if (
       isTodoOld(todo, today, timenow, startTimeOfDay) &&
       !!todo.date &&
-      todo.date !== date
+      (todo.date !== date || todo.monthAndYear !== monthAndYear)
     ) {
       todo.frogFails += 1
       if (todo.frogFails >= 2) {
