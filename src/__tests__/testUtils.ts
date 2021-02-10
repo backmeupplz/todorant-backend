@@ -73,7 +73,7 @@ export function startKoa(
 }
 
 export function stopServer(server: Server) {
-  return new Promise((res) => {
+  return new Promise<void>((res) => {
     server.close(() => {
       res()
     })

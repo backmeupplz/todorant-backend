@@ -199,7 +199,11 @@ export default class TodoController {
     }
     const timenow = ctx.query.time
     const startTimeOfDay = ctx.state.user.settings.startTimeOfDay
-    if (isTodoOld(todo, today, timenow, startTimeOfDay) && !!todo.date) {
+    if (
+      isTodoOld(todo, today, timenow, startTimeOfDay) &&
+      !!todo.date &&
+      (todo.date !== date || todo.monthAndYear !== monthAndYear)
+    ) {
       todo.frogFails += 1
       if (todo.frogFails >= 2) {
         todo.frog = true

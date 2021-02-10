@@ -1,7 +1,15 @@
 import { errors } from '@/helpers/errors'
-import { TagModel } from '@/models/tag'
+import { Tag, TagModel } from '@/models/tag'
 import { Context } from 'koa'
-import { Controller, Ctx, Delete, Flow, Put, Get } from 'koa-ts-controllers'
+import {
+  Controller,
+  Ctx,
+  Delete,
+  Flow,
+  Put,
+  Get,
+  Post,
+} from 'koa-ts-controllers'
 import { authenticate } from '@/middlewares/authenticate'
 import { requestSync } from '@/sockets/index'
 import { changeTagInTodos } from '@/helpers/changeTagInTodos'
@@ -58,7 +66,14 @@ export default class TagController {
   async put(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
-    const { color, epic, epicCompleted, epicGoal, newName } = ctx.request.body
+    const {
+      color,
+      epic,
+      epicCompleted,
+      epicGoal,
+      newName,
+      epicOrder,
+    } = ctx.request.body
     // Find todo
     const tag = await TagModel.findById(id)
     // Check ownership
@@ -74,12 +89,30 @@ export default class TagController {
     tag.epic = epic || false
     tag.epicCompleted = epicCompleted || false
     tag.epicGoal = epicGoal || 0
+    tag.epicOrder = epicOrder || 0
     if (newName && !!newName.match(/^[\S]+$/)) {
       await changeTagInTodos(`#${tag.tag}`, newName, ctx.state.user._id)
       tag.tag = newName
     }
     await tag.save()
     // Respond
+    ctx.status = 200
+    // Trigger sync
+    requestSync(ctx.state.user._id)
+  }
+
+  @Post('/rearrage')
+  @Flow(authenticate)
+  async rearrage(@Ctx() ctx: Context) {
+    const epics = ctx.request.body.epics as Tag[]
+    await Promise.all(
+      epics.map(async (epic) => {
+        await TagModel.updateOne(
+          { _id: epic._id },
+          { epicOrder: epic.epicOrder }
+        )
+      })
+    )
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
