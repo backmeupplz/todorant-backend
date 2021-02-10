@@ -11,6 +11,9 @@ interface TodosMap {
 }
 
 async function sendMessageToThreeWeekUsers() {
+  if (process.env.DEBUG) {
+    return
+  }
   const threeWeeksAgo = {
     start: new Date().setDate(new Date().getDate() - 22),
     end: new Date().setDate(new Date().getDate() - 21),
@@ -44,11 +47,7 @@ async function sendMessageToThreeWeekUsers() {
       })
     ).filter((t) => !!t.date)
     const { completedTodosMap, predictedTodosMap } = getTodos(todos) as TodosMap
-    const completedTodosSum = completedTodosMap.reduce((s, t) => s + t, 0)
-    const predictedTodosSum = predictedTodosMap
-      .slice(-3)
-      .reduce((s, t) => s + t, 0)
-    if (!(completedTodosSum && completedTodosSum < predictedTodosSum)) {
+    if (!filterTodos(completedTodosMap, predictedTodosMap)) {
       continue
     }
 
@@ -97,11 +96,7 @@ async function sendMessageToThreeWeekUsers() {
       })
     ).filter((t) => !!t.date)
     const { completedTodosMap, predictedTodosMap } = getTodos(todos) as TodosMap
-    const completedTodosSum = completedTodosMap.reduce((s, t) => s + t, 0)
-    const predictedTodosSum = predictedTodosMap
-      .slice(-3)
-      .reduce((s, t) => s + t, 0)
-    if (!(completedTodosSum && completedTodosSum < predictedTodosSum)) {
+    if (!filterTodos(completedTodosMap, predictedTodosMap)) {
       continue
     }
 
@@ -145,11 +140,11 @@ function getTodos(todos: any) {
     const todoDate = new Date(`${todo.monthAndYear}-${todo.date}`)
     const timeBetween = date - todoDate.getTime()
     if (timeBetween <= oneWeek) {
-      completedTodosMap[2][1] = completedTodosMap[2][1] + 1
+      completedTodosMap[2][1] += 1
     } else if (timeBetween <= twoWeeks) {
-      completedTodosMap[1][1] = completedTodosMap[1][1] + 1
+      completedTodosMap[1][1] += 1
     } else if (timeBetween <= threeWeeks) {
-      completedTodosMap[0][1] = completedTodosMap[0][1] + 1
+      completedTodosMap[0][1] += 1
     }
   }
   // calculating linear regression and get the number of predicted todos
@@ -164,6 +159,18 @@ function getTodos(todos: any) {
     todoMap ? todoMap[1] : undefined
   )
   return { completedTodosMap, predictedTodosMap }
+}
+
+function filterTodos(todos: number[], predicted: number[]) {
+  const todosSum = todos.reduce((s, t) => s + t, 0)
+  const predictedSum = predicted.slice(-3).reduce((s, t) => s + t, 0)
+  if (!(todosSum && todosSum < predictedSum)) {
+    return false
+  } else if (todos.includes(0) || todos.includes(1)) {
+    return false
+  } else {
+    return true
+  }
 }
 
 async function renderChart(data: number[], predictedData: number[]) {
