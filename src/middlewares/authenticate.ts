@@ -26,6 +26,9 @@ export async function authenticate(ctx: Context, next: Function) {
 export async function getUserFromToken(token: string) {
   const payload = (await verify(token)) as any
   let user: DocumentType<User> | undefined
+  if (payload?.name === 'JsonWebTokenError') {
+    throw new Error(payload)
+  }
   if (payload.email) {
     user = await UserModel.findOne({ email: payload.email })
   } else if (payload.facebookId) {

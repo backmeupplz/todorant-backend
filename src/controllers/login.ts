@@ -1,21 +1,21 @@
-import axios from 'axios'
-import { Context } from 'koa'
+import { sign, verifyAppleToken } from '@/helpers/jwt'
+import { bot } from '@/helpers/telegram'
+import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
+import { getUserFromToken } from '@/middlewares/authenticate'
 import {
   getOrCreateUser,
-  UserModel,
   SubscriptionStatus,
   User,
+  UserModel,
 } from '@/models/user'
-import { Controller, Ctx, Get, Post } from 'koa-ts-controllers'
-import Facebook = require('facebook-node-sdk')
-import { decode } from 'jsonwebtoken'
-import { sign, verifyAppleToken } from '@/helpers/jwt'
-import * as randToken from 'rand-token'
-import { bot } from '@/helpers/telegram'
-import { Markup as m } from 'telegraf'
 import { DocumentType } from '@typegoose/typegoose'
-import { getUserFromToken } from '@/middlewares/authenticate'
-import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
+import axios from 'axios'
+import { decode } from 'jsonwebtoken'
+import { Context } from 'koa'
+import { Controller, Ctx, Post } from 'koa-ts-controllers'
+import * as randToken from 'rand-token'
+import { Markup as m } from 'telegraf'
+import Facebook = require('facebook-node-sdk')
 
 const AppleAuth = require('apple-auth')
 
@@ -101,14 +101,11 @@ export default class LoginController {
   async google(@Ctx() ctx: Context) {
     const accessToken = ctx.request.body.accessToken
 
-    const userData: any =
-      process.env.TESTING === 'true'
-        ? testingGoogleMock()
-        : (
-            await axios(
-              `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
-            )
-          ).data
+    const userData: any = (
+      await axios(
+        `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${accessToken}`
+      )
+    ).data
 
     const { created, user } = await getOrCreateUser({
       name: userData.name,
@@ -178,7 +175,7 @@ export default class LoginController {
             : 'com.todorant.web',
         team_id: 'ACWP4F58HZ',
         key_id: 'M3N8Y594JS',
-        redirect_uri: 'https://backend.todorant.com/apple',
+        redirect_uri: 'https://todorant.com/apple_login_result',
         scope: 'name email',
       },
       `${__dirname}/../../assets/AppleAuth.p8`
@@ -383,6 +380,16 @@ export default class LoginController {
     }
     return user.stripped(true)
   }
+
+  @Post('/apple_login_result')
+  async appleLoginResult(@Ctx() ctx: Context) {
+    const { id_token, user } = ctx.request.body
+    const userArg = !!user ? `&user=${JSON.stringify(user)}` : ''
+    ctx.redirect(
+      `https://todorant.com/apple_login_result#?id_token=${id_token}${userArg}`
+    )
+    return 'Success!'
+  }
 }
 
 bot.action(/lta~.+/, async (ctx) => {
@@ -410,11 +417,4 @@ function getFBUser(accessToken: string) {
       return err ? rej(err) : res(user)
     })
   })
-}
-
-function testingGoogleMock() {
-  return {
-    name: 'Alexander Brennenburg',
-    email: 'alexanderrennenburg@gmail.com',
-  }
 }

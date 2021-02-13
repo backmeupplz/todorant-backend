@@ -5,6 +5,10 @@ export function _e(value: string, key: string) {
 }
 
 export function _d(value: string, key: string) {
-  const bytes = AES.decrypt(value, key)
-  return bytes.toString(enc.Utf8)
+  try {
+    const bytes = AES.decrypt(value, key)
+    return bytes.toString(enc.Utf8)
+  } catch (err) {
+    return ''
+  }
 }

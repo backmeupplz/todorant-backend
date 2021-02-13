@@ -16,6 +16,9 @@ export async function report(err: Error) {
   const dismissableErrors = [
     'No authentication token provided',
     'invalid_grant',
+    'Resource has been deleted',
+    'not found for project',
+    'Old API version',
   ]
   try {
     let text = `Todorant Error:\n${err.message || JSON.stringify(err)}${
@@ -29,7 +32,9 @@ export async function report(err: Error) {
         return
       }
     }
-    await bot.telegram.sendMessage(process.env.ADMIN, text)
+    if (process.env.ADMIN && process.env.TELEGRAM_LOGIN_TOKEN) {
+      await bot.telegram.sendMessage(process.env.ADMIN, text)
+    }
   } catch (error) {
     console.error(err)
     console.error(error)

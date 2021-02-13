@@ -3,5 +3,5 @@ export function daysBetween(date1: Date, date2: Date) {
   const date1Ms = date1.getTime()
   const date2Ms = date2.getTime()
   const difference_ms = Math.abs(date1Ms - date2Ms)
-  return Math.round(difference_ms / oneDay)
+  return Math.floor(difference_ms / oneDay)
 }

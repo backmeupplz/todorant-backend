@@ -29,9 +29,6 @@ async function sendMessageToPowerUsers() {
     ],
     telegramId: { $exists: true },
   })
-  console.log(
-    `Sending message to ${telegramPowerUsers.length} telegram power users`
-  )
   let numberOfValidPowerUsers = 0
   for (const powerUser of telegramPowerUsers) {
     const telegramId = parseInt(powerUser.telegramId, 10)
@@ -71,7 +68,6 @@ If you have any additional questions please contact me directly — @borodutch. 
     powerUser.powerUserNotified = true
     await powerUser.save()
   }
-  console.log(`Sent message to ${numberOfValidPowerUsers} telegram power users`)
   // Send to email
   const emailPowerUsers = await UserModel.find({
     createdAt: {
@@ -94,7 +90,6 @@ If you have any additional questions please contact me directly — @borodutch. 
     email: { $exists: true },
     telegramId: { $exists: false },
   })
-  console.log(`Sending message to ${emailPowerUsers.length} email power users`)
   numberOfValidPowerUsers = 0
   for (const powerUser of emailPowerUsers) {
     const email = powerUser.email
@@ -118,7 +113,6 @@ If you have any additional questions please contact me directly — @borodutch. 
     powerUser.powerUserNotified = true
     await powerUser.save()
   }
-  console.log(`Sent message to ${numberOfValidPowerUsers} email power users`)
 }
 
 async function countTodos(user: DocumentType<User>) {

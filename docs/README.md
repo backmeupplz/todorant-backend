@@ -346,7 +346,7 @@ Method to share a snapshot of a specific report with other people.
 | frogFails    | number  | Number of times frog was failed                            |
 | skipped      | boolean | Whether this task was skipped                              |
 | order        | number  | Task order within this day                                 |
-| monthAndYear | string  | Assigned month and year in the format "01-2019"            |
+| monthAndYear | string  | Assigned month and year in the format "2019-01"            |
 | date         | string  | _Optional._ Assigned date in the format "01"               |
 | time         | string  | _Optional._ Exact time in the format "23:01"               |
 | goFirst      | boolean | _Optional._ Overwriting the user setting when adding todos |

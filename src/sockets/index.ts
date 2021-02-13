@@ -1,18 +1,20 @@
-import { Hero, getOrCreateHero, HeroModel } from '@/models/hero'
-import { omit } from 'lodash'
-import { createServer } from 'http'
-import SocketIO = require('socket.io')
-import { getUserFromToken } from '@/middlewares/authenticate'
+import { getGoogleCalendarApi, updateTodos } from '@/helpers/googleCalendar'
 import { report } from '@/helpers/report'
+import { getUserFromToken } from '@/middlewares/authenticate'
+import { getOrCreateHero, Hero, HeroModel } from '@/models/hero'
 import { Tag, TagModel } from '@/models/tag'
-import { TodoModel, Todo } from '@/models/todo'
-import { User, Settings, UserModel } from '@/models/user'
+import { Todo, TodoModel } from '@/models/todo'
+import { Settings, User, UserModel } from '@/models/user'
 import { DocumentType } from '@typegoose/typegoose'
-import { updateTodos, getGoogleCalendarApi } from '@/helpers/googleCalendar'
+import { createServer } from 'http'
+import { omit } from 'lodash'
 import * as randToken from 'rand-token'
+import SocketIO = require('socket.io')
 
-const server = createServer()
-const io = SocketIO(server)
+export const socketServer = createServer()
+const io = SocketIO(socketServer)
+
+const apiVersion = 1
 
 function setupSync<T>(
   socket: SocketIO.Socket,
@@ -26,37 +28,48 @@ function setupSync<T>(
     password?: string
   ) => Promise<{ objectsToPushBack: T; needsSync: boolean }>
 ) {
-  socket.on(`sync_${name}`, async (lastSyncDate: Date | undefined) => {
-    const user = getUser(socket)
-    if (!isAuthorized(socket) || !user) {
-      return
+  socket.on(
+    `sync_${name}`,
+    async (lastSyncDate: Date | undefined, syncId: string) => {
+      const user = getUser(socket)
+      if (!isAuthorized(socket) || !user) {
+        socket.emit(`${name}_sync_error`, 'Not authorized', syncId)
+        return
+      }
+      socket.emit(name, await getObjects(user, lastSyncDate), syncId)
     }
-    socket.emit(name, await getObjects(user, lastSyncDate))
-  })
+  )
   socket.on(
     `push_${name}`,
-    async (pushId: string, objects: T, password?: string) => {
+    async (syncId: string, objects: T, password?: string) => {
       try {
         const { objectsToPushBack, needsSync } = await onPushObjects(
           objects,
           password
         )
-        socket.emit(`${name}_pushed`, pushId, objectsToPushBack)
+        socket.emit(`${name}_pushed`, objectsToPushBack, syncId)
         if (needsSync) {
           socket.broadcast.to(getUser(socket)._id).emit(`${name}_sync_request`)
         }
       } catch (err) {
-        socket.emit(`${name}_pushed_error`, pushId, err)
+        socket.emit(
+          `${name}_sync_error`,
+          typeof err === 'string' ? err : err.message,
+          syncId
+        )
       }
     }
   )
 }
 
 io.on('connection', (socket) => {
-  socket.on('authorize', async (token: string) => {
+  socket.on('authorize', async (token: string, version: string) => {
     try {
       if (!token) {
         throw new Error('No token provided')
+      }
+      if (!version || +version < apiVersion) {
+        throw new Error('Old API version, please, update the app')
       }
       const user = await getUserFromToken(token)
       if (!user) {
@@ -233,7 +246,7 @@ io.on('connection', (socket) => {
             },
           })
         } catch (err) {
-          console.log(err)
+          report(err)
         }
         user.settings.googleCalendarCredentials = undefined
       }
@@ -366,10 +379,6 @@ function isAuthorized(socket: SocketIO.Socket) {
 function getUser(socket: SocketIO.Socket): DocumentType<User> | undefined {
   return (socket as any).user
 }
-
-server.listen(3000).on('listening', () => {
-  console.log('Sockets are listening on 3000')
-})
 
 export function requestSync(userId: string) {
   io.to(userId).emit('todos_sync_request')
