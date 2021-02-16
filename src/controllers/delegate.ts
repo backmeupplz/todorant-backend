@@ -132,13 +132,14 @@ export default class DelegateController {
     )
   }
 
-  @Get('/todos', authenticate)
-  async getDelegatedTodos(ctx: Context) {
+  @Get('/todos')
+  @Flow(authenticate)
+  async getDelegatedTodos(@Ctx() ctx: Context) {
     const todos = await TodoModel.find({
       deleted: false,
       user: { $exists: true },
       delegator: ctx.state.user._id,
     }).populate('user')
-    ctx.body = todos.map((t) => t.stripped(true))
+    return todos.map((t) => t.stripped(true))
   }
 }
