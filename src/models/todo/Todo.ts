@@ -72,9 +72,9 @@ export class Todo {
   @prop()
   delegateAccepted?: boolean
 
-  stripped(withUserName = false) {
+  stripped(withDelegateName = false) {
     const stripFields = ['__v']
-    if (withUserName) {
+    if (withDelegateName) {
       const user =
         typeof this.user === 'object'
           ? { name: (this.user as any).name }
