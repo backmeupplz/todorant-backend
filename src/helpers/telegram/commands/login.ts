@@ -16,21 +16,12 @@ export function sendLogin(ctx: Context) {
 function loginKeyboard(): any {
   return [
     {
-      text: 'Todorant.com login',
+      text: 'Todorant login',
       url: process.env.DEBUG ? 'https://todorant.com' : undefined,
       login_url: process.env.DEBUG
         ? undefined
         : {
             url: 'https://todorant.com',
-          },
-    },
-    {
-      text: 'Todorant.org login',
-      url: process.env.DEBUG ? 'https://todorant.org' : undefined,
-      login_url: process.env.DEBUG
-        ? undefined
-        : {
-            url: 'https://todorant.org',
           },
     },
   ]
