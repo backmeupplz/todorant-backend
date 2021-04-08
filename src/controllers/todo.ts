@@ -296,7 +296,7 @@ export default class TodoController {
       frog: true,
       deleted: false,
     })
-    return { incompleteFrogsExist: incompleteFrogs.length }
+    return { incompleteFrogsExist: !!incompleteFrogs.length }
   }
 
   @Put('/:id/skip')
