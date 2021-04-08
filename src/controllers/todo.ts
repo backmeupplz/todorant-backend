@@ -517,6 +517,7 @@ export default class TodoController {
       date: ctx.query.date.substr(8),
       completed: false,
       frog: true,
+      deleted: false,
     })
     return !!todos.length
   }
