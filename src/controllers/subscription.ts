@@ -27,7 +27,30 @@ export default class SubscriptionController {
     }
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      subscription_data: { items: [{ plan: planMap[plan] }] },
+      line_items: [
+        {
+          price: planMap[plan],
+          quantity: 1,
+          dynamic_tax_rates:
+            process.env.ENVIRONMENT !== 'staging'
+              ? [
+                  'txr_1Idnb4AxVrxP2Kg6KPqlGVGg',
+                  'txr_1Idnb4AxVrxP2Kg6atiP94uq',
+                  'txr_1Idnb4AxVrxP2Kg6pmz7ohdD',
+                  'txr_1Idnb4AxVrxP2Kg6wWt8lfPL',
+                  'txr_1Idnb3AxVrxP2Kg6gGfpBUEq',
+                  'txr_1Idnb3AxVrxP2Kg6JNVtfeXb',
+                  'txr_1Idnb3AxVrxP2Kg67PBDQpSq',
+                  'txr_1Idnb3AxVrxP2Kg6FIXfkr1n',
+                  'txr_1Idnb3AxVrxP2Kg6sLMrpAAT',
+                  'txr_1Idnb3AxVrxP2Kg6SRvYoQM4',
+                  'txr_1Idnb2AxVrxP2Kg6K3ZoGLC9',
+                  'txr_1Idnb2AxVrxP2Kg6vJCPohhn',
+                ]
+              : undefined,
+        },
+      ],
+      mode: 'subscription',
       success_url: `${process.env.BASE_URL}/payment_success`,
       cancel_url: `${process.env.BASE_URL}/payment_failure`,
       client_reference_id: ctx.state.user.id,

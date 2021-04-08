@@ -81,7 +81,7 @@
     "regression": "^2.0.1",
     "showdown": "^1.9.1",
     "socket.io": "^2.3.0",
-    "stripe": "^8.115.0",
+    "stripe": "^8.142.0",
     "supertest": "^6.0.0",
     "telegraf": "^3.38.0",
     "telegraf-i18n": "^6.6.0",

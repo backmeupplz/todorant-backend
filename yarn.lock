@@ -6615,10 +6615,10 @@ strip-outer@^1.0.0:
   dependencies:
     escape-string-regexp "^1.0.2"
 
-stripe@^8.115.0:
-  version "8.115.0"
-  resolved "https://registry.yarnpkg.com/stripe/-/stripe-8.115.0.tgz#1a4d0fe5037b4a9176ae67498c069b2ad7fae03a"
-  integrity sha512-f6S4ZtbWGJWLPPC79OcqVEHrmgeVoUT+oOGVe0NPJw+KqHgUBsIjIv8mJcc24/D+a6Vd9whqHobUIUZVQz9dCQ==
+stripe@^8.142.0:
+  version "8.142.0"
+  resolved "https://registry.yarnpkg.com/stripe/-/stripe-8.142.0.tgz#8a55e92837ea5c8bc4f65754df01c004a2beebed"
+  integrity sha512-0CimG7f5lsqD+qf+Vv8QgBPuYT0hqn/gfXBNEdeQxIIA+WUrxqXEyS5C0r5YIxa/Et5WiByfCpXJdMsxh4G35Q==
   dependencies:
     "@types/node" ">=8.1.0"
     qs "^6.6.0"
