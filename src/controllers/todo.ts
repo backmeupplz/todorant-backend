@@ -508,6 +508,19 @@ export default class TodoController {
     }
   }
 
+  @Get('/checkFrogs')
+  @Flow(authenticate)
+  async checkIncompleteFrogs(@Ctx() ctx: Context) {
+    let todos = await TodoModel.find({
+      user: ctx.state.user._id,
+      monthAndYear: ctx.query.date.substr(0, 7),
+      date: ctx.query.date.substr(8),
+      completed: false,
+      frog: true,
+    })
+    return !!todos.length
+  }
+
   @Post('/rearrange')
   @Flow(authenticate)
   async rearrange(@Ctx() ctx: Context) {
