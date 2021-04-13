@@ -17,21 +17,27 @@ export default class SubscriptionController {
     }
     // Parameters
     const plan = ctx.params.plan
-    const plans = ['yearly', 'monthly']
-    if (!plans.includes(plan)) {
-      return ctx.throw(403)
-    }
     const planMap = {
       monthly: process.env.STRIPE_MONTHLY,
       yearly: process.env.STRIPE_YEARLY,
+      perpetual: process.env.STRIPE_PERPETUAL,
+    }
+    if (!Object.keys(planMap).includes(plan)) {
+      return ctx.throw(403)
     }
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      subscription_data: { items: [{ plan: planMap[plan] }] },
+      line_items: [
+        {
+          price: planMap[plan],
+          quantity: 1,
+        },
+      ],
       success_url: `${process.env.BASE_URL}/payment_success`,
       cancel_url: `${process.env.BASE_URL}/payment_failure`,
       client_reference_id: ctx.state.user.id,
       locale: locale,
+      mode: plan === 'perpetual' ? 'payment' : 'subscription',
     })
     // Respond
     return {
@@ -106,9 +112,16 @@ export default class SubscriptionController {
             `Webhook Error: No user found with id ${userId}`
           )
         }
-        user.subscriptionId = anyData.subscription
-        if (user.subscriptionStatus !== SubscriptionStatus.earlyAdopter) {
-          user.subscriptionStatus = SubscriptionStatus.active
+        if (anyData.mode === 'subscription') {
+          user.subscriptionId = anyData.subscription
+          if (user.subscriptionStatus !== SubscriptionStatus.earlyAdopter) {
+            user.subscriptionStatus = SubscriptionStatus.active
+          }
+        } else {
+          user.isPerpetualLicense = true
+          if (user.subscriptionStatus !== SubscriptionStatus.earlyAdopter) {
+            user.subscriptionStatus = SubscriptionStatus.active
+          }
         }
         await user.save()
       }

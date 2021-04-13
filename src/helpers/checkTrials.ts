@@ -16,6 +16,7 @@ async function checkTrials() {
     subscriptionStatus: {
       $nin: [SubscriptionStatus.earlyAdopter, SubscriptionStatus.inactive],
     },
+    isPerpetualLicense: false,
     createdAt: { $lt: monthAgo },
   })
   for (const nonSubscriber of nonSubscribers) {

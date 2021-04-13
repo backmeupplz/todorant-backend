@@ -47,6 +47,7 @@ export async function getStateBody(ctx: Context) {
   // Respond
   const subscriptionIdExists =
     ctx.state.user.subscriptionStatus !== SubscriptionStatus.inactive &&
+    !ctx.state.user.isPerpetualLicense &&
     (!!ctx.state.user.subscriptionId ||
       !!ctx.state.user.appleReceipt ||
       !!ctx.state.user.googleReceipt)

@@ -21,6 +21,7 @@ async function checkSubscribers() {
     subscriptionStatus: {
       $nin: [SubscriptionStatus.earlyAdopter, SubscriptionStatus.inactive],
     },
+    isPerpetualLicense: false,
     createdAt: { $lt: monthAgo },
   })
   let deactivatedSubscribers = 0
