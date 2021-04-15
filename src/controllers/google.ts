@@ -23,7 +23,17 @@ export default class GoogleController {
   @Flow(authenticate)
   async subscription(@Ctx() ctx: Context) {
     try {
-      await googleSubscriptionValidator.verifySub(ctx.request.body)
+      if (ctx.request.body.productId === 'todorant.perpetual') {
+        await googleSubscriptionValidator.verifyINAPP(ctx.request.body)
+        ctx.state.user.isPerpetualLicense = true
+      } else {
+        const subscription = await googleSubscriptionValidator.verifySub(
+          ctx.request.body
+        )
+        if (+subscription.payload.expiryTimeMillis < Date.now()) {
+          throw new Error('Invalid purchase')
+        }
+      }
       ctx.state.user.subscriptionStatus = SubscriptionStatus.active
       ctx.state.user.googleReceipt = ctx.request.body.purchaseToken
       await ctx.state.user.save()

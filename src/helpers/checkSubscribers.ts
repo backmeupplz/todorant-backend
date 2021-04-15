@@ -7,38 +7,51 @@ import { googleSubscriptionValidator } from '@/helpers/googleSubscriptionValidat
 import { stripe } from '@/helpers/stripe'
 
 async function checkSubscribers() {
-  if (process.env.DEBUG) {
-    return
-  }
   const monthAgo = new Date()
   monthAgo.setDate(monthAgo.getDate() - 30)
   const subscribers = await UserModel.find({
-    $or: [
-      { subscriptionId: { $exists: true } },
-      { appleReceipt: { $exists: true } },
-      { googleReceipt: { $exists: true } },
+    $and: [
+      {
+        $or: process.env.DEBUG
+          ? [{ googleReceipt: { $exists: true } }]
+          : [
+              { subscriptionId: { $exists: true } },
+              { appleReceipt: { $exists: true } },
+              { googleReceipt: { $exists: true } },
+            ],
+      },
+      {
+        $or: [
+          { isPerpetualLicense: false },
+          { isPerpetualLicense: { $exists: false } },
+        ],
+      },
     ],
     subscriptionStatus: {
       $nin: [SubscriptionStatus.earlyAdopter, SubscriptionStatus.inactive],
     },
-    isPerpetualLicense: false,
     createdAt: { $lt: monthAgo },
   })
+  console.log(`Checking subscriptions for ${subscribers.length} subscribers`)
   let deactivatedSubscribers = 0
   for (const subscriber of subscribers) {
     let shouldBeDeactivated = true
 
     // Check Apple subscription
-    if (subscriber.appleReceipt && (await checkAppleReceipt(subscriber))) {
-      shouldBeDeactivated = false
+    if (!process.env.DEBUG) {
+      if (subscriber.appleReceipt && (await checkAppleReceipt(subscriber))) {
+        shouldBeDeactivated = false
+      }
     }
     // Check Google subscription
     if (subscriber.googleReceipt && (await checkGoogleReceipt(subscriber))) {
       shouldBeDeactivated = false
     }
     // Check Stipe subscription
-    if (subscriber.subscriptionId && (await checkStripeReceipt(subscriber))) {
-      shouldBeDeactivated = false
+    if (!process.env.DEBUG) {
+      if (subscriber.subscriptionId && (await checkStripeReceipt(subscriber))) {
+        shouldBeDeactivated = false
+      }
     }
 
     if (shouldBeDeactivated) {
@@ -51,7 +64,7 @@ async function checkSubscribers() {
   if (process.env.TELEGRAM_LOGIN_TOKEN) {
     await bot.telegram.sendMessage(
       76104711,
-      `Subscription deactivated for ${deactivatedSubscribers} users`
+      `Subscription deactivated for ${deactivatedSubscribers} users out of ${subscribers.length} subscribers`
     )
   }
 }
@@ -94,15 +107,25 @@ async function checkGoogleReceipt(subscriber: User) {
     if (!receipt) {
       return false
     }
-    const productIds = ['todorant.monthly', 'todorant.yearly']
+    const productIds = [
+      'todorant.monthly',
+      'todorant.yearly',
+      'todorant.yearly.36',
+    ]
     for (const productId of productIds) {
       try {
-        await googleSubscriptionValidator.verifySub({
+        const subscription = await googleSubscriptionValidator.verifySub({
           packageName: 'com.todorant',
           productId,
           purchaseToken: receipt,
         })
-        return true
+        if (subscriber.email === 'backmeupplz@gmail.com') {
+          console.log(subscriber.googleReceipt)
+          console.log(subscription)
+        }
+        if (+subscription.payload.expiryTimeMillis > Date.now()) {
+          return true
+        }
       } catch {
         // Do nothing
       }
