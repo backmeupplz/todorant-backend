@@ -25,7 +25,6 @@ export default class GoogleController {
     try {
       if (ctx.request.body.productId === 'todorant.perpetual') {
         await googleSubscriptionValidator.verifyINAPP(ctx.request.body)
-        ctx.state.user.isPerpetualLicense = true
       } else {
         const subscription = await googleSubscriptionValidator.verifySub(
           ctx.request.body
@@ -36,6 +35,9 @@ export default class GoogleController {
       }
       ctx.state.user.subscriptionStatus = SubscriptionStatus.active
       ctx.state.user.googleReceipt = ctx.request.body.purchaseToken
+      if (ctx.request.body.productId === 'todorant.perpetual') {
+        ctx.state.user.isPerpetualLicense = true
+      }
       await ctx.state.user.save()
       ctx.status = 200
     } catch (err) {
