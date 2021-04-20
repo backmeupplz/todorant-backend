@@ -301,6 +301,7 @@ io.on('connection', (socket) => {
           'googleReceipt',
           'createdAt',
           'updatedAt',
+          'isPerpetualLicense',
         ])
       )
       await dbuser.save()

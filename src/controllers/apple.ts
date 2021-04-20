@@ -30,15 +30,25 @@ export default class AppleController {
       const latestReceiptInfo = response.data.latest_receipt_info
       // Get latest
       let latestSubscription = 0
+      let hasPerpetualPurchase = false
       for (const info of latestReceiptInfo) {
+        if (info.product_id === 'perpetual') {
+          hasPerpetualPurchase = true
+          break
+        }
         if (+info.expires_date_ms > latestSubscription) {
           latestSubscription = +info.expires_date_ms
         }
       }
       // Check status
-      const subscriptionIsActive = new Date().getTime() < latestSubscription
-      if (subscriptionIsActive) {
+      if (hasPerpetualPurchase) {
         ctx.state.user.subscriptionStatus = SubscriptionStatus.active
+        ctx.state.user.isPerpetualLicense = true
+      } else {
+        const subscriptionIsActive = new Date().getTime() < latestSubscription
+        if (subscriptionIsActive) {
+          ctx.state.user.subscriptionStatus = SubscriptionStatus.active
+        }
       }
       ctx.state.user.appleReceipt = latestReceipt
       await ctx.state.user.save()
