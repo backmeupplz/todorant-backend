@@ -1,5 +1,5 @@
 import { prop, Ref } from '@typegoose/typegoose'
-import { omit } from 'lodash'
+import { omit, pick } from 'lodash'
 import { User } from '@/models/user/User'
 
 export class Todo {
@@ -72,25 +72,14 @@ export class Todo {
   @prop()
   delegateAccepted?: boolean
 
-  stripped(withDelegateName = false) {
+  stripped() {
     const stripFields = ['__v']
-    if (withDelegateName) {
-      const user =
-        typeof this.user === 'object'
-          ? { name: (this.user as any).name }
-          : this.user
-      return omit(
-        { ...this._doc, ...{ _tempSyncId: this._tempSyncId, user } },
-        stripFields
-      ) as Todo
-    }
-    stripFields.push('user')
-    const delegator =
-      typeof this.delegator === 'object'
-        ? { name: (this.delegator as any).name }
-        : this.delegator
+    const user = pick(this.user, ['name', '_id'])
+    pick(this.delegator, ['name', '_id'])
+    let delegator = pick(this.delegator, ['name', '_id'])
+    if (!Object.keys(delegator).length) delegator = null
     return omit(
-      { ...this._doc, ...{ _tempSyncId: this._tempSyncId, delegator } },
+      { ...this._doc, ...{ _tempSyncId: this._tempSyncId, user, delegator } },
       stripFields
     ) as Todo
   }
@@ -98,6 +87,7 @@ export class Todo {
   // Mongo property
   _doc: any
   _id: string
+  updatedAt: Date
   // Temporary sync property
   _tempSyncId?: string
 }

@@ -96,11 +96,10 @@ export default class DelegateController {
       deleted: false,
       user: ctx.state.user._id,
       delegator: { $exists: true },
-      $or: [
-        { delegateAccepted: false },
-        { delegateAccepted: { $exists: false } },
-      ],
-    }).populate('delegator')
+      $or: [{ delegateAccepted: false }, { delegateAccepted: null }],
+    })
+      .populate('user')
+      .populate('delegator')
     return todos.map((t) => t.stripped())
   }
 
@@ -139,7 +138,9 @@ export default class DelegateController {
       deleted: false,
       user: { $exists: true },
       delegator: ctx.state.user._id,
-    }).populate('user')
-    return todos.map((t) => t.stripped(true))
+    })
+      .populate('user')
+      .populate('delegator')
+    return todos.map((t) => t.stripped())
   }
 }

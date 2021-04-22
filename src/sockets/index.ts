@@ -96,18 +96,20 @@ io.on('connection', (socket) => {
       if (lastSyncDate) {
         query.updatedAt = { $gt: lastSyncDate }
       }
-      const usualTodos: Todo[] = (
-        await TodoModel.find(query).populate('delegator')
-      ).map((t) => t.stripped())
-      const delegatedTodos: Todo[] = (
-        await TodoModel.find({
-          deleted: false,
-          user: { $exists: true },
-          delegator: query.user._id,
-        }).populate('user')
-      ).map((t) => t.stripped(true))
-
-      return [...usualTodos, ...delegatedTodos]
+      const usualTodos: Todo[] = await TodoModel.find(query)
+        .populate('delegator')
+        .populate('user')
+      const delegatedTodosQuery = {
+        user: { $exists: true },
+        delegator: user._id,
+      } as any
+      if (lastSyncDate) {
+        delegatedTodosQuery.updatedAt = { $gt: lastSyncDate }
+      }
+      const delegatedTodos: Todo[] = await TodoModel.find(delegatedTodosQuery)
+        .populate('delegator')
+        .populate('user')
+      return [...usualTodos, ...delegatedTodos].map((todo) => todo.stripped())
     },
     async (todos, password) => {
       const savedTodos = await Promise.all(
@@ -118,31 +120,59 @@ io.on('connection', (socket) => {
                 if (!todo._id) {
                   const dbtodo = new TodoModel({
                     ...omit(todo, '_id'),
-                    user: getUser(socket)._id,
+                    user: todo.user
+                      ? (todo.user as DocumentType<User>)._id
+                      : getUser(socket)._id,
                   })
                   if (!dbtodo.date) {
                     dbtodo.date = undefined
                   }
-                  const savedTodo = (await dbtodo.save()) as DocumentType<Todo>
+                  const savedTodo = (await dbtodo.save())
+                    .populate('delegator')
+                    .populate('user') as DocumentType<Todo>
+                  await TodoModel.populate(savedTodo, [
+                    { path: 'delegator' },
+                    { path: 'user' },
+                  ])
                   savedTodo._tempSyncId = todo._tempSyncId
                   res(savedTodo as any)
                 } else {
                   const dbtodo = await TodoModel.findById(todo._id)
+                    .populate('delegator')
+                    .populate('user')
                   if (!dbtodo) {
                     return rej(new Error('Todo not found'))
                   }
                   if (
-                    dbtodo.user.toString() !== getUser(socket)._id.toString()
+                    (dbtodo.user as DocumentType<User>)._id.toString() !==
+                      getUser(socket)._id.toString() &&
+                    (dbtodo.delegator as DocumentType<User>)._id.toString() !==
+                      getUser(socket)._id.toString()
                   ) {
                     return rej(new Error('Not authorized'))
+                  }
+                  if (
+                    dbtodo.delegateAccepted &&
+                    getUser(socket)._id !==
+                      (dbtodo.user as DocumentType<User>)._id
+                  ) {
+                    dbtodo._tempSyncId = todo._tempSyncId
+                    todo = dbtodo
+                    todo.updatedAt = new Date()
                   }
                   Object.assign(dbtodo, omit(todo, '_id'))
                   if (!dbtodo.date) {
                     dbtodo.date = undefined
                   }
-                  const savedTodo = (await dbtodo.save()) as DocumentType<Todo>
+                  const savedTodo = (await dbtodo.save())
+                    .populate('delegator')
+                    .populate('user') as DocumentType<Todo>
+                  await TodoModel.populate(savedTodo, [
+                    { path: 'delegator' },
+                    { path: 'user' },
+                  ])
                   savedTodo._tempSyncId = todo._tempSyncId
-                  res(savedTodo as any)
+                  res(savedTodo as DocumentType<Todo>)
                 }
               } catch (err) {
                 rej(err)
