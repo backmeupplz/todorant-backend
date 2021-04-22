@@ -68,6 +68,8 @@ export class User {
   appleReceipt?: String
   @prop()
   googleReceipt?: String
+  @prop({ index: true, required: true, default: false })
+  isPerpetualLicense: boolean
 
   @prop({ index: true, required: true, default: false })
   bouncerNotified: boolean
@@ -106,6 +108,10 @@ export class User {
       stripFields.push('appleSubId')
       stripFields.push('createdOnApple')
       stripFields.push('subscriptionStatus')
+      stripFields.push('subscriptionId')
+      stripFields.push('appleReceipt')
+      stripFields.push('googleReceipt')
+      stripFields.push('isPerpetualLicense')
       stripFields.push('timezone')
       stripFields.push('settings')
       stripFields.push('updatedAt')

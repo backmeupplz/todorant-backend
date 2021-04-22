@@ -14,25 +14,36 @@ import {
 import { startWatch } from '@/helpers/googleCalendarChannel'
 import { requestSync } from '@/sockets/index'
 import { fixOrder } from '@/helpers/fixOrder'
-const Verifier = require('google-play-billing-validator')
-
-const googleCredentials = require('../../assets/api-4987639842126744234-562450-c85efe0aadfc.json')
-
-const verifier = new Verifier({
-  email: googleCredentials.client_email,
-  key: googleCredentials.private_key,
-})
+import { googleSubscriptionValidator } from '@/helpers/googleSubscriptionValidator'
+import { report } from '@/helpers/report'
 
 @Controller('/google')
 export default class GoogleController {
   @Post('/subscription')
   @Flow(authenticate)
   async subscription(@Ctx() ctx: Context) {
-    await verifier.verifySub(ctx.request.body)
-    ctx.state.user.subscriptionStatus = SubscriptionStatus.active
-    ctx.state.user.googleReceipt = ctx.request.body.purchaseToken
-    await ctx.state.user.save()
-    ctx.status = 200
+    try {
+      if (ctx.request.body.productId === 'todorant.perpetual') {
+        await googleSubscriptionValidator.verifyINAPP(ctx.request.body)
+      } else {
+        const subscription = await googleSubscriptionValidator.verifySub(
+          ctx.request.body
+        )
+        if (+subscription.payload.expiryTimeMillis < Date.now()) {
+          throw new Error('Invalid purchase')
+        }
+      }
+      ctx.state.user.subscriptionStatus = SubscriptionStatus.active
+      ctx.state.user.googleReceipt = ctx.request.body.purchaseToken
+      if (ctx.request.body.productId === 'todorant.perpetual') {
+        ctx.state.user.isPerpetualLicense = true
+      }
+      await ctx.state.user.save()
+      ctx.status = 200
+    } catch (err) {
+      report(err)
+      throw err
+    }
   }
 
   @Get('/calendarAuthenticationURL')

@@ -282,6 +282,16 @@ export default class TodoController {
       ctx.state.user.settings.googleCalendarCredentials,
       ctx.headers.password
     )
+    // Check incomplete frogs
+    const incompleteFrogs = await TodoModel.find({
+      user: ctx.state.user._id,
+      monthAndYear: ctx.query.date.substr(0, 7),
+      date: ctx.query.date.substr(8),
+      completed: false,
+      frog: true,
+      deleted: false,
+    })
+    return { incompleteFrogsExist: !!incompleteFrogs.length }
   }
 
   @Put('/:id/skip')

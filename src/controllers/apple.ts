@@ -3,7 +3,7 @@ import { Context } from 'koa'
 import { authenticate } from '@/middlewares/authenticate'
 import axios from 'axios'
 import { SubscriptionStatus } from '@/models/user'
-import { bot } from '@/helpers/report'
+import { bot, report } from '@/helpers/report'
 
 @Controller('/apple')
 export default class AppleController {
@@ -16,32 +16,47 @@ export default class AppleController {
   @Post('/subscription')
   @Flow(authenticate)
   async subscription(@Ctx() ctx: Context) {
-    const appleUrl =
-      process.env.ENVIRONMENT === 'staging'
-        ? 'https://sandbox.itunes.apple.com/verifyReceipt'
-        : 'https://buy.itunes.apple.com/verifyReceipt'
-    const password = process.env.APPLE_SECRET
-    const response = await axios.post(appleUrl, {
-      'receipt-data': ctx.request.body.receipt,
-      password,
-    })
-    const latestReceipt = response.data.latest_receipt
-    const latestReceiptInfo = response.data.latest_receipt_info
-    // Get latest
-    let latestSubscription = 0
-    for (const info of latestReceiptInfo) {
-      if (+info.expires_date_ms > latestSubscription) {
-        latestSubscription = +info.expires_date_ms
+    try {
+      const appleUrl =
+        process.env.ENVIRONMENT === 'staging'
+          ? 'https://sandbox.itunes.apple.com/verifyReceipt'
+          : 'https://buy.itunes.apple.com/verifyReceipt'
+      const password = process.env.APPLE_SECRET
+      const response = await axios.post(appleUrl, {
+        'receipt-data': ctx.request.body.receipt,
+        password,
+      })
+      const latestReceipt = response.data.latest_receipt
+      const latestReceiptInfo = response.data.latest_receipt_info
+      // Get latest
+      let latestSubscription = 0
+      let hasPerpetualPurchase = false
+      for (const info of latestReceiptInfo) {
+        if (info.product_id === 'perpetual') {
+          hasPerpetualPurchase = true
+          break
+        }
+        if (+info.expires_date_ms > latestSubscription) {
+          latestSubscription = +info.expires_date_ms
+        }
       }
+      // Check status
+      if (hasPerpetualPurchase) {
+        ctx.state.user.subscriptionStatus = SubscriptionStatus.active
+        ctx.state.user.isPerpetualLicense = true
+      } else {
+        const subscriptionIsActive = new Date().getTime() < latestSubscription
+        if (subscriptionIsActive) {
+          ctx.state.user.subscriptionStatus = SubscriptionStatus.active
+        }
+      }
+      ctx.state.user.appleReceipt = latestReceipt
+      await ctx.state.user.save()
+      ctx.status = 200
+    } catch (err) {
+      report(err)
+      throw err
     }
-    // Check status
-    const subscriptionIsActive = new Date().getTime() < latestSubscription
-    if (subscriptionIsActive) {
-      ctx.state.user.subscriptionStatus = SubscriptionStatus.active
-    }
-    ctx.state.user.appleReceipt = latestReceipt
-    await ctx.state.user.save()
-    ctx.status = 200
   }
 
   @Post('/subscriptionNotification-FgA3JNgNy49dNnrVaQ9PCKGJ')

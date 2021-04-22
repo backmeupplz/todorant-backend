@@ -40,15 +40,25 @@ async function tryPurchasingApple(user: DocumentType<User>, receipt: string) {
   const latestReceiptInfo = response.data.latest_receipt_info
   // Get latest
   let latestSubscription = 0
+  let hasPerpetualPurchase = false
   for (const info of latestReceiptInfo) {
-    if (info.expires_date_ms > latestSubscription) {
-      latestSubscription = info.expires_date_ms
+    if (info.product_id === 'perpetual') {
+      hasPerpetualPurchase = true
+      break
+    }
+    if (+info.expires_date_ms > latestSubscription) {
+      latestSubscription = +info.expires_date_ms
     }
   }
   // Check status
-  const subscriptionIsActive = new Date().getTime() < latestSubscription
-  if (subscriptionIsActive) {
+  if (hasPerpetualPurchase) {
     user.subscriptionStatus = SubscriptionStatus.active
+    user.isPerpetualLicense = true
+  } else {
+    const subscriptionIsActive = new Date().getTime() < latestSubscription
+    if (subscriptionIsActive) {
+      user.subscriptionStatus = SubscriptionStatus.active
+    }
   }
   user.appleReceipt = latestReceipt
   await user.save()
@@ -70,7 +80,7 @@ export default class LoginController {
       await user.save()
     }
     if (ctx.request.body.appleReceipt) {
-      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
     return user.stripped(true)
   }
@@ -92,7 +102,7 @@ export default class LoginController {
       await user.save()
     }
     if (ctx.request.body.appleReceipt) {
-      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
     return user.stripped(true)
   }
@@ -117,7 +127,7 @@ export default class LoginController {
       await user.save()
     }
     if (ctx.request.body.appleReceipt) {
-      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
     return user.stripped(true)
   }
@@ -144,7 +154,7 @@ export default class LoginController {
       await user.save()
     }
     if (ctx.request.body.appleReceipt) {
-      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
     return user.stripped(true)
   }
@@ -160,7 +170,7 @@ export default class LoginController {
       await user.save()
     }
     if (ctx.request.body.appleReceipt) {
-      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
     return user.stripped(true)
   }
@@ -231,7 +241,7 @@ export default class LoginController {
         await user.save()
       }
       if (ctx.request.body.appleReceipt) {
-        tryPurchasingApple(user, ctx.request.body.appleReceipt)
+        await tryPurchasingApple(user, ctx.request.body.appleReceipt)
       }
       return user.stripped(true)
     } else {
@@ -253,7 +263,7 @@ export default class LoginController {
         }
       }
       if (ctx.request.body.appleReceipt) {
-        tryPurchasingApple(user, ctx.request.body.appleReceipt)
+        await tryPurchasingApple(user, ctx.request.body.appleReceipt)
       }
       return user.stripped(true)
     }
@@ -376,7 +386,7 @@ export default class LoginController {
     }
     const user = await getUserFromToken(token)
     if (ctx.request.body.appleReceipt) {
-      tryPurchasingApple(user, ctx.request.body.appleReceipt)
+      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
     }
     return user.stripped(true)
   }
