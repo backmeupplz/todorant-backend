@@ -90,8 +90,6 @@ export class User {
   @prop()
   googleCalendarResourceId?: string
 
-  // TODO переписать rest на RN под соккеты
-
   stripped(withExtra = false, withToken = true) {
     const stripFields = [
       '__v',
