@@ -24,22 +24,30 @@ export default class DelegateController {
   @Post('/useToken')
   @Flow(authenticate)
   async useToken(@Ctx() ctx: Context) {
+    const user = ctx.state.user as DocumentType<User>
     const token = ctx.request.body.token
     const delegator = await UserModel.findOne({ delegateInviteToken: token })
     if (!delegator) {
       return ctx.throw(404)
     }
-    if (delegator._id.toString() === ctx.state.user._id.toString()) {
+    if (delegator._id.toString() === user._id.toString()) {
       return ctx.throw(403)
     }
     if (
       !delegator.delegates
         .map((id) => id.toString())
-        .includes(ctx.state.user._id.toString())
+        .includes(user._id.toString())
     ) {
-      delegator.delegates.push(ctx.state.user._id)
+      delegator.delegates.push(user._id)
+      delegator.delegatesUpdatedAt = new Date()
     }
     await delegator.save()
+    await UserModel.updateOne(
+      { _id: user._id },
+      { delegatesUpdatedAt: new Date() }
+    )
+    requestSync(user._id)
+    requestSync(delegator._id)
     ctx.status = 200
   }
 
@@ -71,7 +79,14 @@ export default class DelegateController {
     user.delegates = user.delegates.filter(
       (id) => id.toString() !== ctx.params.id
     )
+    user.delegatesUpdatedAt = new Date()
     await user.save()
+    await UserModel.updateOne(
+      { _id: ctx.params.id },
+      { delegatesUpdatedAt: new Date() }
+    )
+    requestSync(user._id)
+    requestSync(ctx.params.id)
     ctx.status = 200
   }
 
@@ -84,8 +99,15 @@ export default class DelegateController {
       delegator.delegates = delegator.delegates.filter(
         (id) => id.toString() !== user._id.toString()
       )
+      delegator.delegatesUpdatedAt = new Date()
       await delegator.save()
+      requestSync(delegator._id)
     }
+    await UserModel.updateOne(
+      { _id: user._id },
+      { delegatesUpdatedAt: new Date() }
+    )
+    requestSync(user._id)
     ctx.status = 200
   }
 

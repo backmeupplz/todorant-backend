@@ -68,10 +68,10 @@ export async function getOrCreateUser(loginOptions: LoginOptions) {
     if (loginOptions.anonymousToken) {
       params.anonymousToken = loginOptions.anonymousToken
     }
-    user = await new UserModel({
+    user = (await new UserModel({
       ...params,
       token: await sign(params),
-    }).save()
+    }).save()) as DocumentType<User>
   }
   return { created, user }
 }

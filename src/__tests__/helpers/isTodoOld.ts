@@ -1,4 +1,5 @@
 import { isTodoOld } from '@/helpers/isTodoOld'
+import { Todo } from '@/models/todo'
 import { completeTodo } from '@/__tests__/testUtils'
 
 describe('isTodoOld helper', () => {
@@ -7,7 +8,7 @@ describe('isTodoOld helper', () => {
       ...completeTodo,
       monthAndYear: '2020-05',
       date: '21',
-    }
+    } as Todo
 
     expect(isTodoOld(todo, '2020-05-22', '01:00')).toBe(true)
     expect(isTodoOld(todo, '2020-05-20', '01:00')).toBe(false)
@@ -27,7 +28,7 @@ describe('isTodoOld helper', () => {
       ...completeTodo,
       monthAndYear: '2020-11',
       date: '21',
-    }
+    } as Todo
 
     expect(isTodoOld(todo, '2020-11-20', '01:00')).toBe(false)
     expect(isTodoOld(todo, '2020-11-22', '01:00')).toBe(true)
@@ -47,7 +48,7 @@ describe('isTodoOld helper', () => {
       ...completeTodo,
       monthAndYear: '2020-05',
       date: null,
-    }
+    } as Todo
 
     expect(isTodoOld(todoWithoutDate, '2020-04-20', '00:00')).toBe(false)
     expect(isTodoOld(todoWithoutDate, '2020-05-20', '00:00')).toBe(true)
@@ -60,7 +61,7 @@ describe('isTodoOld helper', () => {
       ...completeTodo,
       monthAndYear: '2020-05',
       date: '21',
-    }
+    } as Todo
 
     expect(isTodoOld(todo, '2020-05-22', '03:00', '04:20')).toBe(false)
     expect(isTodoOld(todo, '2020-05-22', '05:00', '04:20')).toBe(true)
@@ -69,7 +70,7 @@ describe('isTodoOld helper', () => {
       ...completeTodo,
       monthAndYear: '2020-10',
       date: null,
-    }
+    } as Todo
 
     expect(isTodoOld(todoWithoutDate, '2020-10-01', '03:00', '04:20')).toBe(
       false

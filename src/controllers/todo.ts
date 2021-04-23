@@ -399,7 +399,7 @@ export default class TodoController {
     // Find todo
     const todo = await TodoModel.findById(id)
     // Check is delegator
-    const isDelegator = todo.delegator.toString() === userId
+    const isDelegator = todo.delegator && todo.delegator.toString() === userId
     // Check ownership
     if (
       !todo ||

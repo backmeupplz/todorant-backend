@@ -37,7 +37,10 @@ export const createdCompleteUser = {
   createdOnApple: false,
   delegates: [],
   stripped: new User().stripped,
-}
+  isPerpetualLicense: false,
+  updatedAt: new Date(),
+  delegatesUpdatedAt: new Date(),
+} as User
 
 export const completeTodo = {
   _id: 'testTodoId',
@@ -57,7 +60,8 @@ export const completeTodo = {
   date: '21',
   time: null,
   stripped: new Todo().stripped,
-}
+  updatedAt: new Date(),
+} as Todo
 
 export function startKoa(
   app: Koa<Koa.DefaultState, Koa.DefaultContext>

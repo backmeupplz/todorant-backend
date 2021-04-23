@@ -84,6 +84,8 @@ export class User {
   delegateInviteToken?: string
   @prop({ ref: User, required: true, default: [], index: true })
   delegates: Ref<User>[]
+  @prop({ default: new Date() })
+  delegatesUpdatedAt: Date
 
   @prop()
   googleCalendarResourceId?: string
@@ -114,7 +116,6 @@ export class User {
       stripFields.push('isPerpetualLicense')
       stripFields.push('timezone')
       stripFields.push('settings')
-      stripFields.push('updatedAt')
       stripFields.push('createdAt')
       stripFields.push('telegramZen')
     }
@@ -127,6 +128,8 @@ export class User {
   }
 
   // Mongo property
+  updatedAt: Date
+  _id: string
   _doc: any
   createdAt: Date
 }
