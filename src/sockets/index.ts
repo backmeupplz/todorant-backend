@@ -14,7 +14,7 @@ import SocketIO = require('socket.io')
 export const socketServer = createServer()
 const io = SocketIO(socketServer)
 
-const apiVersion = 2
+const apiVersion = 1
 
 function setupSync<T>(
   socket: SocketIO.Socket,
