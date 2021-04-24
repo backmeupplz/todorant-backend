@@ -64,6 +64,7 @@ If you have any additional questions please contact me directly — @borodutch. 
     76104711,
     `Sending bouncer mesages to ${emailBouncers.length} email bouncers`
   )
+  let sentMessagesCount = 0
   for (const bouncer of emailBouncers) {
     const email = bouncer.email
     if (!email) {
@@ -72,8 +73,12 @@ If you have any additional questions please contact me directly — @borodutch. 
     try {
       await sendBouncerMessage(email)
       await delay(5)
+      sentMessagesCount++
     } catch (err) {
       console.error(err)
+      if (err.message.includes('SPAM')) {
+        break
+      }
       bot.telegram.sendMessage(
         76104711,
         `Failed sending power user message to ${email}: ${err.message || err}`
@@ -82,6 +87,10 @@ If you have any additional questions please contact me directly — @borodutch. 
     bouncer.bouncerNotified = true
     await bouncer.save()
   }
+  await bot.telegram.sendMessage(
+    76104711,
+    `Sent bouncer mesages to ${sentMessagesCount} email bouncers`
+  )
 }
 
 sendMessageToBouncers()
