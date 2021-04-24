@@ -1,7 +1,6 @@
 import { UserModel } from '@/models/user'
 import { bot } from '@/helpers/telegram'
 import { sendBouncerMessage } from '@/helpers/sendEmail'
-import { report } from './report'
 
 async function sendMessageToBouncers() {
   if (process.env.DEBUG) {
@@ -40,10 +39,6 @@ Hi there! It's @borodutch, the creator of Todorant. Can you please spend just 2 
 If you have any additional questions please contact me directly — @borodutch. Thank you!`,
         { disable_web_page_preview: true }
       )
-      await bot.telegram.sendMessage(
-        76104711,
-        `Sent bouncer message to ${telegramId}`
-      )
     } catch (err) {
       console.error(err)
       bot.telegram.sendMessage(
@@ -76,10 +71,7 @@ If you have any additional questions please contact me directly — @borodutch. 
     }
     try {
       await sendBouncerMessage(email)
-      await bot.telegram.sendMessage(
-        76104711,
-        `Sent bouncer message to ${email}`
-      )
+      await delay(5)
     } catch (err) {
       console.error(err)
       bot.telegram.sendMessage(
@@ -94,3 +86,11 @@ If you have any additional questions please contact me directly — @borodutch. 
 
 sendMessageToBouncers()
 setInterval(sendMessageToBouncers, 24 * 60 * 60 * 1000) // once per day
+
+function delay(s: number) {
+  return new Promise((res) => {
+    setTimeout(() => {
+      res()
+    }, s * 1000)
+  })
+}
