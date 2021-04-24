@@ -148,25 +148,6 @@ export default class TodoController {
     )
   }
 
-  @Delete('/all')
-  @Flow(authenticate)
-  async deleteAll(@Ctx() ctx: Context) {
-    // Find user and populate todos
-    const user = await UserModel.findById(ctx.state.user.id)
-    // Get todos
-    const todos = await TodoModel.find({ user: user._id })
-    // Remove todos from user
-    await user.save()
-    // Remove all todos
-    for (const todo of todos) {
-      await TodoModel.findByIdAndRemove(todo._id)
-    }
-    // Respond
-    ctx.status = 200
-    // Trigger sync
-    requestSync(ctx.state.user._id)
-  }
-
   @Put('/:id')
   @Flow(authenticate)
   async edit(@Ctx() ctx: Context) {
@@ -185,8 +166,16 @@ export default class TodoController {
     const password = ctx.headers.password
     // Find todo
     const todo = await TodoModel.findById(id)
+    // Get userId
+    const userId = ctx.state.user._id.toString()
+    // Check isDelegator
+    const isDelegator = todo.delegator.toString() === userId
     // Check ownership
-    if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
+    if (
+      !todo ||
+      (todo.user.toString() !== userId && !isDelegator) ||
+      (isDelegator && todo.delegateAccepted)
+    ) {
       return ctx.throw(404, errors.noTodo)
     }
     // Note previous title
@@ -245,6 +234,9 @@ export default class TodoController {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    if (todo.delegator) {
+      requestSync(todo.delegator.toString())
+    }
     // Update calendar
     updateTodos(
       [todo],
@@ -281,6 +273,9 @@ export default class TodoController {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    if (todo.delegator) {
+      requestSync(todo.delegator.toString())
+    }
     // Update calendar
     updateTodos(
       [todo],
@@ -290,8 +285,8 @@ export default class TodoController {
     // Check incomplete frogs
     const incompleteFrogs = await TodoModel.find({
       user: ctx.state.user._id,
-      monthAndYear: ctx.query.date.substr(0, 7),
-      date: ctx.query.date.substr(8),
+      monthAndYear: ctx.query.date ? ctx.query.date.substr(0, 7) : undefined,
+      date: ctx.query.date ? ctx.query.date.substr(8) : undefined,
       completed: false,
       frog: true,
       deleted: false,
@@ -399,14 +394,23 @@ export default class TodoController {
   async delete(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
+    // Get userId
+    const userId = ctx.state.user._id.toString()
     // Find todo
     const todo = await TodoModel.findById(id)
+    // Check is delegator
+    const isDelegator = todo.delegator && todo.delegator.toString() === userId
     // Check ownership
-    if (!todo || todo.user.toString() !== ctx.state.user._id.toString()) {
+    if (
+      !todo ||
+      (todo.user.toString() !== userId && !isDelegator) ||
+      (isDelegator && todo.delegateAccepted)
+    ) {
       return ctx.throw(404, errors.noTodo)
     }
     // Edit and save
     todo.deleted = true
+    todo.markModified('deleted')
     await todo.save()
     // Fix order
     await fixOrder(ctx.state.user, [getTitle(todo)])
@@ -414,6 +418,9 @@ export default class TodoController {
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
+    if (todo.delegator) {
+      requestSync(todo.delegator.toString())
+    }
     // Update calendar
     updateTodos(
       [todo],

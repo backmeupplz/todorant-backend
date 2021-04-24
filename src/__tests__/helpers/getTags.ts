@@ -2,6 +2,7 @@ import { getTags } from '@/helpers/getTags'
 import { completeTodo } from '../testUtils'
 import { v4 } from 'uuid'
 import { _e } from '@/helpers/encryption'
+import { Todo } from '@/models/todo'
 
 const firstText = `#test ${v4()} #test1`
 const secondText = `${v4()} #test2 ${v4()} #test3`
@@ -14,27 +15,27 @@ const wrongPassword = '54321'
 const firstNonEncryptedTodo = {
   ...completeTodo,
   text: firstText,
-}
+} as Todo
 const secondNonEncryptedTodo = {
   ...completeTodo,
   text: secondText,
-}
+} as Todo
 
 const firstEncrypted = {
   ...completeTodo,
   text: _e(firstText, correctPassword),
   encrypted: true,
-}
+} as Todo
 
 const secondEncrypted = {
   ...completeTodo,
   text: _e(secondText, correctPassword),
   encrypted: true,
-}
+} as Todo
 
 const todoWithotTags = {
   ...completeTodo,
-}
+} as Todo
 
 describe('Gettings tags from todos', () => {
   it('should return tags from array with non-encrypted todos', () => {

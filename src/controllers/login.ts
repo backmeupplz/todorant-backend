@@ -231,10 +231,10 @@ export default class LoginController {
       if (user) {
         return user.stripped(true)
       }
-      user = await new UserModel({
+      user = (await new UserModel({
         ...params,
         token: await sign(params),
-      }).save()
+      }).save()) as DocumentType<User>
       const created = true
       if (created && ctx.request.body.fromApple) {
         user.createdOnApple = true
@@ -252,10 +252,10 @@ export default class LoginController {
           appleSubId,
           subscriptionStatus: SubscriptionStatus.trial,
         } as any
-        user = await new UserModel({
+        user = (await new UserModel({
           ...params,
           token: await sign(params),
-        }).save()
+        }).save()) as DocumentType<User>
         const created = true
         if (created && ctx.request.body.fromApple) {
           user.createdOnApple = true
@@ -299,10 +299,10 @@ export default class LoginController {
       subscriptionStatus: SubscriptionStatus.trial,
       delegateInviteToken: randToken.generate(16),
     } as any
-    user = await new UserModel({
+    user = (await new UserModel({
       ...params,
       token: await sign(params),
-    }).save()
+    }).save()) as DocumentType<User>
 
     return user.stripped(true)
   }
