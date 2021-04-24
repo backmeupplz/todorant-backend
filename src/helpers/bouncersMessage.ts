@@ -10,10 +10,11 @@ async function sendMessageToBouncers() {
   const telegramBouncers = await UserModel.find({
     createdAt: {
       $lt: new Date().setDate(new Date().getDate() - 31),
+      $gt: new Date().setDate(new Date().getDate() - 60),
     },
     bouncerNotified: false,
     telegramId: { $exists: true },
-    subscriptionStatus: 'trial',
+    subscriptionStatus: 'inactive',
   })
   for (const bouncer of telegramBouncers) {
     const telegramId = parseInt(bouncer.telegramId, 10)
@@ -40,6 +41,10 @@ If you have any additional questions please contact me directly — @borodutch. 
       )
     } catch (err) {
       console.error(err)
+      bot.telegram.sendMessage(
+        76104711,
+        `Failed sending bouncer message to ${telegramId}: ${err.message || err}`
+      )
     }
     bouncer.bouncerNotified = true
     await bouncer.save()
@@ -48,11 +53,12 @@ If you have any additional questions please contact me directly — @borodutch. 
   const emailBouncers = await UserModel.find({
     createdAt: {
       $lt: new Date().setDate(new Date().getDate() - 31),
+      $gt: new Date().setDate(new Date().getDate() - 60),
     },
     bouncerNotified: false,
     telegramId: { $exists: false },
     email: { $exists: true },
-    subscriptionStatus: 'trial',
+    subscriptionStatus: 'inactive',
   })
   for (const bouncer of emailBouncers) {
     const email = bouncer.email
@@ -67,6 +73,10 @@ If you have any additional questions please contact me directly — @borodutch. 
       )
     } catch (err) {
       console.error(err)
+      bot.telegram.sendMessage(
+        76104711,
+        `Failed sending power user message to ${email}: ${err.message || err}`
+      )
     }
     bouncer.bouncerNotified = true
     await bouncer.save()
