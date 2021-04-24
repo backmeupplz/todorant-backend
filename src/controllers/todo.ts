@@ -79,24 +79,24 @@ export default class TodoController {
         await addEpicPoints(ctx.state.user, tagsArray)
       }
 
-      let delegate: DocumentType<User> | undefined
-      if (todo.delegate) {
-        delegate = await UserModel.findById(todo.delegate)
-        if (!delegate) {
+      let delegator: DocumentType<User> | undefined
+      if (todo.delegator) {
+        delegator = await UserModel.findById(todo.delegator)
+        if (!delegator) {
           ctx.throw(404)
         }
         if (
           !ctx.state.user.delegates
             .map((d) => d.toString())
-            .includes(todo.delegate)
+            .includes(todo.delegator)
         ) {
           ctx.throw(404)
         }
-        todo.delegate = undefined
-        todo.user = delegate._id
+        todo.delegator = undefined
+        todo.user = delegator._id
         todo.delegator = ctx.state.user._id
-        if (!delegatesToSync.includes(delegate._id)) {
-          delegatesToSync.push(delegate._id)
+        if (!delegatesToSync.includes(delegator._id)) {
+          delegatesToSync.push(delegator._id)
         }
       }
 
@@ -106,7 +106,7 @@ export default class TodoController {
         todo.goFirst === true
       const dbtodo = (await new TodoModel({
         ...todo,
-        user: delegate ? delegate._id : ctx.state.user._id,
+        user: delegator ? delegator._id : ctx.state.user._id,
       }).save()) as DocumentType<Todo>
       if (!todo.delegator) {
         if (goingOnTop) {
