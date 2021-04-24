@@ -96,9 +96,20 @@ io.on('connection', (socket) => {
       if (lastSyncDate) {
         query.updatedAt = { $gt: lastSyncDate }
       }
-      return (await TodoModel.find(query).populate('delegator')).map((t) =>
-        t.stripped()
-      )
+      const usualTodos: Todo[] = await TodoModel.find(query)
+        .populate('delegator')
+        .populate('user')
+      const delegatedTodosQuery = {
+        user: { $exists: true },
+        delegator: user._id,
+      } as any
+      if (lastSyncDate) {
+        delegatedTodosQuery.updatedAt = { $gt: lastSyncDate }
+      }
+      const delegatedTodos: Todo[] = await TodoModel.find(delegatedTodosQuery)
+        .populate('delegator')
+        .populate('user')
+      return [...usualTodos, ...delegatedTodos].map((todo) => todo.stripped())
     },
     async (todos, password) => {
       const savedTodos = await Promise.all(
@@ -109,31 +120,61 @@ io.on('connection', (socket) => {
                 if (!todo._id) {
                   const dbtodo = new TodoModel({
                     ...omit(todo, '_id'),
-                    user: getUser(socket)._id,
+                    user: todo.user
+                      ? (todo.user as DocumentType<User>)._id
+                      : getUser(socket)._id,
                   })
                   if (!dbtodo.date) {
                     dbtodo.date = undefined
                   }
-                  const savedTodo = (await dbtodo.save()) as DocumentType<Todo>
+                  const savedTodo = (await dbtodo.save())
+                    .populate('delegator')
+                    .populate('user') as DocumentType<Todo>
+                  await TodoModel.populate(savedTodo, [
+                    { path: 'delegator' },
+                    { path: 'user' },
+                  ])
                   savedTodo._tempSyncId = todo._tempSyncId
-                  res(savedTodo as any)
+                  res(savedTodo)
                 } else {
                   const dbtodo = await TodoModel.findById(todo._id)
+                    .populate('delegator')
+                    .populate('user')
                   if (!dbtodo) {
                     return rej(new Error('Todo not found'))
                   }
+                  // Reject if not a user of todo or delegator
                   if (
-                    dbtodo.user.toString() !== getUser(socket)._id.toString()
+                    (dbtodo.user as DocumentType<User>)._id.toString() !==
+                      getUser(socket)._id.toString() &&
+                    (dbtodo.delegator as DocumentType<User>)._id.toString() !==
+                      getUser(socket)._id.toString()
                   ) {
                     return rej(new Error('Not authorized'))
+                  }
+                  // Prevent changing accepted tasks by delegators
+                  if (
+                    dbtodo.delegateAccepted &&
+                    getUser(socket)._id.toString() !==
+                      (dbtodo.user as DocumentType<User>)._id.toString()
+                  ) {
+                    dbtodo._tempSyncId = todo._tempSyncId
+                    todo = dbtodo
+                    todo.updatedAt = new Date()
                   }
                   Object.assign(dbtodo, omit(todo, '_id'))
                   if (!dbtodo.date) {
                     dbtodo.date = undefined
                   }
-                  const savedTodo = (await dbtodo.save()) as DocumentType<Todo>
+                  const savedTodo = (await dbtodo.save())
+                    .populate('delegator')
+                    .populate('user') as DocumentType<Todo>
+                  await TodoModel.populate(savedTodo, [
+                    { path: 'delegator' },
+                    { path: 'user' },
+                  ])
                   savedTodo._tempSyncId = todo._tempSyncId
-                  res(savedTodo as any)
+                  res(savedTodo as DocumentType<Todo>)
                 }
               } catch (err) {
                 rej(err)
@@ -313,38 +354,99 @@ io.on('connection', (socket) => {
   )
 
   setupSync<{
-    delegates: Partial<User>[]
-    delegators: Partial<User>[]
+    delegates: Partial<User & { deleted: boolean }>[]
+    delegators: Partial<User & { deleted: boolean }>[]
     token: string
   }>(
     socket,
     'delegate',
-    async (user) => {
-      const dbuser = await UserModel.findById(user._id)
+    async (user, lastSyncDate: Date | undefined) => {
+      const dbuser = await UserModel.findById(user._id).populate('delegates')
       if (!dbuser) {
         throw new Error('User not found')
       }
-      const delegates = (
-        await UserModel.findById(dbuser._id).populate('delegates')
-      ).delegates.map((d: User) => d.stripped(false, false))
-      const delegators = (
-        await UserModel.find({ delegates: dbuser._id })
-      ).map((d: User) => d.stripped(false, false))
-      if (!dbuser.delegateInviteToken) {
-        dbuser.delegateInviteToken = randToken.generate(16)
-        await dbuser.save()
-      }
       const token = dbuser.delegateInviteToken
-      return {
-        delegates,
-        delegators,
-        token,
+      const dbUserDelegators = await UserModel.find({ delegates: dbuser._id })
+      const dbUserDelegates = dbuser.delegates as DocumentType<User>[]
+      let delegates: strippedDelegationUser[] | undefined
+      let delegators: strippedDelegationUser[] | undefined
+
+      let delegateUpdated: boolean
+      if (lastSyncDate) {
+        // Get date object from string
+        lastSyncDate = new Date(lastSyncDate)
       }
+      if (lastSyncDate && dbuser.delegatesUpdatedAt < lastSyncDate) {
+        // Get delegates
+        delegates = dbUserDelegates
+          .filter((delegate) => delegate.updatedAt > lastSyncDate)
+          .map((delegate) => delegate.stripped(false) as strippedDelegationUser)
+        // Get delegators
+        delegators = dbUserDelegators
+          .filter((delegator) => delegator.updatedAt > lastSyncDate)
+          .map(
+            (delegator) => delegator.stripped(false) as strippedDelegationUser
+          )
+      } else {
+        delegateUpdated = true
+        delegates = dbUserDelegates.map(
+          (delegate) => delegate.stripped(false) as strippedDelegationUser
+        )
+        delegators = dbUserDelegators.map(
+          (delegate) => delegate.stripped(false) as strippedDelegationUser
+        )
+      }
+      return {
+        delegators,
+        delegates,
+        token,
+        delegateUpdated,
+      } as any
     },
     async (objects) => {
+      await Promise.all(
+        objects.delegators.map(async (delegator, index) => {
+          if (!delegator._id && delegator.delegateInviteToken) {
+            const dbDelegator = await UserModel.findOne({
+              delegateInviteToken: delegator.delegateInviteToken,
+            })
+            dbDelegator.delegates.push(getUser(socket)._id)
+            objects.delegators[index] = Object.assign(
+              delegator,
+              dbDelegator.stripped()
+            )
+            dbDelegator.save()
+          }
+        })
+      )
+
+      const delegatorsToRemove = objects.delegators.filter(
+        (delegator) => delegator.deleted
+      )
+      const delegatesToRemove = objects.delegates.filter(
+        (delegate) => delegate.deleted
+      )
+      // Remove delegators
+      Promise.all(
+        delegatorsToRemove.map(async (delegator) => {
+          await UserModel.updateOne(
+            { _id: delegator._id },
+            { $pull: { delegates: getUser(socket)._id } }
+          )
+        })
+      )
+      // Remove delegates
+      await UserModel.updateOne(
+        { _id: getUser(socket)._id },
+        {
+          $pullAll: {
+            delegates: delegatesToRemove.map((delegate) => delegate._id),
+          },
+        }
+      )
       return {
         objectsToPushBack: objects,
-        needsSync: false,
+        needsSync: true,
       }
     }
   )
@@ -377,4 +479,10 @@ export function requestSync(userId: string) {
   io.to(userId).emit('tags_sync_request')
   io.to(userId).emit('settings_sync_request')
   io.to(userId).emit('user_sync_request')
+  io.to(userId).emit('delegate_sync_request')
 }
+
+type strippedDelegationUser = Pick<
+  User,
+  'name' | 'delegateInviteToken' | '_id' | 'updatedAt'
+>
