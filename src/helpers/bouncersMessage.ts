@@ -20,6 +20,7 @@ async function sendMessageToBouncers() {
     76104711,
     `Sending bouncer mesages to ${telegramBouncers.length} Telegram bouncers`
   )
+  let sentMessagesCountTelegram = 0
   for (const bouncer of telegramBouncers) {
     const telegramId = parseInt(bouncer.telegramId, 10)
     if (!telegramId) {
@@ -39,6 +40,7 @@ Hi there! It's @borodutch, the creator of Todorant. Can you please spend just 2 
 If you have any additional questions please contact me directly — @borodutch. Thank you!`,
         { disable_web_page_preview: true }
       )
+      sentMessagesCountTelegram++
     } catch (err) {
       console.error(err)
       bot.telegram.sendMessage(
@@ -49,6 +51,10 @@ If you have any additional questions please contact me directly — @borodutch. 
     bouncer.bouncerNotified = true
     await bouncer.save()
   }
+  await bot.telegram.sendMessage(
+    76104711,
+    `Sent bouncer mesages to ${sentMessagesCountTelegram} telegram bouncers`
+  )
   // Send to email
   const emailBouncers = await UserModel.find({
     createdAt: {
@@ -81,7 +87,7 @@ If you have any additional questions please contact me directly — @borodutch. 
       }
       bot.telegram.sendMessage(
         76104711,
-        `Failed sending power user message to ${email}: ${err.message || err}`
+        `Failed sending bouncer user message to ${email}: ${err.message || err}`
       )
     }
     bouncer.bouncerNotified = true
