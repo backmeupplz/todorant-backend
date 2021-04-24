@@ -120,7 +120,6 @@ export class User {
     if (!withToken) {
       stripFields.push('token')
       stripFields.push('anonymousToken')
-      stripFields.push('delegateInviteToken')
     }
     return omit(this._doc, stripFields)
   }
