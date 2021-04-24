@@ -169,7 +169,7 @@ export default class TodoController {
     // Get userId
     const userId = ctx.state.user._id.toString()
     // Check isDelegator
-    const isDelegator = todo.delegator.toString() === userId
+    const isDelegator = todo.delegator && todo.delegator.toString() === userId
     // Check ownership
     if (
       !todo ||
