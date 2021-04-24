@@ -1,6 +1,7 @@
 import { UserModel } from '@/models/user'
 import { bot } from '@/helpers/telegram'
 import { sendBouncerMessage } from '@/helpers/sendEmail'
+import { report } from './report'
 
 async function sendMessageToBouncers() {
   if (process.env.DEBUG) {
@@ -16,6 +17,10 @@ async function sendMessageToBouncers() {
     telegramId: { $exists: true },
     subscriptionStatus: 'inactive',
   })
+  await bot.telegram.sendMessage(
+    76104711,
+    `Sending bouncer mesages to ${telegramBouncers.length} Telegram bouncers`
+  )
   for (const bouncer of telegramBouncers) {
     const telegramId = parseInt(bouncer.telegramId, 10)
     if (!telegramId) {
@@ -60,6 +65,10 @@ If you have any additional questions please contact me directly — @borodutch. 
     email: { $exists: true },
     subscriptionStatus: 'inactive',
   })
+  await bot.telegram.sendMessage(
+    76104711,
+    `Sending bouncer mesages to ${emailBouncers.length} email bouncers`
+  )
   for (const bouncer of emailBouncers) {
     const email = bouncer.email
     if (!email) {
