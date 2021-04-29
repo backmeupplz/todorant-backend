@@ -1,8 +1,10 @@
+import { DocumentType } from '@typegoose/typegoose'
 import { Context, Markup as m, Extra } from 'telegraf'
 import { readdirSync, readFileSync } from 'fs'
 import { safeLoad } from 'js-yaml'
 import { TelegramLanguage } from '@/models/user'
 import { ExtraEditMessage } from 'telegraf/typings/telegram-types'
+import { User } from '@/models/user/User'
 
 export function sendLanguage(ctx: Context) {
   return ctx.reply(
@@ -19,7 +21,7 @@ export function sendLanguage(ctx: Context) {
 
 export async function handleLanguage(ctx: Context) {
   ctx.dbuser.telegramLanguage = ctx.callbackQuery.data as TelegramLanguage
-  ctx.dbuser = await ctx.dbuser.save()
+  ctx.dbuser = (await ctx.dbuser.save()) as DocumentType<User>
   const message = ctx.callbackQuery.message
   const anyI18N = ctx.i18n as any
   anyI18N.locale(ctx.callbackQuery.data)
