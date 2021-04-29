@@ -119,10 +119,6 @@ async function checkGoogleReceipt(subscriber: User) {
           productId,
           purchaseToken: receipt,
         })
-        if (subscriber.email === 'backmeupplz@gmail.com') {
-          console.log(subscriber.googleReceipt)
-          console.log(subscription)
-        }
         if (+subscription.payload.expiryTimeMillis > Date.now()) {
           return true
         }
