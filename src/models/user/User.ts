@@ -1,6 +1,7 @@
 import { GoogleCalendarCredentials } from '@/helpers/googleCalendar'
 import { prop, Ref } from '@typegoose/typegoose'
 import { omit } from 'lodash'
+import * as randToken from 'rand-token'
 
 export enum SubscriptionStatus {
   earlyAdopter = 'earlyAdopter',
@@ -80,7 +81,7 @@ export class User {
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
-  @prop({ index: true, unique: true })
+  @prop({ index: true, unique: true, default: randToken.generate(16) })
   delegateInviteToken?: string
   @prop({ ref: User, required: true, default: [], index: true })
   delegates: Ref<User>[]

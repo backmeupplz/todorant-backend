@@ -63,6 +63,11 @@ io.on('connection', (socket) => {
                     { path: 'user' },
                   ])
                   savedTodo._tempSyncId = todo._tempSyncId
+                  if (savedTodo.delegator) {
+                    requestSync(
+                      (savedTodo.user as DocumentType<User>)._id.toString()
+                    )
+                  }
                   res(savedTodo)
                 } else {
                   const dbtodo = await TodoModel.findById(todo._id)
@@ -81,11 +86,10 @@ io.on('connection', (socket) => {
                     return rej(new Error('Not authorized'))
                   }
                   // Prevent changing accepted tasks by delegators
-                  if (
-                    dbtodo.delegateAccepted &&
+                  const isChangesFromDelegator =
                     socket.user._id.toString() !==
-                      (dbtodo.user as DocumentType<User>)._id.toString()
-                  ) {
+                    (dbtodo.user as DocumentType<User>)._id.toString()
+                  if (dbtodo.delegateAccepted && isChangesFromDelegator) {
                     dbtodo._tempSyncId = todo._tempSyncId
                     todo = dbtodo
                     todo.updatedAt = new Date()
@@ -102,6 +106,19 @@ io.on('connection', (socket) => {
                     { path: 'user' },
                   ])
                   savedTodo._tempSyncId = todo._tempSyncId
+                  if (savedTodo.delegator) {
+                    if (isChangesFromDelegator) {
+                      requestSync(
+                        (savedTodo.user as DocumentType<User>)._id.toString()
+                      )
+                    } else {
+                      requestSync(
+                        (savedTodo.delegator as DocumentType<
+                          User
+                        >)._id.toString()
+                      )
+                    }
+                  }
                   res(savedTodo as DocumentType<Todo>)
                 }
               } catch (err) {
@@ -288,7 +305,7 @@ io.on('connection', (socket) => {
 
   setupSync<{
     delegates: Partial<UserWithDeleted>[]
-    delegators: Partial<UserWithDeleted>[]
+    delegators: (Partial<UserWithDeleted> & { invalid: boolean })[]
     token: string
   }>(
     socket,
@@ -343,12 +360,20 @@ io.on('connection', (socket) => {
             const dbDelegator = await UserModel.findOne({
               delegateInviteToken: delegator.delegateInviteToken,
             })
-            dbDelegator.delegates.push(socket.user._id)
-            objects.delegators[index] = Object.assign(
-              delegator,
-              dbDelegator.stripped()
-            )
-            dbDelegator.save()
+            if (
+              !dbDelegator ||
+              dbDelegator._id.toString() === socket.user._id.toString()
+            ) {
+              delegator.invalid = true
+            } else {
+              dbDelegator.delegates.push(socket.user._id)
+              objects.delegators[index] = Object.assign(
+                delegator,
+                dbDelegator.stripped()
+              )
+              await dbDelegator.save()
+              requestSync(dbDelegator._id)
+            }
           }
         })
       )
@@ -360,23 +385,28 @@ io.on('connection', (socket) => {
         (delegate) => delegate.deleted
       )
       // Remove delegators
-      Promise.all(
+      await Promise.all(
         delegatorsToRemove.map(async (delegator) => {
           await UserModel.updateOne(
             { _id: delegator._id },
             { $pull: { delegates: socket.user._id } }
           )
+          requestSync(delegator._id)
         })
       )
+      const delegatesIds = delegatesToRemove.map((delegate) => delegate._id)
       // Remove delegates
       await UserModel.updateOne(
         { _id: socket.user._id },
         {
           $pullAll: {
-            delegates: delegatesToRemove.map((delegate) => delegate._id),
+            delegates: delegatesIds,
           },
         }
       )
+      delegatesIds.forEach((delegateId) => {
+        requestSync(delegateId)
+      })
       return {
         objectsToPushBack: objects,
         needsSync: true,
