@@ -1,9 +1,12 @@
 import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
 import { authenticate } from '@/middlewares/authenticate'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { SubscriptionStatus } from '@/models/user'
 import { bot, report } from '@/helpers/report'
+
+const stagingReceiptVerificationURL =
+  'https://sandbox.itunes.apple.com/verifyReceipt'
 
 @Controller('/apple')
 export default class AppleController {
@@ -16,16 +19,23 @@ export default class AppleController {
   @Post('/subscription')
   @Flow(authenticate)
   async subscription(@Ctx() ctx: Context) {
+    let response: AxiosResponse<any>
     try {
       const appleUrl =
         process.env.ENVIRONMENT === 'staging'
-          ? 'https://sandbox.itunes.apple.com/verifyReceipt'
+          ? stagingReceiptVerificationURL
           : 'https://buy.itunes.apple.com/verifyReceipt'
       const password = process.env.APPLE_SECRET
-      const response = await axios.post(appleUrl, {
+      response = await axios.post(appleUrl, {
         'receipt-data': ctx.request.body.receipt,
         password,
       })
+      if (!!response.data.status && +response.data.status === 21007) {
+        response = await axios.post(stagingReceiptVerificationURL, {
+          'receipt-data': ctx.request.body.receipt,
+          password,
+        })
+      }
       const latestReceipt = response.data.latest_receipt
       const latestReceiptInfo = response.data.latest_receipt_info
       // Get latest
@@ -54,7 +64,12 @@ export default class AppleController {
       await ctx.state.user.save()
       ctx.status = 200
     } catch (err) {
-      report(err)
+      report(
+        err,
+        `${JSON.stringify(ctx.body)}${
+          response ? JSON.stringify(response.data) : ''
+        }`
+      )
       throw err
     }
   }
