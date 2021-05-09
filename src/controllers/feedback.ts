@@ -1,7 +1,8 @@
-import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
+import { Controller, Ctx, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
 import { getUserFromToken } from '@/middlewares/authenticate'
 import { bot } from '@/helpers/report'
+import { admins } from '@/helpers/telegram/admins'
 
 @Controller('/feedback')
 export default class FeedbackController {
@@ -18,7 +19,7 @@ export default class FeedbackController {
     }
 
     bot.telegram.sendMessage(
-      process.env.ADMIN,
+      admins[0],
       `#feedback ${name}
 
 ${JSON.stringify(ctx.request.body.state)}`

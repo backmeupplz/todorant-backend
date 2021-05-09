@@ -6,6 +6,7 @@ import { writeFileSync, unlinkSync } from 'fs'
 import { bot } from '@/helpers/report'
 import { _d } from '@/helpers/encryption'
 import { getTodos } from '@/controllers/todo'
+import { admins } from '@/helpers/telegram/admins'
 
 @Controller('/data')
 export default class DataController {
@@ -15,10 +16,10 @@ export default class DataController {
     const tempPath = path({ suffix: '.json' })
     writeFileSync(tempPath, JSON.stringify(ctx.request.body, undefined, 2))
     await bot.telegram.sendMessage(
-      process.env.ADMIN,
+      admins[0],
       `${ctx.state.user._id} ${ctx.state.user.name}`
     )
-    await bot.telegram.sendDocument(process.env.ADMIN, { source: tempPath })
+    await bot.telegram.sendDocument(admins[0], { source: tempPath })
     unlinkSync(tempPath)
     ctx.status = 200
   }

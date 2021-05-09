@@ -1,4 +1,5 @@
 import Telegraf from 'telegraf'
+import { admins } from '@/helpers/telegram/admins'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
@@ -29,8 +30,8 @@ export async function report(err: Error, extra?: string) {
         return
       }
     }
-    if (process.env.ADMIN && process.env.TELEGRAM_LOGIN_TOKEN) {
-      await bot.telegram.sendMessage(process.env.ADMIN, text)
+    if (admins[0] && process.env.TELEGRAM_LOGIN_TOKEN) {
+      await bot.telegram.sendMessage(admins[0], text)
     }
   } catch (error) {
     console.error(err)
