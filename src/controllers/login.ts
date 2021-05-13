@@ -12,10 +12,12 @@ import { DocumentType } from '@typegoose/typegoose'
 import axios from 'axios'
 import { decode } from 'jsonwebtoken'
 import { Context } from 'koa'
-import { Controller, Ctx, Post } from 'koa-ts-controllers'
+import { Controller, Ctx, Get, Post } from 'koa-ts-controllers'
 import * as randToken from 'rand-token'
 import { Markup as m } from 'telegraf'
 import Facebook = require('facebook-node-sdk')
+import { v4 as uuid } from 'uuid'
+import { QrLoginModel } from '@/models/QrLoginModel'
 
 const AppleAuth = require('apple-auth')
 
@@ -389,6 +391,42 @@ export default class LoginController {
       `https://todorant.com/apple_login_result#?id_token=${id_token}${userArg}`
     )
     return 'Success!'
+  }
+
+  @Get('/generate_uuid')
+  async generateQrUuid(@Ctx() ctx: Context) {
+    const qrUuid = uuid()
+    await new QrLoginModel({ uuid: qrUuid }).save()
+    return { uuid: qrUuid }
+  }
+
+  @Post('/qr_token')
+  async setQrToken(@Ctx() ctx: Context) {
+    const qrUuid = ctx.request.body.uuid
+    const token = ctx.request.body.token
+    if (!qrUuid || !token) {
+      return ctx.throw(403)
+    }
+    try {
+      await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token })
+      ctx.status = 200
+    } catch (err) {
+      ctx.status = 500
+    }
+  }
+
+  @Post('/qr_check')
+  async checkQrLogin(@Ctx() ctx: Context) {
+    const qrUuid = ctx.request.body.uuid
+    if (!qrUuid) {
+      return ctx.throw(403)
+    }
+    try {
+      const token = (await QrLoginModel.findOne({ uuid: qrUuid })).token
+      return { token }
+    } catch (err) {
+      // Do nothing
+    }
   }
 }
 
