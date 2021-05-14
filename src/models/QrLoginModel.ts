@@ -1,17 +1,12 @@
 import { getModelForClass, index, prop } from '@typegoose/typegoose'
 
-@index({ token: 1 })
-@index({ uuid: 1 })
 @index({ createdAt: 1 }, { expireAfterSeconds: 600 })
 export class QrLogin {
-  @prop()
+  @prop({ index: true })
   token?: string
 
-  @prop({ required: true, unique: true })
+  @prop({ required: true, unique: true, index: true })
   uuid: string
-
-  // Mongo property
-  _doc: any
 }
 
 export const QrLoginModel = getModelForClass(QrLogin, {

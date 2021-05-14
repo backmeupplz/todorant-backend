@@ -407,12 +407,8 @@ export default class LoginController {
     if (!qrUuid || !token) {
       return ctx.throw(403)
     }
-    try {
-      await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token })
-      ctx.status = 200
-    } catch (err) {
-      ctx.status = 500
-    }
+    await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token })
+    ctx.status = 200
   }
 
   @Post('/qr_check')
@@ -421,12 +417,8 @@ export default class LoginController {
     if (!qrUuid) {
       return ctx.throw(403)
     }
-    try {
-      const token = (await QrLoginModel.findOne({ uuid: qrUuid })).token
-      return { token }
-    } catch (err) {
-      // Do nothing
-    }
+    const token = (await QrLoginModel.findOne({ uuid: qrUuid })).token
+    return { token }
   }
 }
 
