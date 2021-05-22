@@ -10,11 +10,17 @@ async function sendMessageToBouncers() {
   const telegramBouncers = await UserModel.find({
     createdAt: {
       $lt: new Date().setDate(new Date().getDate() - 31),
+      $gt: new Date().setDate(new Date().getDate() - 60),
     },
     bouncerNotified: false,
     telegramId: { $exists: true },
-    subscriptionStatus: 'trial',
+    subscriptionStatus: 'inactive',
   })
+  await bot.telegram.sendMessage(
+    76104711,
+    `Sending bouncer mesages to ${telegramBouncers.length} Telegram bouncers`
+  )
+  let sentMessagesCountTelegram = 0
   for (const bouncer of telegramBouncers) {
     const telegramId = parseInt(bouncer.telegramId, 10)
     if (!telegramId) {
@@ -34,26 +40,37 @@ Hi there! It's @borodutch, the creator of Todorant. Can you please spend just 2 
 If you have any additional questions please contact me directly — @borodutch. Thank you!`,
         { disable_web_page_preview: true }
       )
-      await bot.telegram.sendMessage(
-        76104711,
-        `Sent bouncer message to ${telegramId}`
-      )
+      sentMessagesCountTelegram++
     } catch (err) {
       console.error(err)
+      bot.telegram.sendMessage(
+        76104711,
+        `Failed sending bouncer message to ${telegramId}: ${err.message || err}`
+      )
     }
     bouncer.bouncerNotified = true
     await bouncer.save()
   }
+  await bot.telegram.sendMessage(
+    76104711,
+    `Sent bouncer mesages to ${sentMessagesCountTelegram} telegram bouncers`
+  )
   // Send to email
   const emailBouncers = await UserModel.find({
     createdAt: {
       $lt: new Date().setDate(new Date().getDate() - 31),
+      $gt: new Date().setDate(new Date().getDate() - 60),
     },
     bouncerNotified: false,
     telegramId: { $exists: false },
     email: { $exists: true },
-    subscriptionStatus: 'trial',
+    subscriptionStatus: 'inactive',
   })
+  await bot.telegram.sendMessage(
+    76104711,
+    `Sending bouncer mesages to ${emailBouncers.length} email bouncers`
+  )
+  let sentMessagesCount = 0
   for (const bouncer of emailBouncers) {
     const email = bouncer.email
     if (!email) {
@@ -61,17 +78,34 @@ If you have any additional questions please contact me directly — @borodutch. 
     }
     try {
       await sendBouncerMessage(email)
-      await bot.telegram.sendMessage(
-        76104711,
-        `Sent bouncer message to ${email}`
-      )
+      await delay(5)
+      sentMessagesCount++
     } catch (err) {
       console.error(err)
+      if (err.message.includes('SPAM')) {
+        break
+      }
+      bot.telegram.sendMessage(
+        76104711,
+        `Failed sending bouncer user message to ${email}: ${err.message || err}`
+      )
     }
     bouncer.bouncerNotified = true
     await bouncer.save()
   }
+  await bot.telegram.sendMessage(
+    76104711,
+    `Sent bouncer mesages to ${sentMessagesCount} email bouncers`
+  )
 }
 
 sendMessageToBouncers()
 setInterval(sendMessageToBouncers, 24 * 60 * 60 * 1000) // once per day
+
+function delay(s: number) {
+  return new Promise((res) => {
+    setTimeout(() => {
+      res()
+    }, s * 1000)
+  })
+}

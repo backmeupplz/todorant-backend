@@ -1,7 +1,8 @@
 import { Context } from 'telegraf'
+import { admins } from '@/helpers/telegram/admins'
 
 export function checkSuperAdmin(ctx: Context, next) {
-  if (ctx.from.id !== parseInt(process.env.ADMIN, 10)) {
+  if (!admins.includes(ctx.chat?.id)) {
     return
   }
   return next()

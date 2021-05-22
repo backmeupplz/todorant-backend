@@ -11,7 +11,7 @@ import 'module-alias/register'
 import * as dotenv from 'dotenv'
 dotenv.config({ path: `${__dirname}/../.env` })
 // Get the rest of dependencies
-import { socketServer } from '@/sockets/index'
+import { socketServer } from '@/sockets/io'
 import { app } from '@/app'
 import { bot } from '@/helpers/telegram'
 import * as GracefulShutdown from 'http-graceful-shutdown'

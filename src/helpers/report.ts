@@ -1,4 +1,5 @@
 import Telegraf from 'telegraf'
+import { admins } from '@/helpers/telegram/admins'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
@@ -12,7 +13,7 @@ export async function tryReport<T>(fun: (() => T) | Promise<T>) {
   }
 }
 
-export async function report(err: Error) {
+export async function report(err: Error, extra?: string) {
   const dismissableErrors = [
     'No authentication token provided',
     'invalid_grant',
@@ -23,17 +24,14 @@ export async function report(err: Error) {
   try {
     let text = `Todorant Error:\n${err.message || JSON.stringify(err)}${
       err.stack ? `\n\n${err.stack}` : ''
-    }`
-    if (err.stack) {
-      text = `${text}`
-    }
+    }${extra ? `\n\n${extra}` : ''}`
     for (const errorText of dismissableErrors) {
       if (text.indexOf(errorText) > -1) {
         return
       }
     }
-    if (process.env.ADMIN && process.env.TELEGRAM_LOGIN_TOKEN) {
-      await bot.telegram.sendMessage(process.env.ADMIN, text)
+    if (admins[0] && process.env.TELEGRAM_LOGIN_TOKEN) {
+      await bot.telegram.sendMessage(admins[0], text)
     }
   } catch (error) {
     console.error(err)

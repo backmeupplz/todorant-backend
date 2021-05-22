@@ -1,6 +1,7 @@
 import { GoogleCalendarCredentials } from '@/helpers/googleCalendar'
 import { prop, Ref } from '@typegoose/typegoose'
 import { omit } from 'lodash'
+import * as randToken from 'rand-token'
 
 export enum SubscriptionStatus {
   earlyAdopter = 'earlyAdopter',
@@ -68,6 +69,8 @@ export class User {
   appleReceipt?: String
   @prop()
   googleReceipt?: String
+  @prop({ index: true, required: true, default: false })
+  isPerpetualLicense: boolean
 
   @prop({ index: true, required: true, default: false })
   bouncerNotified: boolean
@@ -78,10 +81,12 @@ export class User {
   @prop({ required: true, default: false })
   createdOnApple: boolean
 
-  @prop({ index: true, unique: true })
+  @prop({ index: true, unique: true, default: randToken.generate(16) })
   delegateInviteToken?: string
   @prop({ ref: User, required: true, default: [], index: true })
   delegates: Ref<User>[]
+  @prop({ default: new Date() })
+  delegatesUpdatedAt: Date
 
   @prop()
   googleCalendarResourceId?: string
@@ -104,21 +109,25 @@ export class User {
       stripFields.push('appleSubId')
       stripFields.push('createdOnApple')
       stripFields.push('subscriptionStatus')
+      stripFields.push('subscriptionId')
+      stripFields.push('appleReceipt')
+      stripFields.push('googleReceipt')
+      stripFields.push('isPerpetualLicense')
       stripFields.push('timezone')
       stripFields.push('settings')
-      stripFields.push('updatedAt')
       stripFields.push('createdAt')
       stripFields.push('telegramZen')
     }
     if (!withToken) {
       stripFields.push('token')
       stripFields.push('anonymousToken')
-      stripFields.push('delegateInviteToken')
     }
     return omit(this._doc, stripFields)
   }
 
   // Mongo property
+  updatedAt: Date
+  _id: string
   _doc: any
   createdAt: Date
 }

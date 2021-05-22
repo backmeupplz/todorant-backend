@@ -23,7 +23,6 @@ import {
   handleRefresh,
 } from '@/helpers/telegram/commands/current'
 import { handleId } from '@/helpers/telegram/commands/id'
-import { sendDebug } from '@/helpers/telegram/commands/debug'
 import { sendQR } from '@/helpers/telegram/commands/qr'
 import { checkSuperAdmin } from '@/helpers/telegram/middlewares/checkSuperAdmin'
 import { sendSubscriptions } from '@/helpers/telegram/commands/subscriptions'
@@ -52,7 +51,6 @@ bot.command('zen', handleZen)
 bot.command('timezone', handleTimezone)
 bot.command('current', handleCurrent)
 bot.command('id', handleId)
-bot.command('debug', checkSuperAdmin, sendDebug)
 bot.command('subscriptions', checkSuperAdmin, sendSubscriptions)
 bot.command('qr', sendQR)
 // Actions

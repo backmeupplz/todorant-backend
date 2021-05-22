@@ -28,7 +28,6 @@ describe('Authenticate', () => {
   it('should call next if everything is ok', async () => {
     process.env.JWT = 'test_secret'
     const token = await sign(user)
-    console.log(token)
     await UserModel.create({ ...user, token })
     const ctx = await check(true, token)
     expect(ctx.state.user.name).toBe(user.name)

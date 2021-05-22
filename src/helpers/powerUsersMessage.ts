@@ -64,6 +64,12 @@ If you have any additional questions please contact me directly — @borodutch. 
       )
     } catch (err) {
       console.error(err)
+      bot.telegram.sendMessage(
+        76104711,
+        `Failed sending power user message to ${telegramId}: ${
+          err.message || err
+        }`
+      )
     }
     powerUser.powerUserNotified = true
     await powerUser.save()
@@ -109,6 +115,10 @@ If you have any additional questions please contact me directly — @borodutch. 
       )
     } catch (err) {
       console.error(err)
+      bot.telegram.sendMessage(
+        76104711,
+        `Failed sending power user message to ${email}: ${err.message || err}`
+      )
     }
     powerUser.powerUserNotified = true
     await powerUser.save()
