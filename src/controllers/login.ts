@@ -403,11 +403,17 @@ export default class LoginController {
   @Post('/qr_token')
   async setQrToken(@Ctx() ctx: Context) {
     const qrUuid = ctx.request.body.uuid
-    const token = ctx.request.body.token
+    const token = ctx.headers.token
     if (!qrUuid || !token) {
       return ctx.throw(403)
     }
-    await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token })
+    const tokenAuthorized = (await QrLoginModel.findOne({ uuid: qrUuid }))
+      .tokenAuthorized
+    if (tokenAuthorized) return
+    await QrLoginModel.findOneAndUpdate(
+      { uuid: qrUuid },
+      { token, tokenAuthorized: true }
+    )
     ctx.status = 200
   }
 

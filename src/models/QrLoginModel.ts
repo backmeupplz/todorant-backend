@@ -5,6 +5,9 @@ export class QrLogin {
   @prop({ index: true })
   token?: string
 
+  @prop({ required: true, default: false })
+  tokenAuthorized: boolean
+
   @prop({ required: true, unique: true, index: true })
   uuid: string
 }
