@@ -1,7 +1,7 @@
 import { sign, verifyAppleToken } from '@/helpers/jwt'
 import { bot } from '@/helpers/telegram'
 import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
-import { getUserFromToken } from '@/middlewares/authenticate'
+import { authenticate, getUserFromToken } from '@/middlewares/authenticate'
 import {
   getOrCreateUser,
   SubscriptionStatus,
@@ -12,7 +12,7 @@ import { DocumentType } from '@typegoose/typegoose'
 import axios from 'axios'
 import { decode } from 'jsonwebtoken'
 import { Context } from 'koa'
-import { Controller, Ctx, Get, Post } from 'koa-ts-controllers'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import * as randToken from 'rand-token'
 import { Markup as m } from 'telegraf'
 import Facebook = require('facebook-node-sdk')
@@ -411,19 +411,14 @@ export default class LoginController {
   }
 
   @Post('/qr_token')
+  @Flow(authenticate)
   async setQrToken(@Ctx() ctx: Context) {
     const qrUuid = ctx.request.body.uuid
     const token = ctx.headers.token
     if (!qrUuid || !token) {
       return ctx.throw(403)
     }
-    const tokenAuthorized = (await QrLoginModel.findOne({ uuid: qrUuid }))
-      .tokenAuthorized
-    if (tokenAuthorized) return
-    await QrLoginModel.findOneAndUpdate(
-      { uuid: qrUuid },
-      { token, tokenAuthorized: true }
-    )
+    await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token })
     ctx.status = 200
   }
 
