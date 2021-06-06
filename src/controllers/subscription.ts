@@ -38,6 +38,7 @@ export default class SubscriptionController {
       client_reference_id: ctx.state.user.id,
       locale: locale,
       mode: plan === 'perpetual' ? 'payment' : 'subscription',
+      allow_promotion_codes: true,
     })
     // Respond
     return {
