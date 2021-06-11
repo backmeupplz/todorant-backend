@@ -29,16 +29,20 @@ async function sendMessageToBouncers() {
     try {
       await bot.telegram.sendMessage(
         telegramId,
-        `Привет! Это @borodutch, создатель Тудуранта. Можете, пожалуйста, потратить 2 минуты и ответить на несколько вопросов, почему вы больше не пользуетесь Тудурантом? Ответить можно по ссылке вот тут: https://forms.gle/nmP1RozzvAZmEUhw6. Всего пара минут — а гигантская польза всем людям, что продолжают добавлять задачи в Тудурант. Все вопросы там необязательны для ответа, а опрос анонимен. Спасибо огромное заранее!
+        `Hi there! It's Nikita, the creator of Todorant. Can you please spend just 2 minutes and answer a couple of questions about why you don't use Todorant anymore? You can answer them here: https://forms.gle/nJ6JoASKQc1Juv1j7. Just a couple of minutes — but a massive help to anyone who still uses Todorant. All questions are optional, and the answers are anonymous. I appreciate any help you can provide!
 
-Если у вас есть какие-либо дополнительные вопросы, пожалуйста, напишите мне напрямую — @borodutch. Спасибо!
+I also gift you another free month of Todorant! Enter the code <code>1MOREMONTH</code> when subscribing at todorant.com (only works if you subscribe on the web) — and you will get $5 off.
+
+If you have any additional questions, please contact me directly — @borodutch. Thank you!
 
 ***
 
-Hi there! It's @borodutch, the creator of Todorant. Can you please spend just 2 minutes and answer couple of questions why you don't use Todorant anymore? You can answer them here: https://forms.gle/nJ6JoASKQc1Juv1j7. Just a couple of minutes — but huge help to anyone who still uses Todorant. All questions are optional and the answers are anonymous. Thank you a lot in advance!
+Привет! Это Никита, создатель Тудуранта. Можете, пожалуйста, потратить 2 минуты и ответить на несколько вопросов, почему вы больше не пользуетесь Тудурантом? Ответить можно по ссылке вот тут: https://forms.gle/nmP1RozzvAZmEUhw6. Всего пара минут — а гигантская польза всем людям, что продолжают добавлять задачи в Тудурант. Все вопросы там необязательны для ответа, а опрос анонимен. Спасибо огромное заранее!
 
-If you have any additional questions please contact me directly — @borodutch. Thank you!`,
-        { disable_web_page_preview: true }
+За заполнение этой короткой формы я дарю вам бесплатный месяц Тудуранта! Просто введите код <code>1MOREMONTH<code> при оформлении подписки на todorant.com (работает только при оформлении подписки на вебсайте) — и вы получите скидку в $5.
+
+Если у вас есть какие-либо дополнительные вопросы, пожалуйста, напишите мне напрямую — @borodutch. Спасибо!`,
+        { disable_web_page_preview: true, parse_mode: 'HTML' }
       )
       sentMessagesCountTelegram++
     } catch (err) {
