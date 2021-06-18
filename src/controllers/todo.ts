@@ -287,11 +287,13 @@ export default class TodoController {
       requestSync(todo.delegator.toString())
     }
     // Update calendar
-    updateTodos(
-      [todo],
-      ctx.state.user.settings.googleCalendarCredentials,
-      ctx.headers.password
-    )
+    if (ctx.state.user.settings.removeCompletedFromCalendar) {
+      updateTodos(
+        [todo],
+        ctx.state.user.settings.googleCalendarCredentials,
+        ctx.headers.password
+      )
+    }
     // Check incomplete frogs
     const incompleteFrogs = await TodoModel.find({
       user: ctx.state.user._id,
