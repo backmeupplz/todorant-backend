@@ -11,6 +11,7 @@ export enum SubscriptionStatus {
 }
 
 export interface Settings {
+  removeCompletedFromCalendar?: boolean
   showTodayOnAddTodo?: boolean
   firstDayOfWeek?: number
   startTimeOfDay?: string

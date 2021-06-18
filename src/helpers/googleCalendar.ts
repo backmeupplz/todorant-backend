@@ -59,7 +59,8 @@ export async function getGoogleCalendarToken(code: string, web = false) {
 export async function updateTodos(
   todos: Todo[],
   credentials?: GoogleCalendarCredentials,
-  password?: string
+  password?: string,
+  removeCompleted?: boolean
 ) {
   if (!credentials) {
     return
@@ -77,7 +78,10 @@ export async function updateTodos(
       }
       let todoEvent = await getTodoEvent(api, todorantCalendar, todo)
       if (
-        (todo.deleted || todo.completed || !todo.time || !todo.date) &&
+        (todo.deleted ||
+          (removeCompleted && todo.completed) ||
+          !todo.time ||
+          !todo.date) &&
         todoEvent
       ) {
         try {
