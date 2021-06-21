@@ -290,7 +290,8 @@ export default class TodoController {
     updateTodos(
       [todo],
       ctx.state.user.settings.googleCalendarCredentials,
-      ctx.headers.password
+      ctx.headers.password,
+      ctx.state.user.settings.removeCompletedFromCalendar
     )
     // Check incomplete frogs
     const incompleteFrogs = await TodoModel.find({

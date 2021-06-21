@@ -131,7 +131,8 @@ io.on('connection', (socket) => {
       updateTodos(
         savedTodos,
         socket.user.settings.googleCalendarCredentials,
-        password
+        password,
+        socket.user.settings.removeCompletedFromCalendar
       )
       return {
         objectsToPushBack: savedTodos.map((t) => t.stripped()),
