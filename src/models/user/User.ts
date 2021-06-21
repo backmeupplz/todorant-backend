@@ -44,7 +44,7 @@ export class User {
   appleSubId?: string
   @prop({ required: true, index: true })
   name: string
-  @prop({ required: true, default: { preserveOrderByTime: true }, _id: false })
+  @prop({ required: true, default: { preserveOrderByTime: true, removeCompletedFromCalendar: true }, _id: false })
   settings: Settings
 
   @prop({ required: true, index: true, unique: true })
