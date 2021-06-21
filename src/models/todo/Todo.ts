@@ -3,7 +3,7 @@ import { omit, pick } from 'lodash'
 import { User } from '@/models/user/User'
 
 export class Todo {
-  @prop({ required: true, ref: User })
+  @prop({ required: true, ref: User, index: true })
   user: Ref<User>
 
   @prop({ required: true })
@@ -67,7 +67,7 @@ export class Todo {
   })
   time?: string // e.g. "01:01"
 
-  @prop({ ref: User })
+  @prop({ ref: User, index: true })
   delegator?: Ref<User>
   @prop()
   delegateAccepted?: boolean
