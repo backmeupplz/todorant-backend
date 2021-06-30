@@ -25,11 +25,11 @@ help: |
   /timezone +3
   /timezone -8
   /timezone 0
-language: Selezionare la lingua.
+language: Seleziona la lingua.
 language_selected: '@todorant_bot ora parla italiano.'
 login: 'Per favore, effettua il login su todorant.com utilizzando il pulsante qui sotto.'
-zen_on: 'Benvenuti nella modalità zen! Tutto ciò che mi invierete sarà gestito come se aveste il comando <code>/todo</code> già pronto. Quindi non preoccuparti di inviare <code>/todo Pulisci il frigo</code> o <code>/todo 2020 Guarda tutto Dr. House</codice>, basta fare <code>Pulisci il frigo</code> e <code>2020 Guarda tutto Dr. House</codice>. Usa /zen per disattivare questa modalità.'
-zen_off: Hai disattvato la modalità zen.
+zen_on: 'Benvenuti nella modalità Zen! Tutto ciò che mi invierete sarà gestito come se aveste il comando <code>/todo</code> già pronto. Quindi non preoccuparti di inviare <code>/todo Pulisci il frigo</code> o <code>/todo 2020 Guarda tutto Dr. House</code>, basta fare <code>Pulisci il frigo</code> e <code>2020 Guarda tutto Dr. House</code>. Usa /zen per disattivare questa modalità.'
+zen_off: Hai disattivato la modalità Zen.
 timezone_help: |
   Si prega di utilizzare questo comando come mostrato di seguito. Grazie!
 
@@ -40,7 +40,7 @@ timezone_success: |
   Il tuo fuso orario è stato impostato su UTC${timezone}. Controlla che l'orario sia corretto.
 
   ${time}
-all_done: "\U0001F44D Ce l'hai fattat! Hai finito tutte le attività di oggi, risposati o balla per un po' \U0001F483"
+all_done: "\U0001F44D Ce l'hai fatta! Hai completato tutte le attività di oggi, riposati o balla per un po' \U0001F483"
 no_todo_text: |
   Inserisci l'attività in questo modo.
 
