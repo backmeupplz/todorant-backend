@@ -48,7 +48,7 @@ async function sendTranscription(ctx, url, witLanguage) {
 async function updateMessagewithError(ctx, msg) {
   try {
     // Get text
-    let text = ctx.i18n.t('error')
+    let text = ctx.i18n.t('error_recognition')
 
     // Edit message
     await ctx.telegram.editMessageText(
