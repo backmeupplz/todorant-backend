@@ -75,7 +75,7 @@ export default class TodoController {
           { user: ctx.state.user.id },
           { $inc: { points: 1 } }
         )
-        const tagsArray = getTags(ctx.request.body, password)
+        const tagsArray = getTags([todo], password)
         await addEpicPoints(ctx.state.user, tagsArray)
       }
 
