@@ -2,6 +2,7 @@ module.exports = {
   noUser: {
     en: 'No user found',
     ru: 'Пользователь не найден',
+    fr: 'User non trouvé',
   },
   noTodo: {
     en: 'No todo found',
