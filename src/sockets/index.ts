@@ -5,7 +5,7 @@ import { Tag, TagModel } from '@/models/tag'
 import { Todo, TodoModel } from '@/models/todo'
 import { Settings, User, UserModel } from '@/models/user'
 import { DocumentType } from '@typegoose/typegoose'
-import { omit } from 'lodash'
+import { name, omit } from 'lodash'
 import { setupSync } from '@/sockets/setupSync'
 import { io } from '@/sockets/io'
 import { setupAuthorization } from '@/sockets/setupAuthorization'
@@ -15,6 +15,35 @@ type UserWithDeleted = User & { deleted: boolean }
 
 io.on('connection', (socket) => {
   setupAuthorization(socket)
+
+  socket.on('get_wmdb', async (lastSyncDate: Date | undefined) => {
+    socket.emit(
+      'return_wmdb',
+      `получаем тут тудуxи и теги локально ${lastSyncDate}`,
+      Date.now()
+    )
+    //socket.emit("return_wmdb", await getTodosAndTags(user, lastSyncDate))
+  })
+
+  socket.on(
+    'sync_wmdb',
+    async (lastSyncDate: Date | undefined, syncId: string) => {
+      const user = socket.user
+      if (!socket.authorized || !user) {
+        socket.emit(`${name}_sync_error`, 'Not authorized', syncId)
+        return
+      }
+      socket.emit(name, await getObjects(user, lastSyncDate), syncId)
+    }
+  )
+
+  socket.on('push_wmdb', async (changes: any, lastPulledAt: Date) => {
+    // Do something with raw sql data
+    console.log(changes)
+    socket.emit('complete_wmdb')
+  })
+
+  socket.emit('wmdb')
 
   setupSync<Todo[]>(
     socket,
