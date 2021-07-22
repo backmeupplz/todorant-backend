@@ -5,45 +5,262 @@ import { Tag, TagModel } from '@/models/tag'
 import { Todo, TodoModel } from '@/models/todo'
 import { Settings, User, UserModel } from '@/models/user'
 import { DocumentType } from '@typegoose/typegoose'
-import { name, omit } from 'lodash'
+import { omit } from 'lodash'
 import { setupSync } from '@/sockets/setupSync'
 import { io } from '@/sockets/io'
 import { setupAuthorization } from '@/sockets/setupAuthorization'
-import { FilterQuery } from 'mongoose'
+import { Document, DocumentQuery, FilterQuery, Model } from 'mongoose'
 
 type UserWithDeleted = User & { deleted: boolean }
+
+type WMDBTablesColumns = {
+  _exactDate: 'exact_date_at'
+  _id: 'id'
+  createdAt: 'created_at'
+  updatedAt: 'updated_at'
+  text: 'text'
+  completed: 'is_completed'
+  frog: 'is_frog'
+  frogFails: 'frog_fails'
+  skipped: 'is_skipped'
+  order: 'order'
+  monthAndYear: 'month_and_year'
+  deleted: 'is_deleted'
+  encrypted: 'is_encrypted'
+  date: 'date'
+  time: 'time'
+  user: 'user_id'
+  delegator: 'delegator_id'
+  delegateAccepted: 'is_delegate_accepted'
+  _tempSyncId: 'id'
+  tag: 'tag'
+  color: 'color'
+  numberOfUses: 'number_of_uses'
+  epic: 'is_epic'
+  epicGoal: 'epic_goal'
+  epicCompleted: 'is_epic_completed'
+  epicPoints: 'epic_points'
+  epicOrder: 'epic_order'
+  name: 'name'
+  isDelegator: 'is_delegator'
+  delegateInviteToken: 'delegate_invite_token'
+  todoId: 'todo_id'
+}
+
+type SQLTodo = {
+  _tempSyncId: 'id'
+  _exactDate: 'exact_date_at'
+  _id: 'server_id'
+  createdAt: 'created_at'
+  updatedAt: 'updated_at'
+  text: 'text'
+  completed: 'is_completed'
+  frog: 'is_frog'
+  frogFails: 'frog_fails'
+  skipped: 'is_skipped'
+  order: 'order'
+  monthAndYear: 'month_and_year'
+  deleted: 'is_deleted'
+  encrypted: 'is_encrypted'
+  date: 'date'
+  time: 'time'
+  user: 'user_id'
+  delegator: 'delegator_id'
+  delegateAccepted: 'is_delegate_accepted'
+}
+
+const idkWMDBTablesColumns = {
+  _exactDate: 'exact_date_at',
+  _id: 'server_id',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  text: 'text',
+  completed: 'is_completed',
+  frog: 'is_frog',
+  frogFails: 'frog_fails',
+  skipped: 'is_skipped',
+  order: 'order',
+  monthAndYear: 'month_and_year',
+  deleted: 'is_deleted',
+  encrypted: 'is_encrypted',
+  date: 'date',
+  time: 'time',
+  user: 'user_id',
+  delegator: 'delegator_id',
+  delegateAccepted: 'is_delegate_accepted',
+  _tempSyncId: 'id',
+  tag: 'tag',
+  color: 'color',
+  numberOfUses: 'number_of_uses',
+  epic: 'is_epic',
+  epicGoal: 'epic_goal',
+  epicCompleted: 'is_epic_completed',
+  epicPoints: 'epic_points',
+  epicOrder: 'epic_order',
+  name: 'name',
+  isDelegator: 'is_delegator',
+  delegateInviteToken: 'delegate_invite_token',
+  todoId: 'todo_id',
+}
+
+enum WMDBTables {
+  Todo = 'todos',
+  Tag = 'tags',
+  User = 'users',
+}
+
+enum WMDBSyncColumns {
+  Updated = 'updated',
+  Created = 'created',
+  Deleted = 'deleted',
+}
+
+interface RawSqlChanged {
+  [WMDBTables.Todo]: {
+    [WMDBSyncColumns.Created]: WMDBTablesColumns[]
+    [WMDBSyncColumns.Updated]: WMDBTablesColumns[]
+  }
+  [WMDBTables.Tag]: {
+    [WMDBSyncColumns.Created]: WMDBTablesColumns[]
+    [WMDBSyncColumns.Updated]: WMDBTablesColumns[]
+  }
+  [WMDBTables.User]: {
+    [WMDBSyncColumns.Created]: WMDBTablesColumns[]
+    [WMDBSyncColumns.Updated]: WMDBTablesColumns[]
+  }
+}
+
+//type Values =  WMDBTablesColumns[Keys]
+
+type ValueOf<T> = T[keyof T]
+
+function convertMongoObjectToSql<T extends object>(mongoObject: T) {
+  const omitted = omit(mongoObject, ['updated_at', 'created'])
+  const empty = {} as {
+    [key in ValueOf<WMDBTablesColumns>]: string | boolean | number
+  }
+  for (const key in omitted) {
+    empty[idkWMDBTablesColumns[key]] = mongoObject[key] || null
+  }
+  empty['id'] = mongoObject._id
+  return empty
+}
+
+function convertModelToRawSql<T extends object>(
+  rawObject: any,
+  tableName: WMDBTables,
+  created: T[],
+  updated: T[]
+) {
+  rawObject[tableName] = {}
+  rawObject[tableName][WMDBSyncColumns.Created] = created.map((_, index) => {
+    return convertMongoObjectToSql(created[index])
+  })
+  rawObject[tableName][WMDBSyncColumns.Updated] = updated.map((_, index) => {
+    return convertMongoObjectToSql(updated[index])
+  })
+  rawObject[tableName][WMDBSyncColumns.Deleted] = []
+}
+
+function fromSqlToObject(test, user: string) {
+  const obj = {
+    _tempSyncId: test.id,
+    _exactDate: test.exact_date_at,
+    _id: test.server_id,
+    createdAt: test.created_at,
+    updatedAt: test.updated_at,
+    text: test.text,
+    completed: test.is_completed,
+    frog: test.is_frog,
+    frogFails: test.frog_fails,
+    skipped: test.is_skipped,
+    order: test.order,
+    monthAndYear: test.month_and_year,
+    deleted: test.is_deleted,
+    encrypted: test.is_encrypted,
+    date: test.date,
+    time: test.time,
+    user: test.user_id || user,
+    delegator: test.delegator_id,
+    delegateAccepted: test.is_delegate_accepted,
+  }
+  return obj
+}
+
+async function getUpdatedItems<T extends typeof Model>(
+  lastPullTimestamp: number | undefined,
+  userId: string,
+  model: T,
+  created: boolean
+): Promise<DocumentQuery<T[], DocumentType<T>>> {
+  const query = { user: userId } as FilterQuery<T>
+  if (lastPullTimestamp) {
+    query.updatedAt = { $gt: new Date(lastPullTimestamp) }
+    if (created) query.createdAt = { $gt: new Date(lastPullTimestamp) }
+    else query.createdAt = { $lt: new Date(lastPullTimestamp) }
+  }
+  return model.find(query)
+}
 
 io.on('connection', (socket) => {
   setupAuthorization(socket)
 
-  socket.on('get_wmdb', async (lastSyncDate: Date | undefined) => {
-    socket.emit(
-      'return_wmdb',
-      `получаем тут тудуxи и теги локально ${lastSyncDate}`,
-      Date.now()
+  socket.on('get_wmdb', async (lastSyncDate: number | undefined) => {
+    const userId = socket.user._id
+    const updatedTags = await getUpdatedItems(
+      lastSyncDate,
+      userId,
+      TagModel,
+      false
     )
-    //socket.emit("return_wmdb", await getTodosAndTags(user, lastSyncDate))
+    const createdTags = await getUpdatedItems(
+      lastSyncDate,
+      userId,
+      TagModel,
+      true
+    )
+    const updatedTodos = await getUpdatedItems(
+      lastSyncDate,
+      userId,
+      TodoModel,
+      false
+    )
+    const createdTodos = await getUpdatedItems(
+      lastSyncDate,
+      userId,
+      TodoModel,
+      true
+    )
+    const obj = {}
+    convertModelToRawSql(obj, WMDBTables.Todo, createdTodos, updatedTodos)
+    convertModelToRawSql(obj, WMDBTables.Tag, createdTags, updatedTags)
+    socket.emit('return_wmdb', obj, Date.now())
   })
 
   socket.on(
-    'sync_wmdb',
-    async (lastSyncDate: Date | undefined, syncId: string) => {
-      const user = socket.user
-      if (!socket.authorized || !user) {
-        socket.emit(`${name}_sync_error`, 'Not authorized', syncId)
-        return
-      }
-      socket.emit(name, await getObjects(user, lastSyncDate), syncId)
+    'push_wmdb',
+    async (changes: RawSqlChanged, lastPulledTimestamp: number) => {
+      const userId = socket.user._id
+      const toPushBack = []
+      await Promise.all(
+        changes.todos.created.map(async (sqlRaw) => {
+          const todoFromSql = fromSqlToObject(sqlRaw, userId)
+          delete todoFromSql._id
+          const mongoTodo = await new TodoModel(todoFromSql).save()
+          toPushBack.push({ ...todoFromSql, ...mongoTodo._doc })
+        })
+      )
+      await Promise.all(
+        changes.todos.updated.map(async (sqlRaw) => {
+          const asObj = fromSqlToObject(sqlRaw, userId)
+          const inMongo = await TodoModel.findById(asObj._id)
+          Object.assign(inMongo, omit(asObj, ['_id', 'createdAt', 'updatedAt']))
+          await inMongo.save()
+        })
+      )
+      socket.emit('complete_wmdb', toPushBack)
     }
   )
-
-  socket.on('push_wmdb', async (changes: any, lastPulledAt: Date) => {
-    // Do something with raw sql data
-    console.log(changes)
-    socket.emit('complete_wmdb')
-  })
-
-  socket.emit('wmdb')
 
   setupSync<Todo[]>(
     socket,
@@ -446,11 +663,10 @@ io.on('connection', (socket) => {
 })
 
 export function requestSync(userId: string) {
-  io.to(userId).emit('todos_sync_request')
-  io.to(userId).emit('tags_sync_request')
   io.to(userId).emit('settings_sync_request')
   io.to(userId).emit('user_sync_request')
   io.to(userId).emit('delegate_sync_request')
+  io.to(userId).emit('wmdb')
 }
 
 type StrippedDelegationUser = Pick<
