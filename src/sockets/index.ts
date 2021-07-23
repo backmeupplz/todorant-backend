@@ -199,7 +199,7 @@ async function getUpdatedItems<T extends typeof Model>(
     if (created) query.createdAt = { $gt: new Date(lastPullTimestamp) }
     else query.createdAt = { $lt: new Date(lastPullTimestamp) }
   }
-  return model.find(query)
+  return !created && !lastPullTimestamp ? [] : model.find(query)
 }
 
 io.on('connection', (socket) => {
