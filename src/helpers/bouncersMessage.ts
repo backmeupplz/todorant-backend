@@ -107,7 +107,7 @@ sendMessageToBouncers()
 setInterval(sendMessageToBouncers, 24 * 60 * 60 * 1000) // once per day
 
 function delay(s: number) {
-  return new Promise((res) => {
+  return new Promise<void>((res) => {
     setTimeout(() => {
       res()
     }, s * 1000)
