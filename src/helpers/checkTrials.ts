@@ -3,7 +3,7 @@ import { SubscriptionStatus, UserModel } from '@/models/user'
 import { bot } from '@/helpers/report'
 
 async function checkTrials() {
-  if (process.env.DEBUG) {
+  if (process.env.DEBUG || process.env.NODE_ENV === 'test') {
     return
   }
   console.log('Checking trials')
