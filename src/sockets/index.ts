@@ -504,6 +504,8 @@ io.on('connection', (socket) => {
 })
 
 export function requestSync(userId: string) {
+  io.to(userId).emit('todos_sync_request')
+  io.to(userId).emit('tags_sync_request')
   io.to(userId).emit('settings_sync_request')
   io.to(userId).emit('user_sync_request')
   io.to(userId).emit('delegate_sync_request')
