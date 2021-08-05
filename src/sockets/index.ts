@@ -21,7 +21,7 @@ import {
 
 type UserWithDeleted = User & { deleted: boolean }
 
-function getUpdatedOrCreatedItems(
+async function getUpdatedOrCreatedItems(
   lastPullTimestamp: Date | undefined,
   userId: string,
   model: typeof TodoModel | typeof TagModel,
@@ -36,7 +36,11 @@ function getUpdatedOrCreatedItems(
   if (lastPullTimestamp) {
     query.updatedAt = { $gt: lastPullTimestamp }
   }
-  return model.find(query).populate('user').populate('delegator')
+  return (await model.find(query).populate('user').populate('delegator')).map(
+    (todoOrTag) => {
+      return todoOrTag.stripped()
+    }
+  )
 }
 
 io.on('connection', (socket) => {
@@ -69,8 +73,30 @@ io.on('connection', (socket) => {
       const toPushBack = { todos: [] as Todo[], tags: [] as Tag[] }
       await Promise.all([
         ...changes.todos.created.map(async (sqlRaw) => {
-          const todoFromSql = fromSqlToObject(sqlRaw, WMDBTables.Todo, userId)
+          const todoFromSql = fromSqlToObject(
+            sqlRaw,
+            WMDBTables.Todo,
+            userId
+          ) as Todo
           delete todoFromSql._id
+          if (!todoFromSql.delegator) {
+            todoFromSql.user = userId
+          } else {
+            if (todoFromSql.delegator === userId) {
+              if (
+                !todoFromSql.user ||
+                !socket.user.delegates.includes(todoFromSql.user)
+              ) {
+                todoFromSql.user = userId
+                todoFromSql.delegator = undefined
+              }
+            } else {
+              const delegator = await UserModel.findById(todoFromSql.delegator)
+              if (!delegator.delegates.includes(userId)) {
+                todoFromSql.delegator = undefined
+              }
+            }
+          }
           const mongoTodo = await new TodoModel(todoFromSql).save()
           toPushBack.todos.push({
             ...todoFromSql,
@@ -78,14 +104,34 @@ io.on('connection', (socket) => {
           })
         }),
         ...changes.todos.updated.map(async (sqlRaw) => {
-          const asObj = fromSqlToObject(sqlRaw, WMDBTables.Todo, userId)
+          const asObj = fromSqlToObject(sqlRaw, WMDBTables.Todo, userId) as Todo
           const inMongo = await TodoModel.findById(asObj._id)
+          if (!asObj.delegator) {
+            asObj.user = userId
+          } else {
+            if (asObj.delegator === userId) {
+              if (!asObj.user || !socket.user.delegates.includes(asObj.user)) {
+                asObj.user = userId
+                asObj.delegator = undefined
+              }
+            } else {
+              const delegator = await UserModel.findById(asObj.delegator)
+              if (!delegator.delegates.includes(userId)) {
+                asObj.delegator = undefined
+              }
+            }
+          }
           Object.assign(inMongo, omit(asObj, ['_id', 'createdAt', 'updatedAt']))
           await inMongo.save()
         }),
         ...changes.tags.created.map(async (sqlRaw) => {
-          const tagFromSql = fromSqlToObject(sqlRaw, WMDBTables.Tag, userId)
+          const tagFromSql = fromSqlToObject(
+            sqlRaw,
+            WMDBTables.Tag,
+            userId
+          ) as Tag
           delete tagFromSql._id
+          tagFromSql.user = userId
           const mongoTag = await new TagModel(tagFromSql).save()
           toPushBack.tags.push({
             ...tagFromSql,
@@ -93,7 +139,8 @@ io.on('connection', (socket) => {
           })
         }),
         ...changes.tags.updated.map(async (sqlRaw) => {
-          const asObj = fromSqlToObject(sqlRaw, WMDBTables.Tag, userId)
+          const asObj = fromSqlToObject(sqlRaw, WMDBTables.Tag, userId) as Tag
+          asObj.user = userId
           const inMongo = await TagModel.findById(asObj._id)
           Object.assign(inMongo, omit(asObj, ['_id', 'createdAt', 'updatedAt']))
           await inMongo.save()
