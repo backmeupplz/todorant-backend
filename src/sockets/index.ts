@@ -114,6 +114,11 @@ io.on('connection', (socket) => {
                 asObj.user = userId
                 asObj.delegator = undefined
               }
+              if (asObj.delegateAccepted) {
+                inMongo.updatedAt = new Date()
+                await inMongo.save()
+                return
+              }
             } else {
               const delegator = await UserModel.findById(asObj.delegator)
               if (!delegator.delegates.includes(userId)) {
