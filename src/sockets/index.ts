@@ -109,10 +109,10 @@ io.on('connection', (socket) => {
                   todoFromSql.delegator = undefined
                 }
               }
-              if (todoFromSql.user && todoFromSql.delegator) {
-                usersForSync.add(todoFromSql.user)
+              if (todoFromSql.delegator) {
                 usersForSync.add(todoFromSql.delegator)
               }
+              usersForSync.add(todoFromSql.user)
             }
             const mongoTodo = await new TodoModel(todoFromSql).save()
             toPushBack.todos.push({
@@ -152,10 +152,10 @@ io.on('connection', (socket) => {
                 }
               }
             }
-            if (todoFromSql.user && todoFromSql.delegator) {
-              usersForSync.add(todoFromSql.user)
+            if (todoFromSql.delegator) {
               usersForSync.add(todoFromSql.delegator)
             }
+            usersForSync.add(todoFromSql.user)
             Object.assign(
               inMongo,
               omit(todoFromSql, ['_id', 'createdAt', 'updatedAt'])
