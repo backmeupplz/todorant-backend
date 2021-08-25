@@ -4,7 +4,7 @@ import { getOrCreateHero, Hero, HeroModel } from '@/models/hero'
 import { Tag, TagModel } from '@/models/tag'
 import { Todo, TodoModel } from '@/models/todo'
 import { Settings, User, UserModel } from '@/models/user'
-import { DocumentType, ReturnModelType } from '@typegoose/typegoose'
+import { DocumentType, Ref, ReturnModelType } from '@typegoose/typegoose'
 import { omit } from 'lodash'
 import { setupSync } from '@/sockets/setupSync'
 import { io } from '@/sockets/io'
@@ -81,6 +81,7 @@ io.on('connection', (socket) => {
       try {
         const userId = socket.user._id
         const toPushBack = { todos: [] as Todo[], tags: [] as Tag[] }
+        const usersForSync = new Set<Ref<User, string>>()
         await Promise.all([
           ...changes.todos.created.map(async (sqlRaw) => {
             const todoFromSql = fromSqlToObject(
@@ -108,6 +109,10 @@ io.on('connection', (socket) => {
                   todoFromSql.delegator = undefined
                 }
               }
+              if (todoFromSql.user && todoFromSql.delegator) {
+                usersForSync.add(todoFromSql.user)
+                usersForSync.add(todoFromSql.delegator)
+              }
             }
             const mongoTodo = await new TodoModel(todoFromSql).save()
             toPushBack.todos.push({
@@ -116,38 +121,44 @@ io.on('connection', (socket) => {
             })
           }),
           ...changes.todos.updated.map(async (sqlRaw) => {
-            const asObj = fromSqlToObject(
+            const todoFromSql = fromSqlToObject(
               sqlRaw,
               WMDBTables.Todo,
               userId
             ) as Todo
-            const inMongo = await TodoModel.findById(asObj._id)
-            if (!asObj.delegator) {
-              asObj.user = userId
+            const inMongo = await TodoModel.findById(todoFromSql._id)
+            if (!todoFromSql.delegator) {
+              todoFromSql.user = userId
             } else {
-              if (asObj.delegator === userId.toString()) {
+              if (todoFromSql.delegator === userId.toString()) {
                 if (
-                  !asObj.user ||
-                  !socket.user.delegates.includes(asObj.user)
+                  !todoFromSql.user ||
+                  !socket.user.delegates.includes(todoFromSql.user)
                 ) {
-                  asObj.user = userId
-                  asObj.delegator = undefined
+                  todoFromSql.user = userId
+                  todoFromSql.delegator = undefined
                 }
-                if (asObj.delegateAccepted) {
+                if (todoFromSql.delegateAccepted) {
                   inMongo.updatedAt = new Date()
                   await inMongo.save()
                   return
                 }
               } else {
-                const delegator = await UserModel.findById(asObj.delegator)
+                const delegator = await UserModel.findById(
+                  todoFromSql.delegator
+                )
                 if (!delegator.delegates.includes(userId)) {
-                  asObj.delegator = undefined
+                  todoFromSql.delegator = undefined
                 }
               }
             }
+            if (todoFromSql.user && todoFromSql.delegator) {
+              usersForSync.add(todoFromSql.user)
+              usersForSync.add(todoFromSql.delegator)
+            }
             Object.assign(
               inMongo,
-              omit(asObj, ['_id', 'createdAt', 'updatedAt'])
+              omit(todoFromSql, ['_id', 'createdAt', 'updatedAt'])
             )
             await inMongo.save()
           }),
@@ -164,19 +175,28 @@ io.on('connection', (socket) => {
               ...tagFromSql,
               ...(mongoTag as Document & { _doc: any })._doc,
             })
+            usersForSync.add(tagFromSql.user)
           }),
           ...changes.tags.updated.map(async (sqlRaw) => {
-            const asObj = fromSqlToObject(sqlRaw, WMDBTables.Tag, userId) as Tag
-            asObj.user = userId
-            const inMongo = await TagModel.findById(asObj._id)
+            const tagFromSql = fromSqlToObject(
+              sqlRaw,
+              WMDBTables.Tag,
+              userId
+            ) as Tag
+            tagFromSql.user = userId
+            const inMongo = await TagModel.findById(tagFromSql._id)
             Object.assign(
               inMongo,
-              omit(asObj, ['_id', 'createdAt', 'updatedAt'])
+              omit(tagFromSql, ['_id', 'createdAt', 'updatedAt'])
             )
             await inMongo.save()
+            usersForSync.add(tagFromSql.user)
           }),
         ])
         socket.emit('complete_wmdb', toPushBack)
+        usersForSync.forEach((user) => {
+          requestSync(user.toString())
+        })
       } catch (err) {
         console.log(err)
         // TODO add wmdb sync error on client side
