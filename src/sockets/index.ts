@@ -92,7 +92,7 @@ io.on('connection', (socket) => {
             if (!todoFromSql.delegator) {
               todoFromSql.user = userId
             } else {
-              if (todoFromSql.delegator === userId) {
+              if (todoFromSql.delegator === userId.toString()) {
                 if (
                   !todoFromSql.user ||
                   !socket.user.delegates.includes(todoFromSql.user)
@@ -125,7 +125,7 @@ io.on('connection', (socket) => {
             if (!asObj.delegator) {
               asObj.user = userId
             } else {
-              if (asObj.delegator === userId) {
+              if (asObj.delegator === userId.toString()) {
                 if (
                   !asObj.user ||
                   !socket.user.delegates.includes(asObj.user)
