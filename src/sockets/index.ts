@@ -67,7 +67,6 @@ io.on('connection', (socket) => {
       socket.emit('return_wmdb', wmdbSyncObject, Date.now())
     } catch (err) {
       console.log(err)
-      // TODO add wmdb sync error on client side
       socket.emit(
         `wmdb_sync_error`,
         typeof err === 'string' ? err : err.message
@@ -199,7 +198,6 @@ io.on('connection', (socket) => {
         })
       } catch (err) {
         console.log(err)
-        // TODO add wmdb sync error on client side
         socket.emit(
           `wmdb_sync_error`,
           typeof err === 'string' ? err : err.message
