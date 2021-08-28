@@ -12,6 +12,8 @@ export class Todo {
   completed: boolean
   @prop({ required: true, default: false, index: true })
   frog: boolean
+  @prop({ required: true, default: false, index: true })
+  repetitive: boolean
   @prop({ required: true, default: 0 })
   frogFails: number
   @prop({ required: true, default: false, index: true })
@@ -78,10 +80,10 @@ export class Todo {
     pick(this.delegator, ['name', '_id'])
     let delegator = pick(this.delegator, ['name', '_id'])
     if (!Object.keys(delegator).length) delegator = null
-    return omit(
+    return (omit(
       { ...this._doc, ...{ _tempSyncId: this._tempSyncId, user, delegator } },
       stripFields
-    ) as Todo
+    ) as unknown) as Todo
   }
 
   // Mongo property
