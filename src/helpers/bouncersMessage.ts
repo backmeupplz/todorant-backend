@@ -9,7 +9,7 @@ async function sendMessageToBouncers() {
   // Send to telegram
   const telegramBouncers = await UserModel.find({
     createdAt: {
-      $lt: new Date().setDate(new Date().getDate() - 31),
+      $lt: new Date().setDate(new Date().getDate() - 33),
       $gt: new Date().setDate(new Date().getDate() - 60),
     },
     bouncerNotified: false,
@@ -62,7 +62,7 @@ If you have any additional questions, please contact me directly — @borodutch.
   // Send to email
   const emailBouncers = await UserModel.find({
     createdAt: {
-      $lt: new Date().setDate(new Date().getDate() - 31),
+      $lt: new Date().setDate(new Date().getDate() - 33),
       $gt: new Date().setDate(new Date().getDate() - 60),
     },
     bouncerNotified: false,
@@ -107,7 +107,7 @@ sendMessageToBouncers()
 setInterval(sendMessageToBouncers, 24 * 60 * 60 * 1000) // once per day
 
 function delay(s: number) {
-  return new Promise((res) => {
+  return new Promise<void>((res) => {
     setTimeout(() => {
       res()
     }, s * 1000)
