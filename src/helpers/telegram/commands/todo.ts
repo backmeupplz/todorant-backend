@@ -11,6 +11,9 @@ const dehumanize = require('dehumanize-date')
 
 export function addTodo(ctx: Context) {
   let todoText = ctx.message.text.substr(6).trim()
+  if (todoText.length > 1500) {
+    return ctx.reply(ctx.i18n.t('text_too_long'))
+  }
   return addTodoWithText(todoText, ctx)
 }
 

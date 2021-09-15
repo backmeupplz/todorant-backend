@@ -51,3 +51,4 @@ add_todo_error: 'Oopsie, something went wrong! Make sure to tell us at @todorant
 error_twenty: "_\U0001F46E I can't recognize voice messages larger than 20 megabytes_"
 initiated: "_\U0001F984 Voice recognition is initiated..._"
 error_recognition: "_\U0001F46E I couldn't recognize that_"
+text_too_long: 'Text must be shorter than 1500 characters.'
