@@ -20,6 +20,10 @@ export async function addTodoWithText(
   sentMessage?: Message,
   voice?: boolean
 ) {
+  // Check if text is too long
+  if (todoText.length > 1500) {
+    return ctx.reply(ctx.i18n.t('text_too_long'))
+  }
   // Check if it has timestamp
   const full = todoText.substr(0, 10) // 2018-08-31
   const short = todoText.substr(0, 7) // 2018-08

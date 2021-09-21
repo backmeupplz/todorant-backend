@@ -65,6 +65,12 @@ export default class TodoController {
         todo.frog = todo.frog === '1'
       }
       if (
+        typeof todo.repetitive === 'string' ||
+        todo.repetitive instanceof String
+      ) {
+        todo.repetitive = todo.repetitive === '1'
+      }
+      if (
         typeof todo.completed === 'string' ||
         todo.completed instanceof String
       ) {
@@ -161,6 +167,7 @@ export default class TodoController {
       date,
       today,
       time,
+      repetitive,
     } = ctx.request.body
     // Get password
     const password = ctx.headers.password
@@ -185,6 +192,11 @@ export default class TodoController {
       todo.frog = frog === '1'
     } else {
       todo.frog = frog
+    }
+    if (typeof repetitive === 'string' || repetitive instanceof String) {
+      todo.repetitive = repetitive === '1'
+    } else {
+      todo.repetitive = repetitive
     }
     const timenow = ctx.query.time
     const startTimeOfDay = ctx.state.user.settings.startTimeOfDay

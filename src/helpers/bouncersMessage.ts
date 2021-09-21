@@ -9,7 +9,7 @@ async function sendMessageToBouncers() {
   // Send to telegram
   const telegramBouncers = await UserModel.find({
     createdAt: {
-      $lt: new Date().setDate(new Date().getDate() - 31),
+      $lt: new Date().setDate(new Date().getDate() - 33),
       $gt: new Date().setDate(new Date().getDate() - 60),
     },
     bouncerNotified: false,
@@ -62,7 +62,7 @@ If you have any additional questions, please contact me directly — @borodutch.
   // Send to email
   const emailBouncers = await UserModel.find({
     createdAt: {
-      $lt: new Date().setDate(new Date().getDate() - 31),
+      $lt: new Date().setDate(new Date().getDate() - 33),
       $gt: new Date().setDate(new Date().getDate() - 60),
     },
     bouncerNotified: false,

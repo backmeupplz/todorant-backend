@@ -10,6 +10,10 @@ export function handleText(ctx: Context) {
   if (/^\//.test(ctx.message.text || ctx.message.caption)) {
     return
   }
+  // Check if text is too long
+  if (ctx.message.text.length > 1500) {
+    return ctx.reply(ctx.i18n.t('text_too_long'))
+  }
   // Add todo
   return addTodoWithText(ctx.message.text || ctx.message.caption, ctx)
 }

@@ -12,6 +12,8 @@ export class Todo {
   completed: boolean
   @prop({ required: true, default: false, index: true })
   frog: boolean
+  @prop({ required: true, default: false, index: true })
+  repetitive: boolean
   @prop({ required: true, default: 0 })
   frogFails: number
   @prop({ required: true, default: false, index: true })
