@@ -74,7 +74,7 @@ export default class TagController {
       newName,
       epicOrder,
     } = ctx.request.body
-    // Find todo
+    // Find tag
     const tag = await TagModel.findById(id)
     // Check ownership
     if (!tag || tag.user.toString() !== ctx.state.user._id.toString()) {
@@ -113,6 +113,30 @@ export default class TagController {
         )
       })
     )
+    ctx.status = 200
+    // Trigger sync
+    requestSync(ctx.state.user._id)
+  }
+
+  @Put('/unEpic/:id')
+  @Flow(authenticate)
+  async unEpic(@Ctx() ctx: Context) {
+    // Parameters
+    const id = ctx.params.id
+    // Find tag
+    const tag = await TagModel.findById(id)
+    // Check ownership
+    if (!tag || tag.user.toString() !== ctx.state.user._id.toString()) {
+      return ctx.throw(404, errors.noTag)
+    }
+    // Edit and save
+    tag.epicPoints = 0
+    tag.epic = false
+    tag.epicCompleted = false
+    tag.epicGoal = 0
+    tag.epicOrder = 0
+    await tag.save()
+    // Respond
     ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
