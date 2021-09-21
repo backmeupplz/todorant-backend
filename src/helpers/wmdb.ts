@@ -28,6 +28,7 @@ export type WMDBTodo = {
   is_encrypted: boolean
   date?: string
   time?: string
+  is_repetitive: boolean
 
   user_id?: WMDBUser
   delegator_id?: WMDBUser
@@ -78,6 +79,7 @@ const mongoKeysAsWMDBValues = {
   isDelegator: 'is_delegator',
   delegateInviteToken: 'delegate_invite_token',
   todoId: 'todo_id',
+  repetitive: 'is_repetitive',
 }
 
 export enum WMDBTables {
@@ -149,6 +151,7 @@ export function fromSqlToObject(
       user: sqlObj.user_id || user,
       delegator: sqlObj.delegator_id,
       delegateAccepted: sqlObj.is_delegate_accepted,
+      repetitive: sqlObj.is_repetitive,
     })
   } else if (type === WMDBTables.Tag) {
     sqlObj = sqlObj as WMDBTag
