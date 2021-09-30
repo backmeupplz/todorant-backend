@@ -44,7 +44,11 @@ export class User {
   appleSubId?: string
   @prop({ required: true, index: true })
   name: string
-  @prop({ required: true, default: { preserveOrderByTime: true, removeCompletedFromCalendar: true }, _id: false })
+  @prop({
+    required: true,
+    default: { preserveOrderByTime: true, removeCompletedFromCalendar: true },
+    _id: false,
+  })
   settings: Settings
 
   @prop({ required: true, index: true, unique: true })
@@ -123,7 +127,7 @@ export class User {
       stripFields.push('token')
       stripFields.push('anonymousToken')
     }
-    return omit(this._doc, stripFields)
+    return omit(this._doc, stripFields) as unknown
   }
 
   // Mongo property

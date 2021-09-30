@@ -29,10 +29,10 @@ export class Tag {
 
   stripped() {
     const stripFields = ['__v', 'user']
-    return omit(
+    return (omit(
       { ...this._doc, ...{ _tempSyncId: this._tempSyncId } },
       stripFields
-    ) as Tag
+    ) as unknown) as Tag
   }
 
   // Mongo property
