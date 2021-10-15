@@ -16,6 +16,8 @@ export class Todo {
   repetitive: boolean
   @prop({ required: true, default: 0 })
   frogFails: number
+  @prop({ required: true, default: 0 })
+  futureSkips: number
   @prop({ required: true, default: false, index: true })
   skipped: boolean
 

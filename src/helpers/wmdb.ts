@@ -22,6 +22,7 @@ export type WMDBTodo = {
   is_completed: boolean
   is_frog: boolean
   frog_fails: number
+  future_skips: number
   is_skipped: boolean
   order: number
   month_and_year?: string
@@ -56,6 +57,7 @@ const mongoKeysAsWMDBValues = {
   completed: 'is_completed',
   frog: 'is_frog',
   frogFails: 'frog_fails',
+  futureSkips: 'future_skips',
   skipped: 'is_skipped',
   order: 'order',
   monthAndYear: 'month_and_year',
@@ -141,6 +143,7 @@ export function fromSqlToObject(
       completed: sqlObj.is_completed,
       frog: sqlObj.is_frog,
       frogFails: sqlObj.frog_fails,
+      futureSkips: sqlObj.future_skips,
       skipped: sqlObj.is_skipped,
       order: sqlObj.order,
       monthAndYear: sqlObj.month_and_year,

@@ -210,6 +210,13 @@ export default class TodoController {
         todo.frog = true
       }
     }
+    if (
+      new Date(date || `${monthAndYear}-01`) >
+        new Date(todo.date || `${todo.monthAndYear}-01`) &&
+      !isTodoOld(todo, today, timenow, startTimeOfDay)
+    ) {
+      todo.futureSkips += 1
+    }
     if (todo.monthAndYear !== monthAndYear && todo.date !== date) {
       todo.skipped = false
     }

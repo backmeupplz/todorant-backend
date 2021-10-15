@@ -52,6 +52,7 @@ export const completeTodo = {
   completed: false,
   frog: false,
   frogFails: 0,
+  futureSkips: 0,
   skipped: false,
   order: 0,
   deleted: false,
