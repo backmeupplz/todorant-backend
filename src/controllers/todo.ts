@@ -211,8 +211,8 @@ export default class TodoController {
       }
     }
     if (
-      new Date(date || monthAndYear) >
-        new Date(todo.date || todo.monthAndYear) &&
+      new Date(`${monthAndYear}-${date || '01'}`) >
+        new Date(`${todo.monthAndYear}-${todo.date || '01'}`) &&
       !isTodoOld(todo, today, timenow, startTimeOfDay)
     ) {
       todo.futureSkips += 1
