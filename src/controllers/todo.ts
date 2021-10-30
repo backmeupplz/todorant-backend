@@ -674,10 +674,14 @@ export async function getTodos(
   password?: string
 ) {
   const hashes = hash.toLowerCase().split(',')
-  let results = (await TodoModel.find({ user: user._id }).populate('delegator'))
+  let results = (
+    await TodoModel.find({
+      user: user._id,
+      deleted: false,
+      completed,
+    }).populate('delegator')
+  )
     .filter((todo) => !todo.delegator || todo.delegateAccepted)
-    .filter((todo) => !todo.deleted)
-    .filter((todo) => todo.completed === completed)
     .map((todo) => {
       if (todo.encrypted && password) {
         const decrypted = _d(todo.text, password)
