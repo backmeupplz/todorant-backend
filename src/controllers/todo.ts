@@ -58,6 +58,10 @@ export default class TodoController {
     const todosGoingToBottom: Todo[] = []
     const delegatesToSync: string[] = []
     for (const todo of ctx.request.body) {
+      // Convert all tags to lowercase
+      todo.text = todo.text.replace(/#[\u0400-\u04FFa-zA-Z_0-9]+/g, (s) =>
+        s.toLowerCase()
+      )
       if (!todo.time) {
         todo.time = undefined
       }
@@ -213,7 +217,10 @@ export default class TodoController {
     if (todo.monthAndYear !== monthAndYear && todo.date !== date) {
       todo.skipped = false
     }
-    todo.text = text
+    // Convert all tags to lowercase
+    todo.text = text.replace(/#[\u0400-\u04FFa-zA-Z_0-9]+/g, (s) =>
+      s.toLowerCase()
+    )
     if (completed) {
       await HeroModel.findOneAndUpdate(
         { user: ctx.state.user.id },
