@@ -1,14 +1,15 @@
 import * as nodemailer from 'nodemailer'
+import * as mg from 'nodemailer-mailgun-transport'
 
-const transport = nodemailer.createTransport({
-  host: 'smtp.yandex.ru',
-  port: 465,
-  secure: true,
+// This is your API key that you retrieve from www.mailgun.com/cp (free up to 10K monthly emails)
+const auth = {
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    api_key: process.env.EMAIL_API_KEY,
+    domain: process.env.EMAIL_DOMAIN,
   },
-})
+}
+
+const transport = nodemailer.createTransport(mg(auth))
 
 export async function sendBouncerMessage(email: string) {
   await transport.sendMail({
