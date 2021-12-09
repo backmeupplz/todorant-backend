@@ -27,6 +27,9 @@ export class Tag {
   @prop({ default: 0 })
   numberOfUses?: number
 
+  @prop({ required: false })
+  localSyncId: string
+
   stripped() {
     const stripFields = ['__v', 'user']
     return (omit(

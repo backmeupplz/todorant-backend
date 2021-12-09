@@ -26,6 +26,9 @@ export class Todo {
   @prop({ required: true, default: false })
   encrypted: boolean
 
+  @prop({ required: false })
+  localSyncId: string
+
   @prop({
     required: function () {
       return !this.delegator
