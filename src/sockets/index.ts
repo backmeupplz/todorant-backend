@@ -35,6 +35,8 @@ async function getUpdatedOrCreatedItems(
   }
   if (lastPullTimestamp) {
     query.updatedAt = { $gt: lastPullTimestamp }
+  } else {
+    query.deleted = false
   }
   return (await model.find(query).populate('user').populate('delegator')).map(
     (todoOrTag) => {
@@ -79,6 +81,7 @@ io.on('connection', (socket) => {
     async (changes: WMDBChanges, lastPulledTimestamp: number) => {
       try {
         const userId = socket.user._id
+        const toPushBack = { todos: [] as Todo[], tags: [] as Tag[] }
         const usersForSync = new Set<Ref<User, string>>()
         await Promise.all([
           ...changes.todos.created.map(async (sqlRaw) => {
@@ -87,7 +90,6 @@ io.on('connection', (socket) => {
               WMDBTables.Todo,
               userId
             ) as Todo
-            todoFromSql.localSyncId = todoFromSql._tempSyncId
             delete todoFromSql._id
             if (!todoFromSql.delegator) {
               todoFromSql.user = userId
@@ -113,6 +115,11 @@ io.on('connection', (socket) => {
               }
               usersForSync.add(todoFromSql.user)
             }
+            const mongoTodo = await new TodoModel(todoFromSql).save()
+            toPushBack.todos.push({
+              ...todoFromSql,
+              ...(mongoTodo as Document & { _doc: any })._doc,
+            })
             if (!todoFromSql.localSyncId) {
               delete todoFromSql.localSyncId
             }
@@ -192,6 +199,10 @@ io.on('connection', (socket) => {
             }
             await new TagModel(tagFromSql).save()
             usersForSync.add(tagFromSql.user)
+            toPushBack.tags.push({
+              ...tagFromSql,
+              ...(findedTag as Document & { _doc: any })._doc,
+            })
           }),
           ...changes.tags.updated.map(async (sqlRaw) => {
             const tagFromSql = fromSqlToObject(
@@ -218,6 +229,7 @@ io.on('connection', (socket) => {
         usersForSync.forEach((user) => {
           requestSync(user.toString())
         })
+        socket.emit('complete_wmdb', toPushBack)
       } catch (err) {
         console.log(err)
         socket.emit(

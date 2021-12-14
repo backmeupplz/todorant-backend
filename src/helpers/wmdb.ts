@@ -80,6 +80,7 @@ const mongoKeysAsWMDBValues = {
   delegateInviteToken: 'delegate_invite_token',
   todoId: 'todo_id',
   repetitive: 'is_repetitive',
+  localSyncId: 'local_sync_id',
 }
 
 export enum WMDBTables {
@@ -133,6 +134,7 @@ export function fromSqlToObject(
     sqlObj = sqlObj as WMDBTodo
     Object.assign(obj, {
       _tempSyncId: sqlObj.id,
+      localSyncId: sqlObj.id,
       _exactDate: sqlObj.exact_date_at,
       _id: sqlObj.server_id,
       createdAt: sqlObj.created_at,
