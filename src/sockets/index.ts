@@ -123,7 +123,7 @@ io.on('connection', (socket) => {
 
             const findedTodo = await TodoModel.findOne({
               user: userId,
-              localSyncId: todoFromSql.localSyncId,
+              clientId: todoFromSql.clientId,
             })
             if (findedTodo) {
               throw new Error(
@@ -145,7 +145,7 @@ io.on('connection', (socket) => {
             const query = {
               $or: [
                 { _id: todoFromSql._id },
-                { localSyncId: todoFromSql._tempSyncId },
+                { clientId: todoFromSql._tempSyncId },
               ],
               user: userId,
             }
@@ -164,12 +164,7 @@ io.on('connection', (socket) => {
             usersForSync.add(todoFromSql.user)
             Object.assign(
               inMongo,
-              omit(todoFromSql, [
-                '_id',
-                'createdAt',
-                'updatedAt',
-                'localSyncId',
-              ])
+              omit(todoFromSql, ['_id', 'createdAt', 'updatedAt', 'clientId'])
             )
             await inMongo.save()
           }),
@@ -181,10 +176,10 @@ io.on('connection', (socket) => {
             ) as Tag
             delete tagFromSql._id
             tagFromSql.user = userId
-            if (tagFromSql.localSyncId) {
+            if (tagFromSql.clientId) {
               const findedTag = await TagModel.findOne({
                 user: userId,
-                localSyncId: tagFromSql.localSyncId,
+                clientId: tagFromSql.clientId,
               })
               if (findedTag) {
                 return
@@ -211,7 +206,7 @@ io.on('connection', (socket) => {
               query.$or.push({ _id: tagFromSql._id })
             }
             if (tagFromSql._tempSyncId) {
-              query.$or.push({ localSyncId: tagFromSql._tempSyncId })
+              query.$or.push({ clientId: tagFromSql._tempSyncId })
             }
             const inMongo = await TagModel.findOne(query)
             Object.assign(

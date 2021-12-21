@@ -27,8 +27,21 @@ export class Tag {
   @prop({ default: 0 })
   numberOfUses?: number
 
-  @prop({ required: false })
-  localSyncId: string
+  @prop({
+    required: false,
+    minlength: 16,
+    maxlength: 16,
+    validate: {
+      validator(v) {
+        if (!v) {
+          return true
+        } else {
+          return /^[a-zA-Z0-9]{16}$/.test(v)
+        }
+      },
+    },
+  })
+  clientId?: string
 
   stripped() {
     const stripFields = ['__v', 'user']
