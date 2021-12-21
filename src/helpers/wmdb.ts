@@ -172,6 +172,7 @@ export function fromSqlToObject(
       numberOfUses: sqlObj.number_of_uses,
       createdAt: sqlObj.created_at,
       updatedAt: sqlObj.updated_at,
+      localSyncId: sqlObj.id,
     })
   } else {
     sqlObj = sqlObj as WMDBUser
