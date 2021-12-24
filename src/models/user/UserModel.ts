@@ -2,6 +2,7 @@ import { User, SubscriptionStatus } from '@/models/user/User'
 import { sign } from '@/helpers/jwt'
 import { DocumentType, getModelForClass } from '@typegoose/typegoose'
 import * as randToken from 'rand-token'
+import { Todo } from '../todo'
 
 export const UserModel = getModelForClass(User, {
   schemaOptions: { timestamps: true },
@@ -74,4 +75,31 @@ export async function getOrCreateUser(loginOptions: LoginOptions) {
     }).save()) as DocumentType<User>
   }
   return { created, user }
+}
+
+export async function sanitizeDelegation(
+  clientTodo: Todo,
+  user: User,
+  serverTodo?: DocumentType<Todo>
+) {
+  if (!clientTodo.delegator) {
+    clientTodo.user = user._id
+  } else {
+    if (clientTodo.delegator === user._id.toString()) {
+      if (!clientTodo.user || !user.delegates.includes(clientTodo.user)) {
+        clientTodo.user = user._id
+        clientTodo.delegator = undefined
+      }
+      if (serverTodo && clientTodo.delegateAccepted) {
+        serverTodo.updatedAt = new Date()
+        await serverTodo.save()
+        return true
+      }
+    } else {
+      const delegator = await UserModel.findById(clientTodo.delegator)
+      if (!delegator.delegates.includes(user._id)) {
+        clientTodo.delegator = undefined
+      }
+    }
+  }
 }
