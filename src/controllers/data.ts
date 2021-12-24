@@ -14,7 +14,7 @@ export default class DataController {
   @Flow(authenticate)
   async postData(@Ctx() ctx: Context) {
     const tempPath = path({ suffix: '.json' })
-    writeFileSync(tempPath, JSON.stringify(ctx.request.body, undefined, 2))
+    writeFileSync(tempPath, JSON.stringify(ctx.request.body.data, undefined, 2))
     await bot.telegram.sendMessage(
       admins[0],
       `${ctx.state.user._id} ${ctx.state.user.name}`

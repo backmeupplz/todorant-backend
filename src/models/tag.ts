@@ -1,6 +1,8 @@
 import { prop, Ref, DocumentType, getModelForClass } from '@typegoose/typegoose'
 import { omit } from 'lodash'
 import { User } from '@/models/user'
+import { fromSqlToObject, WMDBTables, WMDBTag } from '@/helpers/wmdb'
+import { Document } from 'mongoose'
 
 export class Tag {
   @prop({ required: true, ref: User })
@@ -26,6 +28,22 @@ export class Tag {
 
   @prop({ default: 0 })
   numberOfUses?: number
+
+  @prop({
+    required: false,
+    minlength: 16,
+    maxlength: 16,
+    validate: {
+      validator(v) {
+        if (!v) {
+          return true
+        } else {
+          return /^[a-zA-Z0-9]{16}$/.test(v)
+        }
+      },
+    },
+  })
+  clientId?: string
 
   stripped() {
     const stripFields = ['__v', 'user']
@@ -71,4 +89,30 @@ export async function addTags(user: DocumentType<User>, tags: string[]) {
   for (const tag of Object.keys(tagsToAddMap)) {
     await new TagModel({ user: user._id, tag }).save()
   }
+}
+
+export async function createWMDBTag(
+  sqlRaw: WMDBTag,
+  user: User,
+  pushBackTags: Tag[]
+) {
+  const tagFromSql = fromSqlToObject(sqlRaw, WMDBTables.Tag, user._id) as Tag
+  delete tagFromSql._id
+  tagFromSql.user = user._id
+  if (tagFromSql.clientId) {
+    const findedTag = await TagModel.findOne({
+      user: user._id,
+      clientId: tagFromSql.clientId,
+    })
+    if (findedTag) {
+      throw new Error(
+        'Created tag was found in the database. Please, try to re-login into your account.'
+      )
+    }
+  }
+  const newTag = await new TagModel(tagFromSql).save()
+  pushBackTags.push({
+    ...tagFromSql,
+    ...(newTag as Document & { _doc: any })._doc,
+  })
 }

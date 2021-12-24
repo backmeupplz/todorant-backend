@@ -27,6 +27,22 @@ export class Todo {
   encrypted: boolean
 
   @prop({
+    required: false,
+    minlength: 16,
+    maxlength: 16,
+    validate: {
+      validator(v) {
+        if (!v) {
+          return true
+        } else {
+          return /^[a-zA-Z0-9]{16}$/.test(v)
+        }
+      },
+    },
+  })
+  clientId?: string
+
+  @prop({
     required: function () {
       return !this.delegator
     },
