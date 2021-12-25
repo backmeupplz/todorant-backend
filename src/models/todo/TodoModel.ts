@@ -1,6 +1,7 @@
 import { fromSqlToObject, WMDBTables, WMDBTodo } from '@/helpers/wmdb'
 import { Todo } from '@/models/todo/Todo'
 import { getModelForClass } from '@typegoose/typegoose'
+import { omit } from 'lodash'
 import { Document } from 'mongoose'
 import { sanitizeDelegation, User } from '../user'
 
@@ -37,7 +38,9 @@ export async function createWMDBTodo(
     )
   }
   await sanitizeDelegation(todoFromSql, user)
-  const mongoTodo = await new TodoModel(todoFromSql).save()
+  const mongoTodo = await new TodoModel(
+    omit(todoFromSql, ['_id', 'createdAt', 'updatedAt'])
+  ).save()
   pushBackTodos.push({
     ...todoFromSql,
     ...(mongoTodo as Document & { _doc: any })._doc,
