@@ -110,7 +110,9 @@ export async function createWMDBTag(
       )
     }
   }
-  const newTag = await new TagModel(tagFromSql).save()
+  const newTag = await new TagModel(
+    omit(tagFromSql, ['_id', 'createdAt', 'updatedAt'])
+  ).save()
   pushBackTags.push({
     ...tagFromSql,
     ...(newTag as Document & { _doc: any })._doc,
