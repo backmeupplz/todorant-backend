@@ -50,6 +50,7 @@ io.on('connection', (socket) => {
 
   socket.on('get_wmdb', async (lastSyncDate: Date | undefined) => {
     try {
+      const syncedAt = Date.now()
       const userId = socket.user._id
       const updatedTags = await getUpdatedOrCreatedItems(
         lastSyncDate,
@@ -66,7 +67,7 @@ io.on('connection', (socket) => {
         [WMDBTables.Todo]: convertModelToRawSql<WMDBTodo>(updatedTodos),
         [WMDBTables.Tag]: convertModelToRawSql<WMDBTag>(updatedTags),
       }
-      socket.emit('return_wmdb', wmdbSyncObject, Date.now())
+      socket.emit('return_wmdb', wmdbSyncObject, syncedAt)
     } catch (err) {
       console.log(err)
       socket.emit(
