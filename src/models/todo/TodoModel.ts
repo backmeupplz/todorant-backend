@@ -16,9 +16,17 @@ export async function createWMDBTodo(
   usersForSync: Set<Ref<User, string>>
 ) {
   const todoFromSql = fromSqlToObject(sqlRaw, WMDBTables.Todo, user._id) as Todo
+  await sanitizeDelegation(todoFromSql, user)
   const query = {
-    user: user._id,
+    user: todoFromSql.user,
     $or: [],
+  } as {
+    user: Ref<User, string>
+    $or: unknown[]
+    delegator?: Ref<User, string>
+  }
+  if (todoFromSql.delegator) {
+    query.delegator = todoFromSql.delegator
   }
   if (todoFromSql._id) {
     query.$or.push({ _id: todoFromSql._id })
@@ -37,7 +45,6 @@ export async function createWMDBTodo(
     await updateWMDBTodo(sqlRaw, user, pushBackTodos, usersForSync)
     return
   }
-  await sanitizeDelegation(todoFromSql, user)
   const mongoTodo = await new TodoModel(
     omit(todoFromSql, ['_id', 'createdAt', 'updatedAt'])
   ).save()
@@ -54,9 +61,17 @@ export async function updateWMDBTodo(
   usersForSync: Set<Ref<User, string>>
 ) {
   const todoFromSql = fromSqlToObject(sqlRaw, WMDBTables.Todo, user._id) as Todo
+  await sanitizeDelegation(todoFromSql, user)
   const query = {
-    user: user._id,
+    user: todoFromSql.user,
     $or: [],
+  } as {
+    user: Ref<User, string>
+    $or: unknown[]
+    delegator?: Ref<User, string>
+  }
+  if (todoFromSql.delegator) {
+    query.delegator = todoFromSql.delegator
   }
   if (todoFromSql._id) {
     query.$or.push({ _id: todoFromSql._id })
