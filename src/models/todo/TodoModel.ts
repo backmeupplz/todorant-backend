@@ -1,7 +1,7 @@
 import { fromSqlToObject, WMDBTables, WMDBTodo } from '@/helpers/wmdb'
 import { Todo } from '@/models/todo/Todo'
-import { getModelForClass } from '@typegoose/typegoose'
-import { omit } from 'lodash'
+import { getModelForClass, Ref } from '@typegoose/typegoose'
+import { omit, update } from 'lodash'
 import { Document } from 'mongoose'
 import { sanitizeDelegation, User } from '../user'
 
@@ -12,7 +12,8 @@ export const TodoModel = getModelForClass(Todo, {
 export async function createWMDBTodo(
   sqlRaw: WMDBTodo,
   user: User,
-  pushBackTodos: Todo[]
+  pushBackTodos: Todo[],
+  usersForSync: Set<Ref<User, string>>
 ) {
   const todoFromSql = fromSqlToObject(sqlRaw, WMDBTables.Todo, user._id) as Todo
   const query = {
@@ -33,9 +34,8 @@ export async function createWMDBTodo(
   }
   const todoExist = !!(await TodoModel.findOne(query))
   if (todoExist) {
-    throw new Error(
-      'Created todo was found in the database. Please, try to re-login into your account.'
-    )
+    await updateWMDBTodo(sqlRaw, user, pushBackTodos, usersForSync)
+    return
   }
   await sanitizeDelegation(todoFromSql, user)
   const mongoTodo = await new TodoModel(
@@ -45,4 +45,47 @@ export async function createWMDBTodo(
     ...todoFromSql,
     ...(mongoTodo as Document & { _doc: any })._doc,
   })
+}
+
+export async function updateWMDBTodo(
+  sqlRaw: WMDBTodo,
+  user: User,
+  pushBackTodos: Todo[],
+  usersForSync: Set<Ref<User, string>>
+) {
+  const todoFromSql = fromSqlToObject(sqlRaw, WMDBTables.Todo, user._id) as Todo
+  const query = {
+    user: user._id,
+    $or: [],
+  }
+  if (todoFromSql._id) {
+    query.$or.push({ _id: todoFromSql._id })
+  }
+  if (todoFromSql.clientId) {
+    query.$or.push({ clientId: todoFromSql.clientId })
+  }
+  const inMongo = await TodoModel.findOne(query)
+  if (!inMongo) {
+    await createWMDBTodo(sqlRaw, user, pushBackTodos, usersForSync)
+    return
+  }
+  const incorrectDelegation = await sanitizeDelegation(
+    todoFromSql,
+    user,
+    inMongo
+  )
+  if (incorrectDelegation) {
+    throw new Error(
+      'Wrong delegation. Please, try to re-login into your account.'
+    )
+  }
+  if (todoFromSql.delegator) {
+    usersForSync.add(todoFromSql.delegator)
+  }
+  usersForSync.add(todoFromSql.user)
+  Object.assign(
+    inMongo,
+    omit(todoFromSql, ['_id', 'createdAt', 'updatedAt', 'clientId'])
+  )
+  await inMongo.save()
 }

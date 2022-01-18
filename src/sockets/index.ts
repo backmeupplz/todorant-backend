@@ -1,8 +1,8 @@
 import { getGoogleCalendarApi, updateTodos } from '@/helpers/googleCalendar'
 import { report } from '@/helpers/report'
 import { getOrCreateHero, Hero, HeroModel } from '@/models/hero'
-import { createWMDBTag, Tag, TagModel } from '@/models/tag'
-import { createWMDBTodo, Todo, TodoModel } from '@/models/todo'
+import { createWMDBTag, Tag, TagModel, updateWMDBTag } from '@/models/tag'
+import { createWMDBTodo, Todo, TodoModel, updateWMDBTodo } from '@/models/todo'
 import { sanitizeDelegation, Settings, User, UserModel } from '@/models/user'
 import { DocumentType, Ref, ReturnModelType } from '@typegoose/typegoose'
 import { omit } from 'lodash'
@@ -50,6 +50,7 @@ io.on('connection', (socket) => {
 
   socket.on('get_wmdb', async (lastSyncDate: Date | undefined) => {
     try {
+      const syncedAt = Date.now()
       const userId = socket.user._id
       const updatedTags = await getUpdatedOrCreatedItems(
         lastSyncDate,
@@ -66,7 +67,7 @@ io.on('connection', (socket) => {
         [WMDBTables.Todo]: convertModelToRawSql<WMDBTodo>(updatedTodos),
         [WMDBTables.Tag]: convertModelToRawSql<WMDBTag>(updatedTags),
       }
-      socket.emit('return_wmdb', wmdbSyncObject, Date.now())
+      socket.emit('return_wmdb', wmdbSyncObject, syncedAt)
     } catch (err) {
       console.log(err)
       socket.emit(
@@ -85,90 +86,26 @@ io.on('connection', (socket) => {
         const usersForSync = new Set<Ref<User, string>>([userId])
         await Promise.all([
           ...changes.todos.created.map(async (sqlRaw) => {
-            await createWMDBTodo(sqlRaw, socket.user, toPushBack.todos)
+            await createWMDBTodo(
+              sqlRaw,
+              socket.user,
+              toPushBack.todos,
+              usersForSync
+            )
           }),
           ...changes.todos.updated.map(async (sqlRaw) => {
-            const todoFromSql = fromSqlToObject(
+            await updateWMDBTodo(
               sqlRaw,
-              WMDBTables.Todo,
-              userId
-            ) as Todo
-            const query = {
-              user: userId,
-              $or: [],
-            }
-            if (todoFromSql._id) {
-              query.$or.push({ _id: todoFromSql._id })
-            }
-            if (todoFromSql.clientId) {
-              query.$or.push({ clientId: todoFromSql.clientId })
-            }
-            const inMongo = await TodoModel.findOne(query)
-            if (!inMongo) {
-              await createWMDBTodo(sqlRaw, socket.user, toPushBack.todos)
-              return
-            }
-            const incorrectDelegation = await sanitizeDelegation(
-              todoFromSql,
               socket.user,
-              inMongo
+              toPushBack.todos,
+              usersForSync
             )
-            if (incorrectDelegation) {
-              throw new Error(
-                'Wrong delegation. Please, try to re-login into your account.'
-              )
-            }
-            if (todoFromSql.delegator) {
-              usersForSync.add(todoFromSql.delegator)
-            }
-            usersForSync.add(todoFromSql.user)
-            Object.assign(
-              inMongo,
-              omit(todoFromSql, ['_id', 'createdAt', 'updatedAt', 'clientId'])
-            )
-            await inMongo.save()
           }),
           ...changes.tags.created.map(async (sqlRaw) => {
             await createWMDBTag(sqlRaw, socket.user, toPushBack.tags)
           }),
           ...changes.tags.updated.map(async (sqlRaw) => {
-            const tagFromSql = fromSqlToObject(
-              sqlRaw,
-              WMDBTables.Tag,
-              userId
-            ) as Tag
-            const query = {
-              user: userId,
-              $or: [],
-            }
-            if (tagFromSql._id) {
-              query.$or.push({ _id: tagFromSql._id })
-            }
-            if (tagFromSql.clientId) {
-              query.$or.push({ clientId: tagFromSql.clientId })
-            }
-            // If no client id nor server id
-            if (!query.$or.length) {
-              throw new Error(
-                'Server id or client id of tag was not specified. Please, try to re-login into your account.'
-              )
-            }
-            const inMongo = await TagModel.findOne(query)
-            if (!inMongo) {
-              await createWMDBTag(sqlRaw, socket.user, toPushBack.tags)
-              return
-            }
-            Object.assign(
-              inMongo,
-              omit(tagFromSql, [
-                '_id',
-                'createdAt',
-                'updatedAt',
-                'clientId',
-                'user',
-              ])
-            )
-            await inMongo.save()
+            await updateWMDBTag(sqlRaw, socket.user, toPushBack.tags)
           }),
         ])
         usersForSync.forEach((user) => {
