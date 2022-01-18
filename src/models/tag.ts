@@ -97,18 +97,27 @@ export async function createWMDBTag(
   pushBackTags: Tag[]
 ) {
   const tagFromSql = fromSqlToObject(sqlRaw, WMDBTables.Tag, user._id) as Tag
-  // TODO: fix searching by server id
-  delete tagFromSql._id
   tagFromSql.user = user._id
+  const query = {
+    user: user._id,
+    $or: [],
+  }
+  if (tagFromSql._id) {
+    query.$or.push({ _id: tagFromSql._id })
+  }
   if (tagFromSql.clientId) {
-    const findedTag = await TagModel.findOne({
-      user: user._id,
-      clientId: tagFromSql.clientId,
-    })
-    if (findedTag) {
-      await updateWMDBTag(sqlRaw, user, pushBackTags)
-      return
-    }
+    query.$or.push({ clientId: tagFromSql.clientId })
+  }
+  // If no client id nor server id
+  if (!query.$or.length) {
+    throw new Error(
+      'Server id or client id of tag was not specified. Please, try to re-login into your account.'
+    )
+  }
+  const inMongo = await TagModel.findOne(query)
+  if (inMongo) {
+    await updateWMDBTag(sqlRaw, user, pushBackTags)
+    return
   }
   const newTag = await new TagModel(
     omit(tagFromSql, ['_id', 'createdAt', 'updatedAt'])
