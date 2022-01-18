@@ -100,6 +100,7 @@ export async function sanitizeDelegation(
       if (!delegator.delegates.includes(user._id)) {
         clientTodo.delegator = undefined
       }
+      clientTodo.user = user._id
     }
   }
 }
