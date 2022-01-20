@@ -90,9 +90,7 @@ export async function updateWMDBTodo(
     inMongo
   )
   if (incorrectDelegation) {
-    throw new Error(
-      'Wrong delegation. Please, try to re-login into your account.'
-    )
+    return
   }
   if (todoFromSql.delegator) {
     usersForSync.add(todoFromSql.delegator)
