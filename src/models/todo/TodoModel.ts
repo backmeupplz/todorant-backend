@@ -84,7 +84,14 @@ export async function updateWMDBTodo(
     await createWMDBTodo(sqlRaw, user, pushBackTodos, usersForSync)
     return
   }
-  await sanitizeDelegation(todoFromSql, user, inMongo)
+  const incorrectDelegation = await sanitizeDelegation(
+    todoFromSql,
+    user,
+    inMongo
+  )
+  if (incorrectDelegation) {
+    return
+  }
   if (todoFromSql.delegator) {
     usersForSync.add(todoFromSql.delegator)
   }
