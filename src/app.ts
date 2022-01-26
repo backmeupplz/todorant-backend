@@ -5,7 +5,7 @@ setGlobalOptions({
     allowMixed: Severity.ALLOW,
   },
 })
-// Setup .env
+// Get environment variables
 import * as dotenv from 'dotenv'
 dotenv.config({ path: `${process.cwd()}/.env` })
 // The rest of dependencies

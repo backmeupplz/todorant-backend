@@ -7,9 +7,6 @@ setGlobalOptions({
 })
 // Setup @/ aliases for modules
 import 'module-alias/register'
-// Get environment variables
-import * as dotenv from 'dotenv'
-dotenv.config({ path: `${__dirname}/../.env` })
 // Get the rest of dependencies
 import { socketServer } from '@/sockets/io'
 import { app } from '@/app'
