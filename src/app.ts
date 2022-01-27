@@ -36,7 +36,7 @@ export const app = new Koa()
     // Run app
     app.use(logger())
     app.use(cors({ origin: '*' }))
-    app.use(bodyParser({ jsonLimit: '50mb' }))
+    app.use(bodyParser({ jsonLimit: '100mb' }))
     app.use(router.routes())
     app.use(router.allowedMethods())
   } catch (err) {
