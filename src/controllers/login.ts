@@ -447,7 +447,7 @@ bot.action(/ltr~.+/, async (ctx) => {
   ].allowed = false
 })
 
-function getFBUser(accessToken: string) {
+export function getFBUser(accessToken: string) {
   return new Promise((res, rej) => {
     const fb = new Facebook({
       appID: process.env.FACEBOOK_APP_ID,
