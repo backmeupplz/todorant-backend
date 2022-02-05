@@ -67,7 +67,6 @@ describe('Login endpoint', () => {
     const response = await request(server)
       .post('/login/facebook')
       .send({ accessToken: 'test' })
-    expect(FacebookApi).toReturn()
     expect(response.body.name).toBe('Alexander Brennenburg')
     expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
     expect(response.body.facebookId).toBe('12345')
