@@ -12,15 +12,14 @@ import {
   stopServer,
 } from '@/__tests__/testUtils'
 import { Server } from 'http'
-import * as lol from '@/controllers/login'
+import Facebook = require('facebook-node-sdk')
+const FacebookApi = jest.spyOn(Facebook.prototype, 'api')
 
 describe('Login endpoint', () => {
   const axiosMock = new MockAdapter(axios)
   let server: Server
-  let getFBUserSpy: jest.SpyInstance<Promise<unknown>, [accessToken: string]>
 
   beforeAll(async () => {
-    getFBUserSpy = jest.spyOn(lol, 'getFBUser')
     const mongoServer = new MongoMemoryServer()
     await runMongo(await mongoServer.getUri())
     server = await startKoa(app)
@@ -56,18 +55,21 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /facebook request', async () => {
-    getFBUserSpy.mockImplementation(() => {
-      return new Promise((res) => {
-        res({
-          name: 'Alexander Brennenburg',
-          email: 'alexanderrennenburg@gmail.com',
-          id: '12345',
-        })
-      })
+    FacebookApi.mockImplementation((str: string, fn: Function) => {
+      const err = false
+      const user = {
+        name: 'Alexander Brennenburg',
+        email: 'alexanderrennenburg@gmail.com',
+        id: '12345',
+      }
+      fn(err, user)
     })
     const response = await request(server)
       .post('/login/facebook')
       .send({ accessToken: 'test' })
-    expect(jest.fn(lol.getFBUser)).toHaveReturned()
+    expect(FacebookApi).toReturn()
+    expect(response.body.name).toBe('Alexander Brennenburg')
+    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+    expect(response.body.facebookId).toBe('12345')
   })
 })
