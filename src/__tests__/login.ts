@@ -10,10 +10,10 @@ import {
   dropMongo,
   startKoa,
   stopServer,
+  FacebookApiSpy,
+  verifyTelegramPayloadSpy,
 } from '@/__tests__/testUtils'
 import { Server } from 'http'
-import Facebook = require('facebook-node-sdk')
-const FacebookApi = jest.spyOn(Facebook.prototype, 'api')
 
 describe('Login endpoint', () => {
   const axiosMock = new MockAdapter(axios)
@@ -54,8 +54,17 @@ describe('Login endpoint', () => {
     expect(response.body.name).toBe('Anonymous user')
   })
 
+  it('should return user for valid /token request', async () => {
+    await UserModel.create(completeUser)
+    const response = await request(server)
+      .post('/login/token')
+      .send({ token: completeUser.token })
+    expect(response.body.name).toBe('Alexander Brennenburg')
+    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+  })
+
   it('should return user for valid /facebook request', async () => {
-    FacebookApi.mockImplementation((str: string, fn: Function) => {
+    FacebookApiSpy.mockImplementation((str: string, fn: Function) => {
       const err = false
       const user = {
         name: 'Alexander Brennenburg',
@@ -70,5 +79,20 @@ describe('Login endpoint', () => {
     expect(response.body.name).toBe('Alexander Brennenburg')
     expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
     expect(response.body.facebookId).toBe('12345')
+  })
+
+  it('should return user for valid /telegram request', async () => {
+    verifyTelegramPayloadSpy.mockImplementation((data) => {
+      return data
+    })
+    const response = await request(server).post('/login/telegram').send({
+      id: 12345,
+      hash: 'string',
+      auth_date: '2022-02-02',
+      first_name: 'Alexander',
+      last_name: 'Brennenburg',
+    })
+    expect(response.body.name).toBe('Alexander Brennenburg')
+    expect(response.body.telegramId).toBe('12345')
   })
 })

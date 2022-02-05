@@ -3,6 +3,13 @@ import * as Koa from 'koa'
 import { Server } from 'http'
 import { User, SubscriptionStatus } from '@/models/user/User'
 import { Todo } from '@/models/todo/Todo'
+import Facebook = require('facebook-node-sdk')
+export const FacebookApiSpy = jest.spyOn(Facebook.prototype, 'api')
+import * as telegramPayloadHelper from '@/helpers/verifyTelegramPayload'
+export const verifyTelegramPayloadSpy = jest.spyOn(
+  telegramPayloadHelper,
+  'verifyTelegramPayload'
+)
 
 export function dropMongo() {
   return Promise.all(
