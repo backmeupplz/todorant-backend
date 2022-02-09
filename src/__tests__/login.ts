@@ -49,6 +49,25 @@ describe('Login endpoint', () => {
     expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
   })
 
+  it('should return user for valid /google-firebase request', async () => {
+    await UserModel.create(completeUser)
+    axiosMock
+      .onGet(`https://www.googleapis.com/oauth2/v3/userinfo`, {
+        headers: {
+          Authorization: `Bearer test`,
+        },
+      })
+      .reply(200, {
+        name: 'Alexander Brennenburg',
+        email: 'alexanderrennenburg@gmail.com',
+      })
+    const response = await request(server)
+      .post('/login/google-firebase')
+      .send({ accessToken: 'test' })
+    expect(response.body.name).toBe('Alexander Brennenburg')
+    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+  })
+
   it('should return user for valid /anonymous request', async () => {
     const response = await request(server).post('/login/anonymous').send()
     expect(response.body.name).toBe('Anonymous user')
