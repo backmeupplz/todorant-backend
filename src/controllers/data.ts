@@ -3,7 +3,7 @@ import { Context } from 'koa'
 import { authenticate } from '@/middlewares/authenticate'
 import { path } from 'temp'
 import { writeFileSync, unlinkSync } from 'fs'
-import { bot } from '@/helpers/report'
+import { bot, report } from '@/helpers/report'
 import { _d } from '@/helpers/encryption'
 import { getTodos } from '@/controllers/todo'
 import { admins } from '@/helpers/telegram/admins'
@@ -15,12 +15,19 @@ export default class DataController {
   async postData(@Ctx() ctx: Context) {
     const tempPath = path({ suffix: '.json' })
     writeFileSync(tempPath, JSON.stringify(ctx.request.body.data, undefined, 2))
-    await bot.telegram.sendMessage(
-      admins[0],
-      `${ctx.state.user._id} ${ctx.state.user.name}`
-    )
-    await bot.telegram.sendDocument(admins[0], { source: tempPath })
-    unlinkSync(tempPath)
+    try {
+      await bot.telegram.sendMessage(
+        admins[0],
+        `${ctx.state.user._id} ${ctx.state.user.name}`
+      )
+      await bot.telegram.sendDocument(admins[0], { source: tempPath })
+    } catch (err) {
+      report(err)
+      throw err
+      // Do nothing
+    } finally {
+      unlinkSync(tempPath)
+    }
     ctx.status = 200
   }
 
