@@ -79,7 +79,12 @@ io.on('connection', (socket) => {
 
   socket.on(
     'push_wmdb',
-    async (changes: WMDBChanges, lastPulledTimestamp: number) => {
+    async (
+      changes: WMDBChanges,
+      lastPulledTimestamp: number,
+      password?: string
+    ) => {
+      const savedTodos = [] as Todo[]
       try {
         const userId = socket.user._id
         const toPushBack = { todos: [] as Todo[], tags: [] as Tag[] }
@@ -90,7 +95,8 @@ io.on('connection', (socket) => {
               sqlRaw,
               socket.user,
               toPushBack.todos,
-              usersForSync
+              usersForSync,
+              savedTodos
             )
           }),
           ...changes.todos.updated.map(async (sqlRaw) => {
@@ -98,7 +104,8 @@ io.on('connection', (socket) => {
               sqlRaw,
               socket.user,
               toPushBack.todos,
-              usersForSync
+              usersForSync,
+              savedTodos
             )
           }),
           ...changes.tags.created.map(async (sqlRaw) => {
@@ -112,6 +119,13 @@ io.on('connection', (socket) => {
           requestSync(user.toString())
         })
         socket.emit('complete_wmdb', toPushBack)
+        // Update calendar
+        updateTodos(
+          savedTodos,
+          socket.user.settings.googleCalendarCredentials,
+          password,
+          socket.user.settings.removeCompletedFromCalendar
+        )
       } catch (err) {
         console.log(err)
         socket.emit(

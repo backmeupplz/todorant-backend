@@ -69,6 +69,9 @@ export async function updateTodos(
     const api = getGoogleCalendarApi(credentials)
     const todorantCalendar = await getTodorantCalendar(api)
     for (let todo of todos) {
+      if (todo.encrypted && !password) {
+        continue
+      }
       if (todo.encrypted && password) {
         const decrypted = _d(todo.text, password)
         if (decrypted) {
