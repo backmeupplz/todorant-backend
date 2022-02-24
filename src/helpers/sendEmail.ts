@@ -4,8 +4,8 @@ import * as mg from 'nodemailer-mailgun-transport'
 // This is your API key that you retrieve from www.mailgun.com/cp (free up to 10K monthly emails)
 const auth = {
   auth: {
-    api_key: process.env.EMAIL_API_KEY,
-    domain: process.env.EMAIL_DOMAIN,
+    api_key: process.env.NODE_ENV === 'test' ? ' ' : process.env.EMAIL_API_KEY,
+    domain: process.env.NODE_ENV === 'test' ? ' ' : process.env.EMAIL_DOMAIN,
   },
 }
 
