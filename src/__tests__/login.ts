@@ -1,3 +1,6 @@
+// Get environment variables
+import * as dotenv from 'dotenv'
+dotenv.config({ path: `${process.cwd()}/.env` })
 import { app } from '@/app'
 import { runMongo, stopMongo } from '@/models/index'
 import { UserModel } from '@/models/user'
