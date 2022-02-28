@@ -1,6 +1,6 @@
 import { app } from '@/app'
 import { runMongo, stopMongo } from '@/models/index'
-import { UserModel } from '@/models/user'
+import { getOrCreateUser } from '@/models/user'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import { MongoMemoryServer } from 'mongodb-memory-server'
@@ -35,7 +35,7 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /google request', async () => {
-    await UserModel.create(completeUser)
+    await getOrCreateUser(completeUser)
     axiosMock
       .onGet('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=test')
       .reply(200, {
@@ -50,7 +50,7 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /google-firebase request', async () => {
-    await UserModel.create(completeUser)
+    await getOrCreateUser(completeUser)
     axiosMock
       .onGet(`https://www.googleapis.com/oauth2/v3/userinfo`, {
         headers: {
@@ -74,10 +74,10 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /token request', async () => {
-    await UserModel.create(completeUser)
+    const user = (await getOrCreateUser(completeUser)).user
     const response = await request(server)
       .post('/login/token')
-      .send({ token: completeUser.token })
+      .send({ token: user.token })
     expect(response.body.name).toBe('Alexander Brennenburg')
     expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
   })
