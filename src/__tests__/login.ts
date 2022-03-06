@@ -6,12 +6,12 @@ import MockAdapter from 'axios-mock-adapter'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import * as request from 'supertest'
 import {
+  verifyTelegramPayloadSpy,
+  FacebookApiSpy,
   completeUser,
+  stopServer,
   dropMongo,
   startKoa,
-  stopServer,
-  FacebookApiSpy,
-  verifyTelegramPayloadSpy,
 } from '@/__tests__/testUtils'
 import { Server } from 'http'
 
@@ -113,5 +113,36 @@ describe('Login endpoint', () => {
     })
     expect(response.body.name).toBe('Alexander Brennenburg')
     expect(response.body.telegramId).toBe('12345')
+  })
+
+  it('should return uuid for valid /generate_uuid request', async () => {
+    const response = await request(server).get('/login/generate_uuid').send()
+    expect(response.body.uuid).toBeDefined()
+  })
+
+  it('should update uuid for valid /qr_token request', async () => {
+    const token = (await getOrCreateUser(completeUser)).user.token
+    const uuid = (await request(server).get('/login/generate_uuid').send()).body
+      .uuid
+    await request(server)
+      .post('/login/qr_token')
+      .set('token', token)
+      .send({ uuid })
+      .expect(204)
+  })
+
+  it('should return token for valid /qr_check request', async () => {
+    const token = (await getOrCreateUser(completeUser)).user.token
+    const uuid = (await request(server).get('/login/generate_uuid').send()).body
+      .uuid
+    await request(server)
+      .post('/login/qr_token')
+      .set('token', token)
+      .send({ uuid })
+      .expect(204)
+    const response = await request(server)
+      .post('/login/qr_check')
+      .send({ uuid })
+    expect(response.body.token).toBe(token)
   })
 })
