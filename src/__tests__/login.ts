@@ -11,7 +11,9 @@ import {
   completeUser,
   stopServer,
   dropMongo,
+  decodeSpy,
   startKoa,
+  accessTokenSpy,
 } from '@/__tests__/testUtils'
 import { Server } from 'http'
 
@@ -32,6 +34,39 @@ describe('Login endpoint', () => {
   afterAll(async () => {
     await stopMongo()
     await stopServer(server)
+  })
+
+  it('should return user for valid /facebook request', async () => {
+    FacebookApiSpy.mockImplementation((str: string, fn: Function) => {
+      const err = false
+      const user = {
+        name: 'Alexander Brennenburg',
+        email: 'alexanderrennenburg@gmail.com',
+        id: '12345',
+      }
+      fn(err, user)
+    })
+    const response = await request(server)
+      .post('/login/facebook')
+      .send({ accessToken: 'test' })
+    expect(response.body.name).toBe('Alexander Brennenburg')
+    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+    expect(response.body.facebookId).toBe('12345')
+  })
+
+  it('should return user for valid /telegram request', async () => {
+    verifyTelegramPayloadSpy.mockImplementation((data) => {
+      return data
+    })
+    const response = await request(server).post('/login/telegram').send({
+      id: 12345,
+      hash: 'string',
+      auth_date: '2022-02-02',
+      first_name: 'Alexander',
+      last_name: 'Brennenburg',
+    })
+    expect(response.body.name).toBe('Alexander Brennenburg')
+    expect(response.body.telegramId).toBe('12345')
   })
 
   it('should return user for valid /google request', async () => {
@@ -82,37 +117,53 @@ describe('Login endpoint', () => {
     expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
   })
 
-  it('should return user for valid /facebook request', async () => {
-    FacebookApiSpy.mockImplementation((str: string, fn: Function) => {
-      const err = false
-      const user = {
-        name: 'Alexander Brennenburg',
+  it('should return user for valid /apple request', async () => {
+    accessTokenSpy.mockImplementation((code) => {
+      return new Promise((resolve) => {
+        resolve({
+          expires_in: 31415,
+          access_token: 'berry',
+          refresh_token: 'cute',
+          id_token: 'sweet',
+          token_type: 'bearer',
+        })
+      })
+    })
+    axiosMock.onGet('https://appleid.apple.com/auth/token').reply(200)
+    decodeSpy.mockImplementation((id_token) => {
+      return {
+        sub: 'honey',
         email: 'alexanderrennenburg@gmail.com',
-        id: '12345',
       }
-      fn(err, user)
     })
-    const response = await request(server)
-      .post('/login/facebook')
-      .send({ accessToken: 'test' })
-    expect(response.body.name).toBe('Alexander Brennenburg')
-    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
-    expect(response.body.facebookId).toBe('12345')
-  })
-
-  it('should return user for valid /telegram request', async () => {
-    verifyTelegramPayloadSpy.mockImplementation((data) => {
-      return data
-    })
-    const response = await request(server).post('/login/telegram').send({
-      id: 12345,
-      hash: 'string',
-      auth_date: '2022-02-02',
-      first_name: 'Alexander',
-      last_name: 'Brennenburg',
-    })
-    expect(response.body.name).toBe('Alexander Brennenburg')
-    expect(response.body.telegramId).toBe('12345')
+    const response1 = await request(server)
+      .post('/login/apple')
+      .send({
+        user: {
+          name: {
+            firstName: 'Alexander',
+            lastName: 'Brennenburg',
+          },
+        },
+        code: {
+          _config: { redirect_uri: 'a.a', client_id: 'b.b' },
+        },
+        client: 'ios',
+        fromApple: true,
+      })
+    const response2 = await request(server)
+      .post('/login/apple')
+      .send({
+        code: {
+          _config: { redirect_uri: 'a.a', client_id: 'b.b' },
+        },
+        client: 'ios',
+        fromApple: true,
+      })
+    expect(response1.body.name).toBe('Alexander Brennenburg')
+    expect(response1.body.email).toBe('alexanderrennenburg@gmail.com')
+    expect(response2.body.name).toBe('Alexander Brennenburg')
+    expect(response2.body.email).toBe('alexanderrennenburg@gmail.com')
   })
 
   it('should return uuid for valid /generate_uuid request', async () => {

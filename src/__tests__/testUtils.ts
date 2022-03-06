@@ -5,11 +5,15 @@ import { User, SubscriptionStatus } from '@/models/user/User'
 import { Todo } from '@/models/todo/Todo'
 import Facebook = require('facebook-node-sdk')
 export const FacebookApiSpy = jest.spyOn(Facebook.prototype, 'api')
+import * as decode from 'jsonwebtoken'
+export const decodeSpy = jest.spyOn(decode, 'decode')
 import * as telegramPayloadHelper from '@/helpers/verifyTelegramPayload'
 export const verifyTelegramPayloadSpy = jest.spyOn(
   telegramPayloadHelper,
   'verifyTelegramPayload'
 )
+const AppleAuth = require('apple-auth')
+export const accessTokenSpy = jest.spyOn(AppleAuth.prototype, 'accessToken')
 
 export function dropMongo() {
   return Promise.all(
