@@ -7,13 +7,14 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import * as request from 'supertest'
 import {
   verifyTelegramPayloadSpy,
+  verifyAppleTokenSpy,
   FacebookApiSpy,
+  accessTokenSpy,
   completeUser,
   stopServer,
   dropMongo,
   decodeSpy,
   startKoa,
-  accessTokenSpy,
 } from '@/__tests__/testUtils'
 import { Server } from 'http'
 
@@ -164,6 +165,25 @@ describe('Login endpoint', () => {
     expect(response1.body.email).toBe('alexanderrennenburg@gmail.com')
     expect(response2.body.name).toBe('Alexander Brennenburg')
     expect(response2.body.email).toBe('alexanderrennenburg@gmail.com')
+  })
+
+  it('should return user for valid /apple-firebase request', async () => {
+    verifyAppleTokenSpy.mockImplementation(async (id_token) => {
+      return {
+        sub: 'honey',
+        email: 'alexanderrennenburg@gmail.com',
+      }
+    })
+    const response = await request(server)
+      .post('/login/apple-firebase')
+      .send({
+        name: 'Alexander Brennenburg',
+        credential: {
+          oauthIdToken: 'cute',
+        },
+      })
+    expect(response.body.name).toBe('Alexander Brennenburg')
+    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
   })
 
   it('should return uuid for valid /generate_uuid request', async () => {

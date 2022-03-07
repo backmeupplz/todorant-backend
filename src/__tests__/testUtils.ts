@@ -7,6 +7,8 @@ import Facebook = require('facebook-node-sdk')
 export const FacebookApiSpy = jest.spyOn(Facebook.prototype, 'api')
 import * as decode from 'jsonwebtoken'
 export const decodeSpy = jest.spyOn(decode, 'decode')
+import * as AppleToken from '@/helpers/jwt'
+export const verifyAppleTokenSpy = jest.spyOn(AppleToken, 'verifyAppleToken')
 import * as telegramPayloadHelper from '@/helpers/verifyTelegramPayload'
 export const verifyTelegramPayloadSpy = jest.spyOn(
   telegramPayloadHelper,
