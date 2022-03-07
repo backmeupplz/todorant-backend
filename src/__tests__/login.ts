@@ -109,15 +109,6 @@ describe('Login endpoint', () => {
     expect(response.body.name).toBe('Anonymous user')
   })
 
-  it('should return user for valid /token request', async () => {
-    const user = (await getOrCreateUser(completeUser)).user
-    const response = await request(server)
-      .post('/login/token')
-      .send({ token: user.token })
-    expect(response.body.name).toBe('Alexander Brennenburg')
-    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
-  })
-
   it('should return user for valid /apple request', async () => {
     accessTokenSpy.mockImplementation((code) => {
       return new Promise((resolve) => {
@@ -184,6 +175,25 @@ describe('Login endpoint', () => {
       })
     expect(response.body.name).toBe('Alexander Brennenburg')
     expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+  })
+
+  it('should return user for valid /token request', async () => {
+    const user = (await getOrCreateUser(completeUser)).user
+    const response = await request(server)
+      .post('/login/token')
+      .send({ token: user.token })
+    expect(response.body.name).toBe('Alexander Brennenburg')
+    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+  })
+
+  it('should return success for valid /apple_login_result request', async () => {
+    const response = await request(server)
+      .post('/login/apple_login_result')
+      .send({ id_token: 'honey', user: 'Alexander Brennenburg' })
+    expect(response.header.location).toBe(
+      'https://todorant.com/apple_login_result#?id_token=honey&user=%22Alexander%20Brennenburg%22'
+    )
+    expect(response.text).toBe('Success!')
   })
 
   it('should return uuid for valid /generate_uuid request', async () => {
