@@ -5,6 +5,7 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import * as request from 'supertest'
+import { v4 as uuid } from 'uuid'
 import {
   verifyTelegramPayloadSpy,
   verifyAppleTokenSpy,
@@ -17,6 +18,7 @@ import {
   startKoa,
 } from '@/__tests__/testUtils'
 import { Server } from 'http'
+import { QrLoginModel } from '@/models/QrLoginModel'
 
 describe('Login endpoint', () => {
   const axiosMock = new MockAdapter(axios)
@@ -203,27 +205,23 @@ describe('Login endpoint', () => {
 
   it('should update uuid for valid /qr_token request', async () => {
     const token = (await getOrCreateUser(completeUser)).user.token
-    const uuid = (await request(server).get('/login/generate_uuid').send()).body
-      .uuid
-    await request(server)
+    const qrUuid = uuid()
+    await new QrLoginModel({ uuid: qrUuid }).save()
+    const result = await request(server)
       .post('/login/qr_token')
       .set('token', token)
-      .send({ uuid })
-      .expect(204)
+      .send({ uuid: qrUuid })
+    expect(result.status).toBe(204)
   })
 
   it('should return token for valid /qr_check request', async () => {
     const token = (await getOrCreateUser(completeUser)).user.token
-    const uuid = (await request(server).get('/login/generate_uuid').send()).body
-      .uuid
-    await request(server)
-      .post('/login/qr_token')
-      .set('token', token)
-      .send({ uuid })
-      .expect(204)
+    const qrUuid = uuid()
+    await new QrLoginModel({ uuid: qrUuid }).save()
+    await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token })
     const response = await request(server)
       .post('/login/qr_check')
-      .send({ uuid })
+      .send({ uuid: qrUuid })
     expect(response.body.token).toBe(token)
   })
 })
