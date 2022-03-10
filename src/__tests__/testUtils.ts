@@ -9,6 +9,9 @@ import * as decode from 'jsonwebtoken'
 export const decodeSpy = jest.spyOn(decode, 'decode')
 import * as AppleToken from '@/helpers/jwt'
 export const verifyAppleTokenSpy = jest.spyOn(AppleToken, 'verifyAppleToken')
+import { bot } from '@/helpers/telegram'
+export const botGetChatSpy = jest.spyOn(bot.telegram, 'getChat')
+export const botSendMessageSpy = jest.spyOn(bot.telegram, 'sendMessage')
 import * as telegramPayloadHelper from '@/helpers/verifyTelegramPayload'
 export const verifyTelegramPayloadSpy = jest.spyOn(
   telegramPayloadHelper,

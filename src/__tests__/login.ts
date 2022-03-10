@@ -16,9 +16,12 @@ import {
   dropMongo,
   decodeSpy,
   startKoa,
+  botGetChatSpy,
+  botSendMessageSpy,
 } from '@/__tests__/testUtils'
 import { Server } from 'http'
 import { QrLoginModel } from '@/models/QrLoginModel'
+import { bot } from '@/helpers/telegram'
 
 describe('Login endpoint', () => {
   const axiosMock = new MockAdapter(axios)
@@ -179,8 +182,51 @@ describe('Login endpoint', () => {
     expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
   })
 
+  it('should return user for valid /telegram-mobile request', async () => {
+    const { user } = await getOrCreateUser(completeUser)
+    const qrUuid = uuid()
+    await new QrLoginModel({ uuid: qrUuid }).save()
+    await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token: user.token })
+    botGetChatSpy.mockImplementation((id: number) => {
+      return new Promise((resolve) => {
+        return resolve({
+          id,
+          type: 'private',
+          first_name: 'Alexander',
+          last_name: 'Vrennenburg',
+        })
+      })
+    })
+    botSendMessageSpy.mockImplementation((id: number, text, extra) => {
+      return new Promise((resolve) => {
+        return resolve({
+          message_id: id,
+          date: 3141529,
+          chat: {
+            id,
+            type: 'private',
+            first_name: 'Alexander',
+            last_name: 'Vrennenburg',
+          },
+          text,
+        })
+      })
+    })
+    const response = await request(server)
+      .post('/login/telegram_mobile ')
+      .send({
+        id: 12345,
+        uuid: qrUuid,
+      })
+    expect(response.status).toBe(204)
+    expect(botGetChatSpy).toHaveBeenCalledWith(12345)
+    expect(botGetChatSpy).toHaveReturned()
+    expect(botSendMessageSpy).toHaveBeenCalled()
+    expect(botSendMessageSpy).toHaveReturned()
+  })
+
   it('should return user for valid /token request', async () => {
-    const user = (await getOrCreateUser(completeUser)).user
+    const { user } = await getOrCreateUser(completeUser)
     const response = await request(server)
       .post('/login/token')
       .send({ token: user.token })
@@ -204,18 +250,19 @@ describe('Login endpoint', () => {
   })
 
   it('should update uuid for valid /qr_token request', async () => {
-    const token = (await getOrCreateUser(completeUser)).user.token
+    const { token } = (await getOrCreateUser(completeUser)).user
     const qrUuid = uuid()
     await new QrLoginModel({ uuid: qrUuid }).save()
     const result = await request(server)
       .post('/login/qr_token')
       .set('token', token)
       .send({ uuid: qrUuid })
+    expect((await QrLoginModel.findOne({uuid:qrUuid})).token).toBe(token)
     expect(result.status).toBe(204)
   })
 
   it('should return token for valid /qr_check request', async () => {
-    const token = (await getOrCreateUser(completeUser)).user.token
+    const { token } = (await getOrCreateUser(completeUser)).user
     const qrUuid = uuid()
     await new QrLoginModel({ uuid: qrUuid }).save()
     await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token })
