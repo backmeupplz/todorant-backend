@@ -26,7 +26,6 @@ describe('Authenticate', () => {
   })
 
   it('should call next if everything is ok', async () => {
-    process.env.JWT = 'test_secret'
     const token = await sign(user)
     await UserModel.create({ ...user, token })
     const ctx = await check(true, token)
@@ -39,7 +38,6 @@ describe('Authenticate', () => {
   })
 
   it('shoud throw an error if there is no user with such token', async () => {
-    process.env.JWT = 'test_secret'
     const tokenOfNonexistentUser = await sign({
       email: 'alexanderrennenburg@gmail.com',
     })
@@ -47,12 +45,10 @@ describe('Authenticate', () => {
   })
 
   it('shoud throw an error if the token is malformed', async () => {
-    process.env.JWT = 'test_secret'
     await check(false, 'Invalid token')
   })
 
   it('shoud throw an error if the token is absent', async () => {
-    process.env.JWT = 'test_secret'
     await check(false)
   })
 

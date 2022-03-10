@@ -7,6 +7,7 @@ import { googleSubscriptionValidator } from '@/helpers/googleSubscriptionValidat
 import { stripe } from '@/helpers/stripe'
 
 async function checkSubscribers() {
+  if (process.env.DEBUG || process.env.NODE_ENV === 'test') return
   const monthAgo = new Date()
   monthAgo.setDate(monthAgo.getDate() - 30)
   const subscribers = await UserModel.find({
