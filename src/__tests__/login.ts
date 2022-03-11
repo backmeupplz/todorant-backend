@@ -22,6 +22,7 @@ import {
 import { Server } from 'http'
 import { QrLoginModel } from '@/models/QrLoginModel'
 import { bot } from '@/helpers/telegram'
+import { telegramLoginRequests } from '@/controllers/login'
 
 describe('Login endpoint', () => {
   const axiosMock = new MockAdapter(axios)
@@ -213,7 +214,7 @@ describe('Login endpoint', () => {
       })
     })
     const response = await request(server)
-      .post('/login/telegram_mobile ')
+      .post('/login/telegram_mobile')
       .send({
         id: 12345,
         uuid: qrUuid,
@@ -223,6 +224,22 @@ describe('Login endpoint', () => {
     expect(botGetChatSpy).toHaveReturned()
     expect(botSendMessageSpy).toHaveBeenCalled()
     expect(botSendMessageSpy).toHaveReturned()
+  })
+
+  it('should return user for valid /telegram_mobile_check request', async () => {
+    const { user } = await getOrCreateUser(completeUser)
+    const qrUuid = uuid()
+    await new QrLoginModel({ uuid: qrUuid }).save()
+    await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token: user.token })
+    telegramLoginRequests[qrUuid] = {user, allowed: true}
+    const response = await request(server)
+      .post('/login/telegram_mobile_check')
+      .send({
+        id: 12345,
+        uuid: qrUuid,
+      })
+    expect(response.body.user.name).toBe('Alexander Brennenburg')
+    expect(response.body.user.email).toBe('alexanderrennenburg@gmail.com')
   })
 
   it('should return user for valid /token request', async () => {
