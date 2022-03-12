@@ -4,7 +4,7 @@ import { Server } from 'http'
 import { User, SubscriptionStatus } from '@/models/user/User'
 import { Todo } from '@/models/todo/Todo'
 import Facebook = require('facebook-node-sdk')
-export const FacebookApiSpy = jest.spyOn(Facebook.prototype, 'api')
+export const facebookApiSpy = jest.spyOn(Facebook.prototype, 'api')
 import * as decode from 'jsonwebtoken'
 export const decodeSpy = jest.spyOn(decode, 'decode')
 import * as AppleToken from '@/helpers/jwt'
@@ -29,8 +29,8 @@ export function dropMongo() {
 }
 
 export const completeUser = {
-  name: 'Alexander Brennenburg',
-  email: 'alexanderrennenburg@gmail.com',
+  name: 'Default Name',
+  email: 'defaultname@gmail.com',
 }
 
 export const createdCompleteUser = {

@@ -9,7 +9,7 @@ import { v4 as uuid } from 'uuid'
 import {
   verifyTelegramPayloadSpy,
   verifyAppleTokenSpy,
-  FacebookApiSpy,
+  facebookApiSpy,
   accessTokenSpy,
   completeUser,
   stopServer,
@@ -44,10 +44,10 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /facebook request', async () => {
-    FacebookApiSpy.mockImplementation((str: string, fn: Function) => {
+    facebookApiSpy.mockImplementation((st, fn: Function) => {
       const user = {
-        name: 'Alexander Brennenburg',
-        email: 'alexanderrennenburg@gmail.com',
+        name: 'Default Name',
+        email: 'defaultname@gmail.com',
         id: '12345',
       }
       fn(false, user)
@@ -55,8 +55,8 @@ describe('Login endpoint', () => {
     const response = await request(server)
       .post('/login/facebook')
       .send({ accessToken: 'test' })
-    expect(response.body.name).toBe('Alexander Brennenburg')
-    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+    expect(response.body.name).toBe('Default Name')
+    expect(response.body.email).toBe('defaultname@gmail.com')
     expect(response.body.facebookId).toBe('12345')
   })
 
@@ -68,10 +68,10 @@ describe('Login endpoint', () => {
       id: 12345,
       hash: 'string',
       auth_date: '2022-02-02',
-      first_name: 'Alexander',
-      last_name: 'Brennenburg',
+      first_name: 'Default',
+      last_name: 'Name',
     })
-    expect(response.body.name).toBe('Alexander Brennenburg')
+    expect(response.body.name).toBe('Default Name')
     expect(response.body.telegramId).toBe('12345')
   })
 
@@ -80,14 +80,14 @@ describe('Login endpoint', () => {
     axiosMock
       .onGet('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=test')
       .reply(200, {
-        name: 'Alexander Brennenburg',
-        email: 'alexanderrennenburg@gmail.com',
+        name: 'Default Name',
+        email: 'defaultname@gmail.com',
       })
     const response = await request(server)
       .post('/login/google')
       .send({ accessToken: 'test' })
-    expect(response.body.name).toBe('Alexander Brennenburg')
-    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+    expect(response.body.name).toBe('Default Name')
+    expect(response.body.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /google-firebase request', async () => {
@@ -99,14 +99,14 @@ describe('Login endpoint', () => {
         },
       })
       .reply(200, {
-        name: 'Alexander Brennenburg',
-        email: 'alexanderrennenburg@gmail.com',
+        name: 'Default Name',
+        email: 'defaultname@gmail.com',
       })
     const response = await request(server)
       .post('/login/google-firebase')
       .send({ accessToken: 'test' })
-    expect(response.body.name).toBe('Alexander Brennenburg')
-    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+    expect(response.body.name).toBe('Default Name')
+    expect(response.body.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /anonymous request', async () => {
@@ -115,22 +115,23 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /apple request', async () => {
-    accessTokenSpy.mockImplementation((code) => {
-      return new Promise((resolve) => {
-        resolve({
-          expires_in: 31415,
-          access_token: 'berry',
-          refresh_token: 'cute',
-          id_token: 'sweet',
-          token_type: 'bearer',
-        })
-      })
-    })
+    accessTokenSpy.mockImplementation(
+      (code) =>
+        new Promise((resolve) =>
+          resolve({
+            expires_in: 31415,
+            access_token: 'berry',
+            refresh_token: 'cute',
+            id_token: 'sweet',
+            token_type: 'bearer',
+          })
+        )
+    )
     axiosMock.onGet('https://appleid.apple.com/auth/token').reply(200)
     decodeSpy.mockImplementation((id_token) => {
       return {
         sub: 'honey',
-        email: 'alexanderrennenburg@gmail.com',
+        email: 'defaultname@gmail.com',
       }
     })
     const response1 = await request(server)
@@ -138,8 +139,8 @@ describe('Login endpoint', () => {
       .send({
         user: {
           name: {
-            firstName: 'Alexander',
-            lastName: 'Brennenburg',
+            firstName: 'Default',
+            lastName: 'Name',
           },
         },
         code: {
@@ -157,29 +158,29 @@ describe('Login endpoint', () => {
         client: 'ios',
         fromApple: true,
       })
-    expect(response1.body.name).toBe('Alexander Brennenburg')
-    expect(response1.body.email).toBe('alexanderrennenburg@gmail.com')
-    expect(response2.body.name).toBe('Alexander Brennenburg')
-    expect(response2.body.email).toBe('alexanderrennenburg@gmail.com')
+    expect(response1.body.name).toBe('Default Name')
+    expect(response1.body.email).toBe('defaultname@gmail.com')
+    expect(response2.body.name).toBe('Default Name')
+    expect(response2.body.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /apple-firebase request', async () => {
     verifyAppleTokenSpy.mockImplementation(async (id_token) => {
       return {
         sub: 'honey',
-        email: 'alexanderrennenburg@gmail.com',
+        email: 'defaultname@gmail.com',
       }
     })
     const response = await request(server)
       .post('/login/apple-firebase')
       .send({
-        name: 'Alexander Brennenburg',
+        name: 'Default Name',
         credential: {
           oauthIdToken: 'cute',
         },
       })
-    expect(response.body.name).toBe('Alexander Brennenburg')
-    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+    expect(response.body.name).toBe('Default Name')
+    expect(response.body.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /telegram-mobile request', async () => {
@@ -189,8 +190,8 @@ describe('Login endpoint', () => {
     await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token: user.token })
     const tgChat = {
       type: 'private',
-      first_name: 'Alexander',
-      last_name: 'Vrennenburg',
+      first_name: 'Default',
+      last_name: 'Name',
     }
     botGetChatSpy.mockImplementation((id: number) => {
       return new Promise((resolve) => {
@@ -236,8 +237,8 @@ describe('Login endpoint', () => {
         id: 12345,
         uuid: qrUuid,
       })
-    expect(response.body.user.name).toBe('Alexander Brennenburg')
-    expect(response.body.user.email).toBe('alexanderrennenburg@gmail.com')
+    expect(response.body.user.name).toBe('Default Name')
+    expect(response.body.user.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /token request', async () => {
@@ -245,16 +246,16 @@ describe('Login endpoint', () => {
     const response = await request(server)
       .post('/login/token')
       .send({ token: user.token })
-    expect(response.body.name).toBe('Alexander Brennenburg')
-    expect(response.body.email).toBe('alexanderrennenburg@gmail.com')
+    expect(response.body.name).toBe('Default Name')
+    expect(response.body.email).toBe('defaultname@gmail.com')
   })
 
   it('should return success for valid /apple_login_result request', async () => {
     const response = await request(server)
       .post('/login/apple_login_result')
-      .send({ id_token: 'honey', user: 'Alexander Brennenburg' })
+      .send({ id_token: 'honey', user: 'Default Name' })
     expect(response.header.location).toBe(
-      'https://todorant.com/apple_login_result#?id_token=honey&user=%22Alexander%20Brennenburg%22'
+      'https://todorant.com/apple_login_result#?id_token=honey&user=%22Default%20Name%22'
     )
     expect(response.text).toBe('Success!')
   })
