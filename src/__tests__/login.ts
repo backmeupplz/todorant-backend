@@ -45,13 +45,12 @@ describe('Login endpoint', () => {
 
   it('should return user for valid /facebook request', async () => {
     FacebookApiSpy.mockImplementation((str: string, fn: Function) => {
-      const err = false
       const user = {
         name: 'Alexander Brennenburg',
         email: 'alexanderrennenburg@gmail.com',
         id: '12345',
       }
-      fn(err, user)
+      fn(false, user)
     })
     const response = await request(server)
       .post('/login/facebook')
@@ -188,13 +187,16 @@ describe('Login endpoint', () => {
     const qrUuid = uuid()
     await new QrLoginModel({ uuid: qrUuid }).save()
     await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token: user.token })
+    const tgChat = {
+      type: 'private',
+      first_name: 'Alexander',
+      last_name: 'Vrennenburg',
+    }
     botGetChatSpy.mockImplementation((id: number) => {
       return new Promise((resolve) => {
         return resolve({
           id,
-          type: 'private',
-          first_name: 'Alexander',
-          last_name: 'Vrennenburg',
+          ...tgChat,
         })
       })
     })
@@ -205,20 +207,16 @@ describe('Login endpoint', () => {
           date: 3141529,
           chat: {
             id,
-            type: 'private',
-            first_name: 'Alexander',
-            last_name: 'Vrennenburg',
+            ...tgChat,
           },
           text,
         })
       })
     })
-    const response = await request(server)
-      .post('/login/telegram_mobile')
-      .send({
-        id: 12345,
-        uuid: qrUuid,
-      })
+    const response = await request(server).post('/login/telegram_mobile').send({
+      id: 12345,
+      uuid: qrUuid,
+    })
     expect(response.status).toBe(204)
     expect(botGetChatSpy).toHaveBeenCalledWith(12345)
     expect(botGetChatSpy).toHaveReturned()
@@ -231,7 +229,7 @@ describe('Login endpoint', () => {
     const qrUuid = uuid()
     await new QrLoginModel({ uuid: qrUuid }).save()
     await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token: user.token })
-    telegramLoginRequests[qrUuid] = {user, allowed: true}
+    telegramLoginRequests[qrUuid] = { user, allowed: true }
     const response = await request(server)
       .post('/login/telegram_mobile_check')
       .send({
@@ -274,7 +272,7 @@ describe('Login endpoint', () => {
       .post('/login/qr_token')
       .set('token', token)
       .send({ uuid: qrUuid })
-    expect((await QrLoginModel.findOne({uuid:qrUuid})).token).toBe(token)
+    expect((await QrLoginModel.findOne({ uuid: qrUuid })).token).toBe(token)
     expect(result.status).toBe(204)
   })
 
