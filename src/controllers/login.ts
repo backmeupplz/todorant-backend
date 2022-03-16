@@ -21,7 +21,7 @@ import { QrLoginModel } from '@/models/QrLoginModel'
 
 const AppleAuth = require('apple-auth')
 
-const telegramLoginRequests = {} as {
+export const telegramLoginRequests = {} as {
   [index: string]: {
     user: User
     allowed?: boolean

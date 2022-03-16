@@ -11,7 +11,7 @@ interface TodosMap {
 }
 
 async function sendMessageToThreeWeekUsers() {
-  if (process.env.DEBUG) {
+  if (process.env.DEBUG || process.env.NODE_ENV === 'test') {
     return
   }
   const threeWeeksAgo = {
@@ -174,6 +174,9 @@ function filterTodos(todos: number[], predicted: number[]) {
 }
 
 async function renderChart(data: number[], predictedData: number[]) {
+  if (process.env.DEBUG || process.env.NODE_ENV === 'test') {
+    return
+  }
   try {
     const width = 700
     const height = 700

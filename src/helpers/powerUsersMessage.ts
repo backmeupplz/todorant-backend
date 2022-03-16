@@ -5,7 +5,7 @@ import { sendPowerUserMessage } from '@/helpers/sendEmail'
 import { DocumentType } from '@typegoose/typegoose'
 
 async function sendMessageToPowerUsers() {
-  if (process.env.DEBUG) {
+  if (process.env.DEBUG || process.env.NODE_ENV === 'test') {
     return
   }
   // Send to telegram

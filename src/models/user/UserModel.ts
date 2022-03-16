@@ -38,6 +38,12 @@ export async function getOrCreateUser(loginOptions: LoginOptions) {
       telegramId: loginOptions.telegramId,
     })
   }
+  // Try anonymous token
+  if (!user && loginOptions.anonymousToken) {
+    user = await UserModel.findOne({
+      anonymousToken: loginOptions.anonymousToken,
+    })
+  }
   let created = false
   if (!user) {
     created = true

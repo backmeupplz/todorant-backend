@@ -3,6 +3,22 @@ import * as Koa from 'koa'
 import { Server } from 'http'
 import { User, SubscriptionStatus } from '@/models/user/User'
 import { Todo } from '@/models/todo/Todo'
+import Facebook = require('facebook-node-sdk')
+export const facebookApiSpy = jest.spyOn(Facebook.prototype, 'api')
+import * as decode from 'jsonwebtoken'
+export const decodeSpy = jest.spyOn(decode, 'decode')
+import * as AppleToken from '@/helpers/jwt'
+export const verifyAppleTokenSpy = jest.spyOn(AppleToken, 'verifyAppleToken')
+import { bot } from '@/helpers/telegram'
+export const botGetChatSpy = jest.spyOn(bot.telegram, 'getChat')
+export const botSendMessageSpy = jest.spyOn(bot.telegram, 'sendMessage')
+import * as telegramPayloadHelper from '@/helpers/verifyTelegramPayload'
+export const verifyTelegramPayloadSpy = jest.spyOn(
+  telegramPayloadHelper,
+  'verifyTelegramPayload'
+)
+const AppleAuth = require('apple-auth')
+export const accessTokenSpy = jest.spyOn(AppleAuth.prototype, 'accessToken')
 
 export function dropMongo() {
   return Promise.all(
@@ -13,10 +29,8 @@ export function dropMongo() {
 }
 
 export const completeUser = {
-  name: 'Alexander Brennenburg',
-  email: 'alexanderrennenburg@gmail.com',
-  token:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWxleGFuZGVyIEJyZW5uZW5idXJnIiwic3Vic2NyaXB0aW9uU3RhdHVzIjoidHJpYWwiLCJkZWxlZ2F0ZUludml0ZVRva2VuIjoiR090WWwyRUVaSE1OMmF1cSIsImVtYWlsIjoiYWxleGFuZGVycmVubmVuYnVyZ0BnbWFpbC5jb20iLCJpYXQiOjE2MDUxMjY5MTF9.Z17DwU2HuIcqBgvrzl65X47q3iRMuvybbYLmz9yc5ns',
+  name: 'Default Name',
+  email: 'defaultname@gmail.com',
 }
 
 export const createdCompleteUser = {
@@ -40,7 +54,7 @@ export const createdCompleteUser = {
   isPerpetualLicense: false,
   updatedAt: new Date(),
   delegatesUpdatedAt: new Date(),
-} as User
+} as Omit<User, 'token'>
 
 export const completeTodo = {
   _id: 'testTodoId',
@@ -82,4 +96,14 @@ export function stopServer(server: Server) {
       res()
     })
   })
+}
+
+export function transformToBeEqual(strippedUser: User) {
+  return {
+    ...strippedUser,
+    delegatesUpdatedAt: strippedUser.delegatesUpdatedAt.toJSON(),
+    createdAt: strippedUser.createdAt.toJSON(),
+    updatedAt: strippedUser.updatedAt.toJSON(),
+    _id: strippedUser._id.toString(),
+  }
 }

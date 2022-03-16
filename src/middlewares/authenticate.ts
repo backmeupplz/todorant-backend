@@ -17,7 +17,9 @@ export async function authenticate(ctx: Context, next: Function) {
     }
     ctx.state.user = user
   } catch (err) {
-    await report(err)
+    if (!process.env.DEBUG && process.env.NODE_ENV !== 'test') {
+      await report(err)
+    }
     return ctx.throw(403, errors.authentication)
   }
   await next()

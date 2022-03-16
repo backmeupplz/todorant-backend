@@ -5,6 +5,9 @@ setGlobalOptions({
     allowMixed: Severity.ALLOW,
   },
 })
+// Get environment variables
+import * as dotenv from 'dotenv'
+dotenv.config({ path: `${process.cwd()}/.env` })
 // The rest of dependencies
 import 'reflect-metadata'
 import * as Koa from 'koa'
