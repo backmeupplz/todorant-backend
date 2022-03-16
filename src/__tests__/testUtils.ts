@@ -97,3 +97,13 @@ export function stopServer(server: Server) {
     })
   })
 }
+
+export function transformToBeEqual(strippedUser: User) {
+  return {
+    ...strippedUser,
+    delegatesUpdatedAt: strippedUser.delegatesUpdatedAt.toJSON(),
+    createdAt: strippedUser.createdAt.toJSON(),
+    updatedAt: strippedUser.updatedAt.toJSON(),
+    _id: strippedUser._id.toString(),
+  }
+}

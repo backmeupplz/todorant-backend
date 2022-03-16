@@ -1,6 +1,6 @@
 import { app } from '@/app'
 import { runMongo, stopMongo } from '@/models/index'
-import { getOrCreateUser } from '@/models/user'
+import { getOrCreateUser, User, UserModel } from '@/models/user'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import { MongoMemoryServer } from 'mongodb-memory-server'
@@ -18,10 +18,10 @@ import {
   startKoa,
   botGetChatSpy,
   botSendMessageSpy,
+  transformToBeEqual,
 } from '@/__tests__/testUtils'
 import { Server } from 'http'
 import { QrLoginModel } from '@/models/QrLoginModel'
-import { bot } from '@/helpers/telegram'
 import { telegramLoginRequests } from '@/controllers/login'
 
 describe('Login endpoint', () => {
@@ -55,9 +55,13 @@ describe('Login endpoint', () => {
     const response = await request(server)
       .post('/login/facebook')
       .send({ accessToken: 'test' })
-    expect(response.body.name).toBe('Default Name')
-    expect(response.body.email).toBe('defaultname@gmail.com')
-    expect(response.body.facebookId).toBe('12345')
+    const { created, user } = await getOrCreateUser({
+      name: 'Default Name',
+      facebookId: '12345',
+    })
+    const strippedUser = user.stripped(true) as User
+    expect(created || !user).toBe(false)
+    expect(response.body).toStrictEqual(transformToBeEqual(strippedUser))
   })
 
   it('should return user for valid /telegram request', async () => {
@@ -71,12 +75,17 @@ describe('Login endpoint', () => {
       first_name: 'Default',
       last_name: 'Name',
     })
-    expect(response.body.name).toBe('Default Name')
-    expect(response.body.telegramId).toBe('12345')
+    const { created, user } = await getOrCreateUser({
+      name: 'Default Name',
+      telegramId: '12345',
+    })
+    const strippedUser = user.stripped(true) as User
+    expect(created || !user).toBe(false)
+    expect(response.body).toStrictEqual(transformToBeEqual(strippedUser))
   })
 
   it('should return user for valid /google request', async () => {
-    await getOrCreateUser(completeUser)
+    // await getOrCreateUser(completeUser)
     axiosMock
       .onGet('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=test')
       .reply(200, {
@@ -86,12 +95,17 @@ describe('Login endpoint', () => {
     const response = await request(server)
       .post('/login/google')
       .send({ accessToken: 'test' })
-    expect(response.body.name).toBe('Default Name')
-    expect(response.body.email).toBe('defaultname@gmail.com')
+    const { created, user } = await getOrCreateUser({
+      name: 'Default Name',
+      email: 'defaultname@gmail.com',
+    })
+    const strippedUser = user.stripped(true) as User
+    expect(created || !user).toBe(false)
+    expect(response.body).toStrictEqual(transformToBeEqual(strippedUser))
   })
 
   it('should return user for valid /google-firebase request', async () => {
-    await getOrCreateUser(completeUser)
+    // await getOrCreateUser(completeUser)
     axiosMock
       .onGet(`https://www.googleapis.com/oauth2/v3/userinfo`, {
         headers: {
@@ -105,13 +119,24 @@ describe('Login endpoint', () => {
     const response = await request(server)
       .post('/login/google-firebase')
       .send({ accessToken: 'test' })
-    expect(response.body.name).toBe('Default Name')
-    expect(response.body.email).toBe('defaultname@gmail.com')
+    const { created, user } = await getOrCreateUser({
+      name: 'Default Name',
+      email: 'defaultname@gmail.com',
+    })
+    const strippedUser = user.stripped(true) as User
+    expect(created || !user).toBe(false)
+    expect(response.body).toStrictEqual(transformToBeEqual(strippedUser))
   })
 
   it('should return user for valid /anonymous request', async () => {
     const response = await request(server).post('/login/anonymous').send()
-    expect(response.body.name).toBe('Anonymous user')
+    const { created, user } = await getOrCreateUser({
+      name: 'Default Name',
+      anonymousToken: response.body.anonymousToken,
+    })
+    const strippedUser = user.stripped(true) as User
+    expect(created || !user).toBe(false)
+    expect(response.body).toStrictEqual(transformToBeEqual(strippedUser))
   })
 
   it('should return user for valid /apple request', async () => {
@@ -158,10 +183,23 @@ describe('Login endpoint', () => {
         client: 'ios',
         fromApple: true,
       })
-    expect(response1.body.name).toBe('Default Name')
-    expect(response1.body.email).toBe('defaultname@gmail.com')
-    expect(response2.body.name).toBe('Default Name')
-    expect(response2.body.email).toBe('defaultname@gmail.com')
+    const user = await UserModel.findOne({
+      appleSubId: 'honey',
+    })
+    const strippedUser = user.stripped(true) as User
+    expect(!user).toBe(false)
+    expect(response1.body).toStrictEqual({
+      ...strippedUser,
+      delegatesUpdatedAt: strippedUser.delegatesUpdatedAt.toJSON(),
+      createdAt: strippedUser.createdAt.toJSON(),
+      updatedAt: strippedUser.updatedAt.toJSON(),
+      _id: strippedUser._id.toString(),
+    })
+    expect(response2.body).toStrictEqual(transformToBeEqual(strippedUser))
+    // expect(response1.body).toBe(user.stripped(true))
+    // expect(response1.body.email).toBe('defaultname@gmail.com')
+    // expect(response2.body).toBe(user.stripped(true))
+    // expect(response2.body.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /apple-firebase request', async () => {
@@ -179,15 +217,20 @@ describe('Login endpoint', () => {
           oauthIdToken: 'cute',
         },
       })
-    expect(response.body.name).toBe('Default Name')
-    expect(response.body.email).toBe('defaultname@gmail.com')
+    const user = await UserModel.findOne({
+      appleSubId: 'honey',
+    })
+    const strippedUser = user.stripped(true) as User
+    expect(!user).toBe(false)
+    expect(response.body).toStrictEqual(transformToBeEqual(strippedUser))
+    // expect(response.body.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /telegram-mobile request', async () => {
-    const { user } = await getOrCreateUser(completeUser)
+    // const { user } = await getOrCreateUser(completeUser)
     const qrUuid = uuid()
     await new QrLoginModel({ uuid: qrUuid }).save()
-    await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token: user.token })
+    // await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token: user.token })
     const tgChat = {
       type: 'private',
       first_name: 'Default',
@@ -218,6 +261,14 @@ describe('Login endpoint', () => {
       id: 12345,
       uuid: qrUuid,
     })
+    const loginRequest = telegramLoginRequests[qrUuid]
+    const { created, user } = await getOrCreateUser({
+      name: 'Default Name',
+      telegramId: '12345',
+    })
+    const strippedUser = user.stripped(true) as User
+    expect(created || !user).toBe(false)
+    expect(loginRequest.user).toStrictEqual(strippedUser)
     expect(response.status).toBe(204)
     expect(botGetChatSpy).toHaveBeenCalledWith(12345)
     expect(botGetChatSpy).toHaveReturned()
@@ -230,15 +281,18 @@ describe('Login endpoint', () => {
     const qrUuid = uuid()
     await new QrLoginModel({ uuid: qrUuid }).save()
     await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token: user.token })
-    telegramLoginRequests[qrUuid] = { user, allowed: true }
+    telegramLoginRequests[qrUuid] = {
+      user: user.stripped(true) as User,
+      allowed: true,
+    }
     const response = await request(server)
       .post('/login/telegram_mobile_check')
       .send({
-        id: 12345,
         uuid: qrUuid,
       })
-    expect(response.body.user.name).toBe('Default Name')
-    expect(response.body.user.email).toBe('defaultname@gmail.com')
+    const strippedUser = telegramLoginRequests[qrUuid].user
+    expect(response.body.user).toStrictEqual(transformToBeEqual(strippedUser))
+    // expect(response.body.user.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /token request', async () => {
@@ -246,11 +300,12 @@ describe('Login endpoint', () => {
     const response = await request(server)
       .post('/login/token')
       .send({ token: user.token })
-    expect(response.body.name).toBe('Default Name')
-    expect(response.body.email).toBe('defaultname@gmail.com')
+    const strippedUser = user.stripped(true) as User
+    expect(response.body).toStrictEqual(transformToBeEqual(strippedUser))
+    // expect(response.body.email).toBe()
   })
 
-  it('should return success for valid /apple_login_result request', async () => {
+  it('should redirect and return success for valid /apple_login_result request', async () => {
     const response = await request(server)
       .post('/login/apple_login_result')
       .send({ id_token: 'honey', user: 'Default Name' })
@@ -285,6 +340,6 @@ describe('Login endpoint', () => {
     const response = await request(server)
       .post('/login/qr_check')
       .send({ uuid: qrUuid })
-    expect(response.body.token).toBe(token)
+    expect(response.body).toStrictEqual({ token })
   })
 })
