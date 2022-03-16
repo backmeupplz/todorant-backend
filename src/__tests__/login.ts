@@ -85,7 +85,6 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /google request', async () => {
-    // await getOrCreateUser(completeUser)
     axiosMock
       .onGet('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=test')
       .reply(200, {
@@ -105,7 +104,6 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /google-firebase request', async () => {
-    // await getOrCreateUser(completeUser)
     axiosMock
       .onGet(`https://www.googleapis.com/oauth2/v3/userinfo`, {
         headers: {
@@ -196,10 +194,6 @@ describe('Login endpoint', () => {
       _id: strippedUser._id.toString(),
     })
     expect(response2.body).toStrictEqual(transformToBeEqual(strippedUser))
-    // expect(response1.body).toBe(user.stripped(true))
-    // expect(response1.body.email).toBe('defaultname@gmail.com')
-    // expect(response2.body).toBe(user.stripped(true))
-    // expect(response2.body.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /apple-firebase request', async () => {
@@ -223,14 +217,11 @@ describe('Login endpoint', () => {
     const strippedUser = user.stripped(true) as User
     expect(!user).toBe(false)
     expect(response.body).toStrictEqual(transformToBeEqual(strippedUser))
-    // expect(response.body.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /telegram-mobile request', async () => {
-    // const { user } = await getOrCreateUser(completeUser)
     const qrUuid = uuid()
     await new QrLoginModel({ uuid: qrUuid }).save()
-    // await QrLoginModel.findOneAndUpdate({ uuid: qrUuid }, { token: user.token })
     const tgChat = {
       type: 'private',
       first_name: 'Default',
@@ -292,7 +283,6 @@ describe('Login endpoint', () => {
       })
     const strippedUser = telegramLoginRequests[qrUuid].user
     expect(response.body.user).toStrictEqual(transformToBeEqual(strippedUser))
-    // expect(response.body.user.email).toBe('defaultname@gmail.com')
   })
 
   it('should return user for valid /token request', async () => {
@@ -302,7 +292,6 @@ describe('Login endpoint', () => {
       .send({ token: user.token })
     const strippedUser = user.stripped(true) as User
     expect(response.body).toStrictEqual(transformToBeEqual(strippedUser))
-    // expect(response.body.email).toBe()
   })
 
   it('should redirect and return success for valid /apple_login_result request', async () => {
