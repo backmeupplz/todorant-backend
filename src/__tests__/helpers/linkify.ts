@@ -57,4 +57,29 @@ describe('Linkify helper', () => {
       ['#Тест', 10],
     ])
   })
+
+  it('should find multiple similar tags with different registers in sentence', async () => {
+    expect(
+      linkify
+        .match('#Test is not a #tEst not a #tesT and not a #TEsT')
+        .map((cur) => {
+          return [cur.url, cur.index]
+        })
+    ).toStrictEqual([
+      ['#Test', 0],
+      ['#tEst', 15],
+      ['#tesT', 27],
+      ['#TEsT', 43],
+    ])
+    expect(
+      linkify.match('#Тест это не #тЕст не #тесТ и не #ТЕсТ').map((cur) => {
+        return [cur.url, cur.index]
+      })
+    ).toStrictEqual([
+      ['#Тест', 0],
+      ['#тЕст', 13],
+      ['#тесТ', 22],
+      ['#ТЕсТ', 33],
+    ])
+  })
 })
