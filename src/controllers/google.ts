@@ -92,6 +92,7 @@ export default class GoogleController {
         await TodoModel.findOneAndUpdate(
           {
             _id: event.id,
+            time: { $ne: null },
           },
           { completed: true }
         )
