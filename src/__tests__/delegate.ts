@@ -1,22 +1,24 @@
-import { app } from "@/app";
-import { sign } from "@/helpers/jwt";
-import { runMongo, stopMongo } from "@/models/index";
-import { UserModel } from "@/models/user";
-import { Todo, TodoModel } from "@/models/todo";
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
-import { MongoMemoryServer } from "mongodb-memory-server";
-import * as request from "supertest";
+import { app } from '@/app';
+import { sign } from '@/helpers/jwt';
+import { runMongo, stopMongo } from '@/models/index';
+import { UserModel } from '@/models/user';
+import * as randToken from 'rand-token';
+import { Todo, TodoModel } from '@/models/todo';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import * as request from 'supertest';
 import {
   completeUser,
   completeTodo,
   dropMongo,
   startKoa,
   stopServer,
-} from "@/__tests__/testUtils";
-import { Server } from "http";
+} from '@/__tests__/testUtils';
+import { Server } from 'http';
+import { isConstructorDeclaration } from 'typescript';
 
-describe("Testing delegate controller", () => {
+describe('Testing delegate controller', () => {
   const axiosMock = new MockAdapter(axios);
   let server: Server;
   let userDelegator;
@@ -37,12 +39,12 @@ describe("Testing delegate controller", () => {
       token: tokenDelegator,
     });
     await request(server)
-      .post("/delegate/generateToken")
-      .set("token", userDelegator.token)
-      .set("Accept", "application/json").data;
+      .post('/delegate/generateToken')
+      .set('token', userDelegator.token)
+      .set('Accept', 'application/json').data;
     const baseUser = {
-      name: "Testing User",
-      email: "testingname@gmail.com",
+      name: 'Testing User',
+      email: 'testingname@gmail.com',
     };
     const tokenUser = await sign(baseUser);
     user = await UserModel.create({
@@ -59,86 +61,105 @@ describe("Testing delegate controller", () => {
     await stopServer(server);
   });
 
-  it("should return delegate invite token", async () => {
+  it('should return delegate invite token', async () => {
     await request(server)
-      .post("/delegate/generateToken")
-      .set("token", user.token)
-      .set("Accept", "application/json")
+      .post('/delegate/generateToken')
+      .set('token', user.token)
+      .set('Accept', 'application/json')
       .expect(200);
   });
 
-  it("user should to have delegates", async () => {
+  it('user should to have delegates', async () => {
     await request(server)
-      .post("/delegate/useToken")
-      .set("token", user.token)
-      .set("Accept", "application/json")
+      .post('/delegate/useToken')
+      .set('token', user.token)
+      .set('Accept', 'application/json')
       .send({ token: userDelegator.delegateInviteToken })
       .expect(204);
+
+    await request(server)
+      .post('/delegate/useToken')
+      .set('token', user.token)
+      .set('Accept', 'application/json')
+      .send({ token: 'n65666666d95ptH2' })
+      .expect(404);
   });
 
-  it("should return delegate info", async () => {
+  it('should return delegate info', async () => {
     await request(server)
-      .post("/delegate/useToken")
-      .set("token", user.token)
-      .set("Accept", "application/json")
+      .post('/delegate/useToken')
+      .set('token', user.token)
+      .set('Accept', 'application/json')
       .send({ token: userDelegator.delegateInviteToken });
 
     await request(server)
-      .get("/delegate")
-      .set("token", userDelegator.token)
-      .set("Accept", "application/json")
+      .get('/delegate')
+      .set('token', userDelegator.token)
+      .set('Accept', 'application/json')
       .expect(200);
   });
 
-  it("should to delete delegate", async () => {
+  it('should to delete delegate', async () => {
     await request(server)
-      .post("/delegate/useToken")
-      .set("token", user.token)
-      .set("Accept", "application/json")
+      .post('/delegate/useToken')
+      .set('token', user.token)
+      .set('Accept', 'application/json')
       .send({ token: userDelegator.delegateInviteToken });
 
     await request(server)
-      .delete("/delegate/delegate/" + user.id)
-      .set("token", userDelegator.token)
-      .set("Accept", "application/json")
+      .delete('/delegate/delegate/' + user.id)
+      .set('token', userDelegator.token)
+      .set('Accept', 'application/json')
+      .expect(204);
+
+    await request(server)
+      .delete('/delegate/delegate/' + '11146f6bbf253308c415f039')
+      .set('token', userDelegator.token)
+      .set('Accept', 'application/json')
       .expect(204);
   });
 
-  it("should to delete delegator", async () => {
+  it('should to delete delegator', async () => {
     await request(server)
-      .post("/delegate/useToken")
-      .set("token", user.token)
-      .set("Accept", "application/json")
+      .post('/delegate/useToken')
+      .set('token', user.token)
+      .set('Accept', 'application/json')
       .send({ token: userDelegator.delegateInviteToken });
 
     await request(server)
-      .delete("/delegate/delegator/" + userDelegator.id)
-      .set("token", user.token)
-      .set("Accept", "application/json")
+      .delete('/delegate/delegator/' + userDelegator.id)
+      .set('token', user.token)
+      .set('Accept', 'application/json')
       .expect(204);
   });
 
-  it("should to return unaccepted todos", async () => {
+  it('should to return unaccepted todos', async () => {
     await request(server)
-      .get("/delegate/unaccepted/")
-      .set("token", user.token)
-      .set("Accept", "application/json")
+      .get('/delegate/unaccepted/')
+      .set('token', user.token)
+      .set('Accept', 'application/json')
       .expect(200);
   });
 
-  it("should to accept todo", async () => {
+  it('should to accept todo', async () => {
     await request(server)
-      .post("/delegate/accept/" + todo.id)
-      .set("token", user.token)
-      .set("Accept", "application/json")
+      .post('/delegate/accept/' + todo.id)
+      .set('token', user.token)
+      .set('Accept', 'application/json')
       .expect(204);
+
+    await request(server)
+      .post('/delegate/accept/' + '11111e6f0bce1d133c55568d')
+      .set('token', user.token)
+      .set('Accept', 'application/json')
+      .expect(404);
   });
 
-  it("should to return all todos from delegator", async () => {
+  it('should to return all todos from delegator', async () => {
     await request(server)
-      .get("/delegate/todos")
-      .set("token", userDelegator.token)
-      .set("Accept", "application/json")
+      .get('/delegate/todos')
+      .set('token', userDelegator.token)
+      .set('Accept', 'application/json')
       .expect(200);
   });
 });
