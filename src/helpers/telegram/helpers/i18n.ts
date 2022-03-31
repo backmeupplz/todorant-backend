@@ -1,6 +1,7 @@
 import I18N from 'telegraf-i18n'
 import Telegraf, { Context } from 'telegraf'
-import dirtyI18N from 'telegraf-i18n'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const dirtyI18N = require('telegraf-i18n')
 
 const i18n = new dirtyI18N({
   directory: `${__dirname}/../../../../locales`,
