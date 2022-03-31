@@ -1,6 +1,6 @@
-import { requestSync } from '@/sockets/index'
 import { SubscriptionStatus, UserModel } from '@/models/user'
 import { bot } from '@/helpers/report'
+import { requestSync } from '@/sockets/index'
 
 async function checkTrials() {
   if (process.env.DEBUG || process.env.NODE_ENV === 'test') {

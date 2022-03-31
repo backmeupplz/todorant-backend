@@ -1,5 +1,5 @@
 import { Todo } from '@/models/todo'
-import { google, calendar_v3 } from 'googleapis'
+import { calendar_v3, google } from 'googleapis'
 import { report } from '@/helpers/report'
 import moment = require('moment')
 import { _d } from '@/helpers/encryption'

@@ -1,9 +1,9 @@
-import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@/middlewares/authenticate'
-import axios, { AxiosResponse } from 'axios'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { SubscriptionStatus } from '@/models/user'
+import { authenticate } from '@/middlewares/authenticate'
 import { bot, report } from '@/helpers/report'
+import axios, { AxiosResponse } from 'axios'
 
 const stagingReceiptVerificationURL =
   'https://sandbox.itunes.apple.com/verifyReceipt'

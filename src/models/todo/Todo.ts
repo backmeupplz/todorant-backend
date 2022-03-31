@@ -1,6 +1,6 @@
-import { prop, Ref } from '@typegoose/typegoose'
-import { omit, pick } from 'lodash'
+import { Ref, prop } from '@typegoose/typegoose'
 import { User } from '@/models/user/User'
+import { omit, pick } from 'lodash'
 
 export class Todo {
   @prop({ required: true, ref: User, index: true })

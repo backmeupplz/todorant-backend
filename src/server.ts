@@ -1,5 +1,5 @@
 // Setup typegoose
-import { setGlobalOptions, Severity } from '@typegoose/typegoose'
+import { Severity, setGlobalOptions } from '@typegoose/typegoose'
 setGlobalOptions({
   options: {
     allowMixed: Severity.ALLOW,
@@ -8,11 +8,11 @@ setGlobalOptions({
 // Setup @/ aliases for modules
 import 'module-alias/register'
 // Get the rest of dependencies
-import { socketServer } from '@/sockets/io'
+import * as GracefulShutdown from 'http-graceful-shutdown'
 import { app } from '@/app'
 import { bot } from '@/helpers/telegram'
-import * as GracefulShutdown from 'http-graceful-shutdown'
 import { runMongo } from '@/models/index'
+import { socketServer } from '@/sockets/io'
 
 // Run mongo
 runMongo().then(() => {

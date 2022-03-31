@@ -1,6 +1,6 @@
-import { app } from '@/app'
-import { Server } from 'http'
 import * as request from 'supertest'
+import { Server } from 'http'
+import { app } from '@/app'
 import { startKoa, stopServer } from './testUtils'
 
 describe('Docs endpoint', () => {

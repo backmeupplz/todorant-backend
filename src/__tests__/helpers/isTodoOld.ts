@@ -1,6 +1,6 @@
-import { isTodoOld } from '@/helpers/isTodoOld'
 import { Todo } from '@/models/todo'
 import { completeTodo } from '@/__tests__/testUtils'
+import { isTodoOld } from '@/helpers/isTodoOld'
 
 describe('isTodoOld helper', () => {
   it('should detect if todo is old with todo\'s "month" property < 10', async () => {

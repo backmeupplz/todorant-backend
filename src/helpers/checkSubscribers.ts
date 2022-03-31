@@ -1,10 +1,10 @@
-import { requestSync } from '@/sockets/index'
 import { DocumentType } from '@typegoose/typegoose'
-import { SubscriptionStatus, UserModel, User } from '@/models/user'
+import { SubscriptionStatus, User, UserModel } from '@/models/user'
 import { bot, report } from '@/helpers/report'
-import axios from 'axios'
 import { googleSubscriptionValidator } from '@/helpers/googleSubscriptionValidator'
+import { requestSync } from '@/sockets/index'
 import { stripe } from '@/helpers/stripe'
+import axios from 'axios'
 
 async function checkSubscribers() {
   if (process.env.DEBUG || process.env.NODE_ENV === 'test') return

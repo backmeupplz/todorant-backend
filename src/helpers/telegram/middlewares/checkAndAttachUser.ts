@@ -1,5 +1,5 @@
-import { UserModel } from '@/models/user'
 import { Context } from 'telegraf'
+import { UserModel } from '@/models/user'
 import { sendLogin } from '@/helpers/telegram/commands/login'
 
 export async function checkAndAttachUser(ctx: Context, next) {

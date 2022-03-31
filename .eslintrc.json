@@ -12,9 +12,9 @@
   "plugins": [
     "@typescript-eslint",
     "prettier",
-    // "sort-imports-es6-autofix",
-    // "import",
-    // "no-relative-import-paths",
+    "sort-imports-es6-autofix",
+    "import",
+    "no-relative-import-paths",
     "eslint-plugin-node"
   ],
   "extends": [
@@ -41,14 +41,14 @@
         "singleQuote": true,
         "endOfLine": "auto"
       }
+    ],
+    "sort-imports-es6-autofix/sort-imports-es6": [
+      2,
+      {
+        "ignoreCase": false,
+        "ignoreMemberSort": false,
+        "memberSyntaxSortOrder": ["none", "all", "multiple", "single"]
+      }
     ]
-    // "sort-imports-es6-autofix/sort-imports-es6": [
-    //   2,
-    //   {
-    //     "ignoreCase": false,
-    //     "ignoreMemberSort": false,
-    //     "memberSyntaxSortOrder": ["none", "all", "multiple", "single"]
-    //   }
-    // ]
   }
 }

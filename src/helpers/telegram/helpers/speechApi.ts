@@ -1,10 +1,10 @@
-import { witLanguages } from '@/helpers/telegram/helpers/witLanguage'
-import { tryDeletingFile } from '@/helpers/telegram/helpers/deleteFile'
 import * as temp from 'temp'
+import { tryDeletingFile } from '@/helpers/telegram/helpers/deleteFile'
+import { witLanguages } from '@/helpers/telegram/helpers/witLanguage'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ffmpeg = require('fluent-ffmpeg')
-import * as https from 'https'
 import * as fs from 'fs'
+import * as https from 'https'
 
 export async function getText(witLanguage, duration, ogaPath) {
   const token = witLanguages[witLanguage]

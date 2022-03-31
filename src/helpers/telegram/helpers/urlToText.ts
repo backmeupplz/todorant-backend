@@ -1,9 +1,9 @@
-import { report } from '@/helpers/report'
-import { getText } from '@/helpers/telegram/helpers/speechApi'
-import { tryDeletingFile } from '@/helpers/telegram/helpers/deleteFile'
-import { getDuration } from '@/helpers/telegram/helpers/flac'
-import * as temp from 'temp'
 import * as fs from 'fs'
+import * as temp from 'temp'
+import { getDuration } from '@/helpers/telegram/helpers/flac'
+import { getText } from '@/helpers/telegram/helpers/speechApi'
+import { report } from '@/helpers/report'
+import { tryDeletingFile } from '@/helpers/telegram/helpers/deleteFile'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const download = require('download')
 

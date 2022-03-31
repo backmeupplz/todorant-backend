@@ -1,22 +1,22 @@
-import { getGoogleCalendarApi, updateTodos } from '@/helpers/googleCalendar'
-import { report } from '@/helpers/report'
-import { getOrCreateHero, Hero, HeroModel } from '@/models/hero'
-import { createWMDBTag, Tag, TagModel, updateWMDBTag } from '@/models/tag'
-import { createWMDBTodo, Todo, TodoModel, updateWMDBTodo } from '@/models/todo'
-import { Settings, User, UserModel } from '@/models/user'
 import { DocumentType, Ref } from '@typegoose/typegoose'
-import { omit } from 'lodash'
-import { setupSync } from '@/sockets/setupSync'
-import { io } from '@/sockets/io'
-import { setupAuthorization } from '@/sockets/setupAuthorization'
 import { FilterQuery } from 'mongoose'
+import { Hero, HeroModel, getOrCreateHero } from '@/models/hero'
+import { Settings, User, UserModel } from '@/models/user'
+import { Tag, TagModel, createWMDBTag, updateWMDBTag } from '@/models/tag'
+import { Todo, TodoModel, createWMDBTodo, updateWMDBTodo } from '@/models/todo'
 import {
-  convertModelToRawSql,
   WMDBChanges,
   WMDBTables,
   WMDBTag,
   WMDBTodo,
+  convertModelToRawSql,
 } from '@/helpers/wmdb'
+import { getGoogleCalendarApi, updateTodos } from '@/helpers/googleCalendar'
+import { io } from '@/sockets/io'
+import { omit } from 'lodash'
+import { report } from '@/helpers/report'
+import { setupAuthorization } from '@/sockets/setupAuthorization'
+import { setupSync } from '@/sockets/setupSync'
 
 type UserWithDeleted = User & { deleted: boolean }
 
@@ -162,7 +162,7 @@ io.on('connection', (socket) => {
       const savedTodos = await Promise.all(
         todos.map(
           (todo) =>
-            new Promise<DocumentType<Todo>>((res, rej) => {
+            new Promise<DocumentType<Todo>>(async (res, rej) => {
               try {
                 if (!todo._id) {
                   const dbtodo = new TodoModel({

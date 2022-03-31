@@ -1,9 +1,9 @@
-import { User } from '@/models/user/User'
 import { Context } from 'koa'
-import { errors } from '@/helpers/errors'
 import { DocumentType } from '@typegoose/typegoose'
-import { report } from '@/helpers/report'
+import { User } from '@/models/user/User'
+import { errors } from '@/helpers/errors'
 import { isUserSubscribed } from '@/helpers/isUserSubscribed'
+import { report } from '@/helpers/report'
 
 export async function checkSubscription(
   ctx: Context,

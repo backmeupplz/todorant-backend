@@ -1,5 +1,5 @@
-import { Controller, Ctx, Get } from 'koa-ts-controllers'
 import { Context } from 'koa'
+import { Controller, Ctx, Get } from 'koa-ts-controllers'
 import showdown = require('showdown')
 import { readFileSync } from 'fs'
 

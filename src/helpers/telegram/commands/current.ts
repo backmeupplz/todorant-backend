@@ -1,9 +1,9 @@
 import { Context, Markup } from 'telegraf'
-import { findCurrentForUser } from '@/helpers/telegram/helpers/findCurrent'
-import { User } from '@/models/user'
-import { TodoModel, getTitle } from '@/models/todo'
 import { DocumentType } from '@typegoose/typegoose'
+import { TodoModel, getTitle } from '@/models/todo'
+import { User } from '@/models/user'
 import { compareTodos } from '@/controllers/todo'
+import { findCurrentForUser } from '@/helpers/telegram/helpers/findCurrent'
 import { fixOrder } from '@/helpers/fixOrder'
 import { requestSync } from '@/sockets/index'
 

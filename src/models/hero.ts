@@ -1,5 +1,5 @@
+import { Ref, getModelForClass, prop } from '@typegoose/typegoose'
 import { User } from '@/models/user'
-import { prop, Ref, getModelForClass } from '@typegoose/typegoose'
 import { omit } from 'lodash'
 
 export class Hero {

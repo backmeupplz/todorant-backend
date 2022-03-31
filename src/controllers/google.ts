@@ -1,21 +1,21 @@
-import { Todo } from '@/models/todo'
-import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@/middlewares/authenticate'
-import { TodoModel, getTitle } from '@/models/todo'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { SubscriptionStatus, UserModel } from '@/models/user'
+import { Todo } from '@/models/todo'
+import { TodoModel, getTitle } from '@/models/todo'
+import { authenticate } from '@/middlewares/authenticate'
+import { fixOrder } from '@/helpers/fixOrder'
 import {
+  getGoogleCalendarApi,
   getGoogleCalendarOAuthURL,
   getGoogleCalendarToken,
-  getTodorantCalendar,
   getGoogleEvents,
-  getGoogleCalendarApi,
+  getTodorantCalendar,
 } from '@/helpers/googleCalendar'
-import { startWatch } from '@/helpers/googleCalendarChannel'
-import { requestSync } from '@/sockets/index'
-import { fixOrder } from '@/helpers/fixOrder'
 import { googleSubscriptionValidator } from '@/helpers/googleSubscriptionValidator'
 import { report } from '@/helpers/report'
+import { requestSync } from '@/sockets/index'
+import { startWatch } from '@/helpers/googleCalendarChannel'
 
 @Controller('/google')
 export default class GoogleController {

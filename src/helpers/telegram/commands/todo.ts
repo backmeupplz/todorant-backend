@@ -1,12 +1,12 @@
-import { DocumentType } from '@typegoose/typegoose'
-import { linkify } from '@/helpers/linkify'
 import { Context } from 'telegraf'
-import { isUserSubscribed } from '@/helpers/isUserSubscribed'
-import { TodoModel, getTitle, Todo } from '@/models/todo'
+import { DocumentType } from '@typegoose/typegoose'
+import { Message } from 'telegraf/typings/telegram-types'
+import { Todo, TodoModel, getTitle } from '@/models/todo'
 import { addTags } from '@/models/tag'
 import { fixOrder } from '@/helpers/fixOrder'
+import { isUserSubscribed } from '@/helpers/isUserSubscribed'
+import { linkify } from '@/helpers/linkify'
 import { requestSync } from '@/sockets/index'
-import { Message } from 'telegraf/typings/telegram-types'
 import dehumanize from 'dehumanize-date'
 
 export function addTodo(ctx: Context) {

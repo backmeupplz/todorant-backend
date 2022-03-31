@@ -1,5 +1,5 @@
-import * as jwt from 'jsonwebtoken'
 import * as jwksClient from 'jwks-rsa'
+import * as jwt from 'jsonwebtoken'
 
 export function sign<T extends Record<string, unknown>>(
   payload: T

@@ -1,8 +1,8 @@
-import { prop, Ref, DocumentType, getModelForClass } from '@typegoose/typegoose'
-import { omit } from 'lodash'
-import { User } from '@/models/user'
-import { fromSqlToObject, WMDBTables, WMDBTag } from '@/helpers/wmdb'
 import { Document } from 'mongoose'
+import { DocumentType, Ref, getModelForClass, prop } from '@typegoose/typegoose'
+import { User } from '@/models/user'
+import { WMDBTables, WMDBTag, fromSqlToObject } from '@/helpers/wmdb'
+import { omit } from 'lodash'
 
 export class Tag {
   @prop({ required: true, ref: User })

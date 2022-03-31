@@ -1,11 +1,11 @@
-import { Controller, Ctx, Flow, Get } from 'koa-ts-controllers'
 import { Context } from 'koa'
+import { Controller, Ctx, Flow, Get } from 'koa-ts-controllers'
+import { SubscriptionStatus } from '@/models/user'
 import { authenticate } from '@/middlewares/authenticate'
 import { errors } from '@/helpers/errors'
-import { isTodoOld } from '@/helpers/isTodoOld'
 import { getTodos } from '@/controllers/todo'
+import { isTodoOld } from '@/helpers/isTodoOld'
 import { pick } from 'lodash'
-import { SubscriptionStatus } from '@/models/user'
 
 enum SubscriptionType {
   none = 'none',

@@ -1,28 +1,28 @@
-import { app } from '@/app'
-import { runMongo, stopMongo } from '@/models/index'
-import { getOrCreateUser, User, UserModel } from '@/models/user'
-import axios from 'axios'
-import MockAdapter from 'axios-mock-adapter'
-import { MongoMemoryServer } from 'mongodb-memory-server'
 import * as request from 'supertest'
-import { v4 as uuid } from 'uuid'
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import { QrLoginModel } from '@/models/QrLoginModel'
+import { Server } from 'http'
+import { User, UserModel, getOrCreateUser } from '@/models/user'
 import {
-  verifyTelegramPayloadSpy,
-  verifyAppleTokenSpy,
-  facebookApiSpy,
   accessTokenSpy,
-  completeUser,
-  stopServer,
-  dropMongo,
-  decodeSpy,
-  startKoa,
   botGetChatSpy,
   botSendMessageSpy,
+  completeUser,
+  decodeSpy,
+  dropMongo,
+  facebookApiSpy,
+  startKoa,
+  stopServer,
   transformToBeEqual,
+  verifyAppleTokenSpy,
+  verifyTelegramPayloadSpy,
 } from '@/__tests__/testUtils'
-import { Server } from 'http'
-import { QrLoginModel } from '@/models/QrLoginModel'
+import { app } from '@/app'
+import { runMongo, stopMongo } from '@/models/index'
 import { telegramLoginRequests } from '@/controllers/login'
+import { v4 as uuid } from 'uuid'
+import MockAdapter from 'axios-mock-adapter'
+import axios from 'axios'
 
 describe('Login endpoint', () => {
   const axiosMock = new MockAdapter(axios)

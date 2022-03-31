@@ -1,6 +1,6 @@
-import { prop, Ref, getModelForClass } from '@typegoose/typegoose'
-import { omit } from 'lodash'
+import { Ref, getModelForClass, prop } from '@typegoose/typegoose'
 import { User, UserModel } from '@/models/user'
+import { omit } from 'lodash'
 
 interface ReportMeta {
   completedTodosMap: {

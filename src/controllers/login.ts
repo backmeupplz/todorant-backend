@@ -1,23 +1,23 @@
-import { sign, verifyAppleToken } from '@/helpers/jwt'
-import { bot } from '@/helpers/telegram'
-import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
-import { authenticate, getUserFromToken } from '@/middlewares/authenticate'
+import * as randToken from 'rand-token'
+import { Context } from 'koa'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
+import { DocumentType } from '@typegoose/typegoose'
 import {
-  getOrCreateUser,
   SubscriptionStatus,
   User,
   UserModel,
+  getOrCreateUser,
 } from '@/models/user'
-import { DocumentType } from '@typegoose/typegoose'
-import axios from 'axios'
+import { authenticate, getUserFromToken } from '@/middlewares/authenticate'
+import { bot } from '@/helpers/telegram'
 import { decode } from 'jsonwebtoken'
-import { Context } from 'koa'
-import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
-import * as randToken from 'rand-token'
 import { Markup as m } from 'telegraf'
+import { sign, verifyAppleToken } from '@/helpers/jwt'
+import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
+import axios from 'axios'
 import Facebook = require('facebook-node-sdk')
-import { v4 as uuid } from 'uuid'
 import { QrLoginModel } from '@/models/QrLoginModel'
+import { v4 as uuid } from 'uuid'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const AppleAuth = require('apple-auth')

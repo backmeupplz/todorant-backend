@@ -1,6 +1,6 @@
+import { DocumentType } from '@typegoose/typegoose'
 import { Todo, TodoModel, getTitle } from '@/models/todo'
 import { User } from '@/models/user'
-import { DocumentType } from '@typegoose/typegoose'
 
 export async function fixOrder(
   user: DocumentType<User>,

@@ -1,7 +1,7 @@
-import { bot } from '@/helpers/telegram'
-import { UserModel } from '@/models/user'
-import { sendUserThreeWeekMessage } from '@/helpers/sendEmail'
 import { TodoModel } from '@/models/todo'
+import { UserModel } from '@/models/user'
+import { bot } from '@/helpers/telegram'
+import { sendUserThreeWeekMessage } from '@/helpers/sendEmail'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { CanvasRenderService } = require('chartjs-node-canvas')
 // eslint-disable-next-line @typescript-eslint/no-var-requires

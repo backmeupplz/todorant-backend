@@ -1,5 +1,5 @@
-import Telegraf from 'telegraf'
 import { admins } from '@/helpers/telegram/admins'
+import Telegraf from 'telegraf'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 

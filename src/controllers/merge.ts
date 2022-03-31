@@ -1,13 +1,13 @@
+import { Context } from 'koa'
+import { Controller, Ctx, Flow, Post } from 'koa-ts-controllers'
+import { SubscriptionStatus, User, UserModel } from '@/models/user'
+import { TodoModel } from '@/models/todo'
 import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
 import axios from 'axios'
-import { Context } from 'koa'
-import { UserModel, User, SubscriptionStatus } from '@/models/user'
-import { TodoModel } from '@/models/todo'
-import { Controller, Ctx, Flow, Post } from 'koa-ts-controllers'
 import Facebook = require('facebook-node-sdk')
 import { DocumentType } from '@typegoose/typegoose'
-import { errors } from '@/helpers/errors'
 import { authenticate } from '@/middlewares/authenticate'
+import { errors } from '@/helpers/errors'
 
 @Controller('/merge')
 export default class MergeController {
