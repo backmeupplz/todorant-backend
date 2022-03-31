@@ -23,11 +23,10 @@ export default class MergeController {
     // Get fb profile
     const fbProfile: any = await getFBUser(ctx.request.body.accessToken)
     // Get existing user if exists
-    const existingUser:
-      | DocumentType<User>
-      | undefined = await UserModel.findOne({
-      facebookId: fbProfile.id,
-    })
+    const existingUser: DocumentType<User> | undefined =
+      await UserModel.findOne({
+        facebookId: fbProfile.id,
+      })
     // Add data if required
     originalUser.facebookId = fbProfile.id
     // Check if early adopter
@@ -69,9 +68,8 @@ export default class MergeController {
       return ctx.throw(errors.telegramAlreadyConnected)
     }
     // Get existing user if exists
-    const existingUser:
-      | DocumentType<User>
-      | undefined = await UserModel.findOne({ telegramId: data.id })
+    const existingUser: DocumentType<User> | undefined =
+      await UserModel.findOne({ telegramId: data.id })
     // Add data if required
     originalUser.telegramId = data.id
     // Check if early adopter
@@ -118,9 +116,8 @@ export default class MergeController {
       return ctx.throw(errors.googleAlreadyConnected)
     }
     // Get existing user if exists
-    const existingUser:
-      | DocumentType<User>
-      | undefined = await UserModel.findOne({ email: userData.email })
+    const existingUser: DocumentType<User> | undefined =
+      await UserModel.findOne({ email: userData.email })
     // Add data if required
     originalUser.email = userData.email
     // Check if early adopter

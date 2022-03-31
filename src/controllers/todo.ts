@@ -646,9 +646,9 @@ export default class TodoController {
     }
     // Save
     const todosToSave = Array.from(modifiedTodos.values())
-    const savedTodos = ((await TodoModel.create(
+    const savedTodos = (await TodoModel.create(
       todosToSave
-    )) as any) as DocumentType<Todo>[] // weird bug in the mongoose types forces us to do this casting
+    )) as any as DocumentType<Todo>[] // weird bug in the mongoose types forces us to do this casting
     // Reorder if required
     if (ctx.state.user.settings.preserveOrderByTime) {
       fixOrder(ctx.state.user, Array.from(titlesToReorder))

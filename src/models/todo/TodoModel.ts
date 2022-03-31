@@ -53,7 +53,7 @@ export async function createWMDBTodo(
     ...todoFromSql,
     ...(mongoTodo as Document & { _doc: any })._doc,
   })
-  savedTodos.push((mongoTodo as unknown) as Todo)
+  savedTodos.push(mongoTodo as unknown as Todo)
 }
 
 export async function updateWMDBTodo(

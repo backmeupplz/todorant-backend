@@ -66,14 +66,8 @@ export default class TagController {
   async put(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
-    const {
-      color,
-      epic,
-      epicCompleted,
-      epicGoal,
-      newName,
-      epicOrder,
-    } = ctx.request.body
+    const { color, epic, epicCompleted, epicGoal, newName, epicOrder } =
+      ctx.request.body
     // Find tag
     const tag = await TagModel.findById(id)
     // Check ownership

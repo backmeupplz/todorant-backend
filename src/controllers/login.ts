@@ -435,16 +435,14 @@ export default class LoginController {
 
 bot.action(/lta~.+/, async (ctx) => {
   await ctx.deleteMessage()
-  telegramLoginRequests[
-    ctx.callbackQuery.data.replace('lta~', '')
-  ].allowed = true
+  telegramLoginRequests[ctx.callbackQuery.data.replace('lta~', '')].allowed =
+    true
 })
 
 bot.action(/ltr~.+/, async (ctx) => {
   await ctx.deleteMessage()
-  telegramLoginRequests[
-    ctx.callbackQuery.data.replace('ltr~', '')
-  ].allowed = false
+  telegramLoginRequests[ctx.callbackQuery.data.replace('ltr~', '')].allowed =
+    false
 })
 
 function getFBUser(accessToken: string) {

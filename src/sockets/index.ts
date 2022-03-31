@@ -233,9 +233,9 @@ io.on('connection', (socket) => {
                       )
                     } else {
                       requestSync(
-                        (savedTodo.delegator as DocumentType<
-                          User
-                        >)._id.toString()
+                        (
+                          savedTodo.delegator as DocumentType<User>
+                        )._id.toString()
                       )
                     }
                   }
