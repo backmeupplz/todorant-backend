@@ -12,7 +12,7 @@ jobs:
       - name: Install modules
         run: yarn
       - name: Compile code
-        run: yarn tsc --skibLibCheck
+        run: yarn tsc --skipLibCheck
       - name: create env file
         run: |
           touch .env
