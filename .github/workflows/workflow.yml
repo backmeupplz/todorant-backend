@@ -11,17 +11,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install modules
         run: yarn
+      - name: Compile code
+        run: yarn tsc --skibLibCheck
       - name: create env file
         run: |
           touch .env
           echo JWT=TEST >> .env
       - name: Run tests
         run: yarn test
-  compile-code:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install modules
-        run: yarn
-      - name: Compile code
-        run: yarn tsc --skipLibCheck
+      - name: Lint
+        run: yarn lint
