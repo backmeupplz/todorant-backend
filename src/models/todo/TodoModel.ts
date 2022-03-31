@@ -1,7 +1,7 @@
 import { Document } from 'mongoose'
 import { Ref, getModelForClass } from '@typegoose/typegoose'
 import { Todo } from '@/models/todo/Todo'
-import { User, sanitizeDelegation } from '../user'
+import { User, sanitizeDelegation } from '@/models/user'
 import { WMDBTables, WMDBTodo, fromSqlToObject } from '@/helpers/wmdb'
 import { omit } from 'lodash'
 

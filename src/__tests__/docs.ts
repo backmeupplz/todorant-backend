@@ -1,7 +1,7 @@
 import * as request from 'supertest'
 import { Server } from 'http'
 import { app } from '@/app'
-import { startKoa, stopServer } from './testUtils'
+import { startKoa, stopServer } from '@/__tests__/testUtils'
 
 describe('Docs endpoint', () => {
   let server: Server

@@ -1,6 +1,6 @@
 import { Todo } from '@/models/todo'
 import { _e } from '@/helpers/encryption'
-import { completeTodo } from '../testUtils'
+import { completeTodo } from '@/__tests__/testUtils'
 import { getTags } from '@/helpers/getTags'
 import { v4 } from 'uuid'
 

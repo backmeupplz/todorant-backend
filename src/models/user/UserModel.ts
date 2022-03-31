@@ -1,7 +1,7 @@
 import * as randToken from 'rand-token'
 import { DocumentType, getModelForClass } from '@typegoose/typegoose'
 import { SubscriptionStatus, User } from '@/models/user/User'
-import { Todo } from '../todo'
+import { Todo } from '@/models/todo'
 import { sign } from '@/helpers/jwt'
 
 export const UserModel = getModelForClass(User, {
