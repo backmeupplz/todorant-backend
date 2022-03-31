@@ -7,10 +7,10 @@ import { addTags } from '@/models/tag'
 import { fixOrder } from '@/helpers/fixOrder'
 import { requestSync } from '@/sockets/index'
 import { Message } from 'telegraf/typings/telegram-types'
-const dehumanize = require('dehumanize-date')
+import dehumanize from 'dehumanize-date'
 
 export function addTodo(ctx: Context) {
-  let todoText = ctx.message.text.substr(6).trim()
+  const todoText = ctx.message.text.substr(6).trim()
   return addTodoWithText(todoText, ctx)
 }
 

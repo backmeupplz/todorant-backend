@@ -44,7 +44,7 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /facebook request', async () => {
-    facebookApiSpy.mockImplementation((st, fn: Function) => {
+    facebookApiSpy.mockImplementation((st, fn: (boolean, User) => void) => {
       const user = {
         name: 'Default Name',
         email: 'defaultname@gmail.com',
@@ -139,7 +139,7 @@ describe('Login endpoint', () => {
 
   it('should return user for valid /apple request', async () => {
     accessTokenSpy.mockImplementation(
-      (code) =>
+      () =>
         new Promise((resolve) =>
           resolve({
             expires_in: 31415,
@@ -151,7 +151,7 @@ describe('Login endpoint', () => {
         )
     )
     axiosMock.onGet('https://appleid.apple.com/auth/token').reply(200)
-    decodeSpy.mockImplementation((id_token) => {
+    decodeSpy.mockImplementation(() => {
       return {
         sub: 'honey',
         email: 'defaultname@gmail.com',
@@ -197,7 +197,7 @@ describe('Login endpoint', () => {
   })
 
   it('should return user for valid /apple-firebase request', async () => {
-    verifyAppleTokenSpy.mockImplementation(async (id_token) => {
+    verifyAppleTokenSpy.mockImplementation(async () => {
       return {
         sub: 'honey',
         email: 'defaultname@gmail.com',
@@ -235,7 +235,7 @@ describe('Login endpoint', () => {
         })
       })
     })
-    botSendMessageSpy.mockImplementation((id: number, text, extra) => {
+    botSendMessageSpy.mockImplementation((id: number, text) => {
       return new Promise((resolve) => {
         return resolve({
           message_id: id,

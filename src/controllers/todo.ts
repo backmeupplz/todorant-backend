@@ -25,6 +25,7 @@ import { getPoints } from '@/controllers/hero'
 import { updateTodos } from '@/helpers/googleCalendar'
 import { _d } from '@/helpers/encryption'
 import { getTags } from '@/helpers/getTags'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuzzysort = require('fuzzysort')
 
 @Controller('/todo')
@@ -636,7 +637,7 @@ export default class TodoController {
       }
       const newTodos = todos.filter((t) => !!newTodoIdsMap[t._id])
       const oldTodos = todos.filter((t) => !newTodoIdsMap[t._id])
-      let i = newTodos.length
+      const i = newTodos.length
       for (const todo of oldTodos) {
         if (todo.order !== i) {
           todo.order = i
@@ -668,7 +669,7 @@ export default class TodoController {
 
 export async function getTodos(
   user: DocumentType<User>,
-  completed: Boolean,
+  completed: boolean,
   hash: string,
   queryString?: string,
   password?: string
@@ -731,7 +732,7 @@ export async function getTodos(
   }
 }
 
-export function compareTodos(completed: Boolean) {
+export function compareTodos(completed: boolean) {
   return (a: DocumentType<Todo>, b: DocumentType<Todo>) => {
     if (a.date === b.date && a.monthAndYear === b.monthAndYear) {
       if (a.frog && b.frog) {
@@ -747,7 +748,7 @@ export function compareTodos(completed: Boolean) {
     } else {
       if (!a.date && b.date && a.monthAndYear === b.monthAndYear) {
         return -1
-      } else if (!a.date && b.date && a.monthAndYear === b.monthAndYear) {
+      } else if (a.date && !b.date && a.monthAndYear === b.monthAndYear) {
         return 1
       } else if (!a.date || !b.date) {
         if (a.monthAndYear < b.monthAndYear) {

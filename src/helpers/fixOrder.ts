@@ -66,7 +66,7 @@ function mapTodos(
 }
 
 function isTimeSorted(todos: Todo[]) {
-  let result = true
+  const result = true
   let time: number | undefined
   for (const todo of todos) {
     if (todo.time) {

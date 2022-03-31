@@ -5,7 +5,10 @@ import { DocumentType } from '@typegoose/typegoose'
 import { report } from '@/helpers/report'
 import { isUserSubscribed } from '@/helpers/isUserSubscribed'
 
-export async function checkSubscription(ctx: Context, next: Function) {
+export async function checkSubscription(
+  ctx: Context,
+  next: (...unknown) => Promise<unknown>
+) {
   try {
     const user = ctx.state.user as DocumentType<User>
     if (!isUserSubscribed(user)) {

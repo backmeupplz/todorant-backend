@@ -3,16 +3,15 @@ import { report } from '@/helpers/report'
 import { getOrCreateHero, Hero, HeroModel } from '@/models/hero'
 import { createWMDBTag, Tag, TagModel, updateWMDBTag } from '@/models/tag'
 import { createWMDBTodo, Todo, TodoModel, updateWMDBTodo } from '@/models/todo'
-import { sanitizeDelegation, Settings, User, UserModel } from '@/models/user'
-import { DocumentType, Ref, ReturnModelType } from '@typegoose/typegoose'
+import { Settings, User, UserModel } from '@/models/user'
+import { DocumentType, Ref } from '@typegoose/typegoose'
 import { omit } from 'lodash'
 import { setupSync } from '@/sockets/setupSync'
 import { io } from '@/sockets/io'
 import { setupAuthorization } from '@/sockets/setupAuthorization'
-import { Document, FilterQuery } from 'mongoose'
+import { FilterQuery } from 'mongoose'
 import {
   convertModelToRawSql,
-  fromSqlToObject,
   WMDBChanges,
   WMDBTables,
   WMDBTag,
@@ -163,7 +162,7 @@ io.on('connection', (socket) => {
       const savedTodos = await Promise.all(
         todos.map(
           (todo) =>
-            new Promise<DocumentType<Todo>>(async (res, rej) => {
+            new Promise<DocumentType<Todo>>((res, rej) => {
               try {
                 if (!todo._id) {
                   const dbtodo = new TodoModel({

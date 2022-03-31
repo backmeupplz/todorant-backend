@@ -5,7 +5,10 @@ import { errors } from '@/helpers/errors'
 import { DocumentType } from '@typegoose/typegoose'
 import { report } from '@/helpers/report'
 
-export async function authenticate(ctx: Context, next: Function) {
+export async function authenticate(
+  ctx: Context,
+  next: (...unknown) => Promise<unknown>
+) {
   try {
     const token = ctx.headers.token
     if (!token) {

@@ -19,6 +19,7 @@ import Facebook = require('facebook-node-sdk')
 import { v4 as uuid } from 'uuid'
 import { QrLoginModel } from '@/models/QrLoginModel'
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const AppleAuth = require('apple-auth')
 
 export const telegramLoginRequests = {} as {
@@ -311,7 +312,7 @@ export default class LoginController {
 
   @Post('/telegram_mobile')
   async telegramMobile(@Ctx() ctx: Context) {
-    let { uuid, id } = ctx.request.body as {
+    const { uuid, id } = ctx.request.body as {
       uuid: string
       id?: string
     }
@@ -360,7 +361,7 @@ export default class LoginController {
 
   @Post('/telegram_mobile_check')
   async telegramMobileCheck(@Ctx() ctx: Context) {
-    let { uuid } = ctx.request.body as {
+    const { uuid } = ctx.request.body as {
       uuid: string
     }
     if (!uuid) {
@@ -396,7 +397,7 @@ export default class LoginController {
   @Post('/apple_login_result')
   async appleLoginResult(@Ctx() ctx: Context) {
     const { id_token, user } = ctx.request.body
-    const userArg = !!user ? `&user=${JSON.stringify(user)}` : ''
+    const userArg = user ? `&user=${JSON.stringify(user)}` : ''
     ctx.redirect(
       `https://todorant.com/apple_login_result#?id_token=${id_token}${userArg}`
     )
@@ -404,7 +405,7 @@ export default class LoginController {
   }
 
   @Get('/generate_uuid')
-  async generateQrUuid(@Ctx() ctx: Context) {
+  async generateQrUuid() {
     const qrUuid = uuid()
     await new QrLoginModel({ uuid: qrUuid }).save()
     return { uuid: qrUuid }

@@ -69,11 +69,11 @@ export class User {
   })
   subscriptionStatus: SubscriptionStatus
   @prop({ index: true })
-  subscriptionId?: String
+  subscriptionId?: string
   @prop()
-  appleReceipt?: String
+  appleReceipt?: string
   @prop()
-  googleReceipt?: String
+  googleReceipt?: string
   @prop({ index: true, required: true, default: false })
   isPerpetualLicense: boolean
 

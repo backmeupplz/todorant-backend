@@ -29,7 +29,6 @@ async function sendMessageToPowerUsers() {
     ],
     telegramId: { $exists: true },
   })
-  let numberOfValidPowerUsers = 0
   for (const powerUser of telegramPowerUsers) {
     const telegramId = parseInt(powerUser.telegramId, 10)
     if (!telegramId) {
@@ -40,7 +39,6 @@ async function sendMessageToPowerUsers() {
       if (todoCount < 1001) {
         continue
       }
-      numberOfValidPowerUsers++
       await bot.telegram.sendMessage(
         telegramId,
         `Вот это да! Больше 1000 задач! 🎉💪🔥
@@ -96,7 +94,6 @@ If you have any additional questions please contact me directly — @borodutch. 
     email: { $exists: true },
     telegramId: { $exists: false },
   })
-  numberOfValidPowerUsers = 0
   for (const powerUser of emailPowerUsers) {
     const email = powerUser.email
     if (!email) {
@@ -106,7 +103,6 @@ If you have any additional questions please contact me directly — @borodutch. 
     if (todoCount < 1001) {
       continue
     }
-    numberOfValidPowerUsers++
     try {
       await sendPowerUserMessage(email)
       await bot.telegram.sendMessage(

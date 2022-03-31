@@ -17,6 +17,7 @@ export const verifyTelegramPayloadSpy = jest.spyOn(
   telegramPayloadHelper,
   'verifyTelegramPayload'
 )
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const AppleAuth = require('apple-auth')
 export const accessTokenSpy = jest.spyOn(AppleAuth.prototype, 'accessToken')
 
