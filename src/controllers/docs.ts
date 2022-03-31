@@ -1,4 +1,4 @@
-import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
+import { Controller, Ctx, Get } from 'koa-ts-controllers'
 
 import { Context } from 'koa'
 import { readFileSync } from 'fs'

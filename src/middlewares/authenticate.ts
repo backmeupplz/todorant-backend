@@ -1,11 +1,14 @@
-import { UserModel, User } from '@/models/user'
 import { Context } from 'koa'
-import { verify } from '@/helpers/jwt'
-import { errors } from '@/helpers/errors'
 import { DocumentType } from '@typegoose/typegoose'
+import { User, UserModel } from '@/models/user'
+import { errors } from '@/helpers/errors'
 import { report } from '@/helpers/report'
+import { verify } from '@/helpers/jwt'
 
-export async function authenticate(ctx: Context, next: Function) {
+export async function authenticate(
+  ctx: Context,
+  next: (...unknown) => Promise<unknown>
+) {
   try {
     const token = ctx.headers.token
     if (!token) {

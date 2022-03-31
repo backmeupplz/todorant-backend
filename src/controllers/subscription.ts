@@ -1,8 +1,8 @@
-import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@/middlewares/authenticate'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
+import { SubscriptionStatus, UserModel } from '@/models/user'
 import { User } from '@/models/user'
-import { UserModel, SubscriptionStatus } from '@/models/user'
+import { authenticate } from '@/middlewares/authenticate'
 import { stripe } from '@/helpers/stripe'
 
 @Controller('/subscription')

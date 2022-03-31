@@ -1,5 +1,5 @@
-import Telegraf from 'telegraf'
 import { admins } from '@/helpers/telegram/admins'
+import Telegraf from 'telegraf'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
@@ -22,7 +22,7 @@ export async function report(err: Error, extra?: string) {
     'Old API version',
   ]
   try {
-    let text = `Todorant Error:\n${err.message || JSON.stringify(err)}${
+    const text = `Todorant Error:\n${err.message || JSON.stringify(err)}${
       err.stack ? `\n\n${err.stack}` : ''
     }${extra ? `\n\n${extra}` : ''}`
     for (const errorText of dismissableErrors) {

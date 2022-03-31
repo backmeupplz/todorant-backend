@@ -1,8 +1,8 @@
-import { Controller, Ctx, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { getUserFromToken } from '@/middlewares/authenticate'
-import { bot } from '@/helpers/report'
+import { Controller, Ctx, Post } from 'koa-ts-controllers'
 import { admins } from '@/helpers/telegram/admins'
+import { bot } from '@/helpers/report'
+import { getUserFromToken } from '@/middlewares/authenticate'
 
 @Controller('/feedback')
 export default class FeedbackController {

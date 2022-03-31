@@ -1,5 +1,6 @@
 import I18N from 'telegraf-i18n'
 import Telegraf, { Context } from 'telegraf'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const dirtyI18N = require('telegraf-i18n')
 
 const i18n = new dirtyI18N({
@@ -8,7 +9,7 @@ const i18n = new dirtyI18N({
   sessionName: 'session',
   useSession: false,
   allowMissing: true,
-  defaultLanguageOnMissing: 'en',
+  defaultLanguageOnMissing: true,
 }) as I18N
 
 export function setupI18N(bot: Telegraf<Context>) {

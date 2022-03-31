@@ -1,11 +1,14 @@
-import { User } from '@/models/user/User'
 import { Context } from 'koa'
-import { errors } from '@/helpers/errors'
 import { DocumentType } from '@typegoose/typegoose'
-import { report } from '@/helpers/report'
+import { User } from '@/models/user/User'
+import { errors } from '@/helpers/errors'
 import { isUserSubscribed } from '@/helpers/isUserSubscribed'
+import { report } from '@/helpers/report'
 
-export async function checkSubscription(ctx: Context, next: Function) {
+export async function checkSubscription(
+  ctx: Context,
+  next: (...unknown) => Promise<unknown>
+) {
   try {
     const user = ctx.state.user as DocumentType<User>
     if (!isUserSubscribed(user)) {

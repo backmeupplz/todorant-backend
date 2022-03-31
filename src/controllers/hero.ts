@@ -1,5 +1,5 @@
-import { Controller, Ctx, Flow, Get } from 'koa-ts-controllers'
 import { Context } from 'koa'
+import { Controller, Ctx, Flow, Get } from 'koa-ts-controllers'
 import { authenticate } from '@/middlewares/authenticate'
 import { getOrCreateHero } from '@/models/hero'
 

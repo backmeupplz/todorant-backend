@@ -1,24 +1,25 @@
-import { sign, verifyAppleToken } from '@/helpers/jwt'
-import { bot } from '@/helpers/telegram'
-import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
-import { authenticate, getUserFromToken } from '@/middlewares/authenticate'
+import * as randToken from 'rand-token'
+import { Context } from 'koa'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
+import { DocumentType } from '@typegoose/typegoose'
 import {
-  getOrCreateUser,
   SubscriptionStatus,
   User,
   UserModel,
+  getOrCreateUser,
 } from '@/models/user'
-import { DocumentType } from '@typegoose/typegoose'
-import axios from 'axios'
+import { authenticate, getUserFromToken } from '@/middlewares/authenticate'
+import { bot } from '@/helpers/telegram'
 import { decode } from 'jsonwebtoken'
-import { Context } from 'koa'
-import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
-import * as randToken from 'rand-token'
 import { Markup as m } from 'telegraf'
+import { sign, verifyAppleToken } from '@/helpers/jwt'
+import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
+import axios from 'axios'
 import Facebook = require('facebook-node-sdk')
-import { v4 as uuid } from 'uuid'
 import { QrLoginModel } from '@/models/QrLoginModel'
+import { v4 as uuid } from 'uuid'
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const AppleAuth = require('apple-auth')
 
 export const telegramLoginRequests = {} as {
@@ -311,7 +312,7 @@ export default class LoginController {
 
   @Post('/telegram_mobile')
   async telegramMobile(@Ctx() ctx: Context) {
-    let { uuid, id } = ctx.request.body as {
+    const { uuid, id } = ctx.request.body as {
       uuid: string
       id?: string
     }
@@ -360,7 +361,7 @@ export default class LoginController {
 
   @Post('/telegram_mobile_check')
   async telegramMobileCheck(@Ctx() ctx: Context) {
-    let { uuid } = ctx.request.body as {
+    const { uuid } = ctx.request.body as {
       uuid: string
     }
     if (!uuid) {
@@ -396,7 +397,7 @@ export default class LoginController {
   @Post('/apple_login_result')
   async appleLoginResult(@Ctx() ctx: Context) {
     const { id_token, user } = ctx.request.body
-    const userArg = !!user ? `&user=${JSON.stringify(user)}` : ''
+    const userArg = user ? `&user=${JSON.stringify(user)}` : ''
     ctx.redirect(
       `https://todorant.com/apple_login_result#?id_token=${id_token}${userArg}`
     )
@@ -404,7 +405,7 @@ export default class LoginController {
   }
 
   @Get('/generate_uuid')
-  async generateQrUuid(@Ctx() ctx: Context) {
+  async generateQrUuid() {
     const qrUuid = uuid()
     await new QrLoginModel({ uuid: qrUuid }).save()
     return { uuid: qrUuid }
@@ -435,16 +436,14 @@ export default class LoginController {
 
 bot.action(/lta~.+/, async (ctx) => {
   await ctx.deleteMessage()
-  telegramLoginRequests[
-    ctx.callbackQuery.data.replace('lta~', '')
-  ].allowed = true
+  telegramLoginRequests[ctx.callbackQuery.data.replace('lta~', '')].allowed =
+    true
 })
 
 bot.action(/ltr~.+/, async (ctx) => {
   await ctx.deleteMessage()
-  telegramLoginRequests[
-    ctx.callbackQuery.data.replace('ltr~', '')
-  ].allowed = false
+  telegramLoginRequests[ctx.callbackQuery.data.replace('ltr~', '')].allowed =
+    false
 })
 
 function getFBUser(accessToken: string) {

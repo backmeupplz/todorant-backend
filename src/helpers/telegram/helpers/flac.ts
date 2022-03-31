@@ -1,6 +1,7 @@
 import { tryDeletingFile } from '@/helpers/telegram/helpers/deleteFile'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const ffmpeg = require('fluent-ffmpeg')
-const temp = require('temp')
+import * as temp from 'temp'
 
 export async function getDuration(filepath: any) {
   return new Promise((resolve, reject) => {

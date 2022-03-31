@@ -1,4 +1,4 @@
-const fs = require('fs')
+import * as fs from 'fs'
 
 export function tryDeletingFile(path) {
   try {

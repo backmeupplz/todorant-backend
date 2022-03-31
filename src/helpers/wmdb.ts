@@ -129,7 +129,7 @@ export function fromSqlToObject(
   type: WMDBTables,
   user: string
 ) {
-  let obj = {} as Todo | Tag | User
+  const obj = {} as Todo | Tag | User
   if (type === WMDBTables.Todo) {
     sqlObj = sqlObj as WMDBTodo
     Object.assign(obj, {

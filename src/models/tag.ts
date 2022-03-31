@@ -1,8 +1,8 @@
-import { prop, Ref, DocumentType, getModelForClass } from '@typegoose/typegoose'
-import { omit } from 'lodash'
-import { User } from '@/models/user'
-import { fromSqlToObject, WMDBTables, WMDBTag } from '@/helpers/wmdb'
 import { Document } from 'mongoose'
+import { DocumentType, Ref, getModelForClass, prop } from '@typegoose/typegoose'
+import { User } from '@/models/user'
+import { WMDBTables, WMDBTag, fromSqlToObject } from '@/helpers/wmdb'
+import { omit } from 'lodash'
 
 export class Tag {
   @prop({ required: true, ref: User })
@@ -47,10 +47,10 @@ export class Tag {
 
   stripped() {
     const stripFields = ['__v', 'user']
-    return (omit(
+    return omit(
       { ...this._doc, ...{ _tempSyncId: this._tempSyncId } },
       stripFields
-    ) as unknown) as Tag
+    ) as unknown as Tag
   }
 
   // Mongo property

@@ -1,7 +1,7 @@
-import * as mongoose from 'mongoose'
 import * as Koa from 'koa'
+import * as mongoose from 'mongoose'
 import { Server } from 'http'
-import { User, SubscriptionStatus } from '@/models/user/User'
+import { SubscriptionStatus, User } from '@/models/user/User'
 import { Todo } from '@/models/todo/Todo'
 import Facebook = require('facebook-node-sdk')
 export const facebookApiSpy = jest.spyOn(Facebook.prototype, 'api')
@@ -17,6 +17,7 @@ export const verifyTelegramPayloadSpy = jest.spyOn(
   telegramPayloadHelper,
   'verifyTelegramPayload'
 )
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const AppleAuth = require('apple-auth')
 export const accessTokenSpy = jest.spyOn(AppleAuth.prototype, 'accessToken')
 
