@@ -1,8 +1,10 @@
-import { bot } from '@/helpers/telegram'
-import { UserModel } from '@/models/user'
-import { sendUserThreeWeekMessage } from '@/helpers/sendEmail'
 import { TodoModel } from '@/models/todo'
+import { UserModel } from '@/models/user'
+import { bot } from '@/helpers/telegram'
+import { sendUserThreeWeekMessage } from '@/helpers/sendEmail'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { CanvasRenderService } = require('chartjs-node-canvas')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const regression = require('regression')
 
 interface TodosMap {
@@ -180,12 +182,9 @@ async function renderChart(data: number[], predictedData: number[]) {
   try {
     const width = 700
     const height = 700
-    const chartCallback = () => {}
-    const canvasRenderService = new CanvasRenderService(
-      width,
-      height,
-      chartCallback
-    )
+    const canvasRenderService = new CanvasRenderService(width, height, () => {
+      return {}
+    })
 
     const configuration = {
       type: 'line',

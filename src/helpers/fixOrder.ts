@@ -1,6 +1,6 @@
+import { DocumentType } from '@typegoose/typegoose'
 import { Todo, TodoModel, getTitle } from '@/models/todo'
 import { User } from '@/models/user'
-import { DocumentType } from '@typegoose/typegoose'
 
 export async function fixOrder(
   user: DocumentType<User>,
@@ -66,7 +66,7 @@ function mapTodos(
 }
 
 function isTimeSorted(todos: Todo[]) {
-  let result = true
+  const result = true
   let time: number | undefined
   for (const todo of todos) {
     if (todo.time) {

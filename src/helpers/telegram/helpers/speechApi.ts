@@ -1,9 +1,10 @@
-import { witLanguages } from '@/helpers/telegram/helpers/witLanguage'
+import * as temp from 'temp'
 import { tryDeletingFile } from '@/helpers/telegram/helpers/deleteFile'
-const temp = require('temp')
+import { witLanguages } from '@/helpers/telegram/helpers/witLanguage'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const ffmpeg = require('fluent-ffmpeg')
-const https = require('https')
-const fs = require('fs')
+import * as fs from 'fs'
+import * as https from 'https'
 
 export async function getText(witLanguage, duration, ogaPath) {
   const token = witLanguages[witLanguage]
@@ -46,6 +47,7 @@ export async function getText(witLanguage, duration, ogaPath) {
       try {
         const responses = await Promise.all(promises)
         result = result.concat(responses.map((r) => (r || '').trim()))
+        // eslint-disable-next-line no-useless-catch
       } catch (err) {
         throw err
       } finally {

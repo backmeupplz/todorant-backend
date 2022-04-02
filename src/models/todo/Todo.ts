@@ -1,6 +1,6 @@
-import { prop, Ref } from '@typegoose/typegoose'
-import { omit, pick } from 'lodash'
+import { Ref, prop } from '@typegoose/typegoose'
 import { User } from '@/models/user/User'
+import { omit, pick } from 'lodash'
 
 export class Todo {
   @prop({ required: true, ref: User, index: true })
@@ -96,10 +96,10 @@ export class Todo {
     pick(this.delegator, ['name', '_id'])
     let delegator = pick(this.delegator, ['name', '_id'])
     if (!Object.keys(delegator).length) delegator = null
-    return (omit(
+    return omit(
       { ...this._doc, ...{ _tempSyncId: this._tempSyncId, user, delegator } },
       stripFields
-    ) as unknown) as Todo
+    ) as unknown as Todo
   }
 
   // Mongo property

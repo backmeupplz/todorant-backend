@@ -1,5 +1,5 @@
-import { UserModel, SubscriptionStatus } from '@/models/user'
 import { Context } from 'telegraf'
+import { SubscriptionStatus, UserModel } from '@/models/user'
 
 export async function sendSubscriptions(ctx: Context) {
   const subscribersCount = await UserModel.count({

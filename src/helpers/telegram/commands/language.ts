@@ -1,10 +1,10 @@
+import { Context, Extra, Markup as m } from 'telegraf'
 import { DocumentType } from '@typegoose/typegoose'
-import { Context, Markup as m, Extra } from 'telegraf'
-import { readdirSync, readFileSync } from 'fs'
-import { safeLoad } from 'js-yaml'
-import { TelegramLanguage } from '@/models/user'
 import { ExtraEditMessage } from 'telegraf/typings/telegram-types'
+import { TelegramLanguage } from '@/models/user'
 import { User } from '@/models/user/User'
+import { readFileSync, readdirSync } from 'fs'
+import { safeLoad } from 'js-yaml'
 
 export function sendLanguage(ctx: Context) {
   return ctx.reply(

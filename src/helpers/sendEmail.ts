@@ -1,5 +1,5 @@
-import * as nodemailer from 'nodemailer'
 import * as mg from 'nodemailer-mailgun-transport'
+import * as nodemailer from 'nodemailer'
 
 // This is your API key that you retrieve from www.mailgun.com/cp (free up to 10K monthly emails)
 const auth = {

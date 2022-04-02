@@ -1,13 +1,13 @@
+import { Context } from 'koa'
+import { Controller, Ctx, Flow, Post } from 'koa-ts-controllers'
+import { SubscriptionStatus, User, UserModel } from '@/models/user'
+import { TodoModel } from '@/models/todo'
 import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
 import axios from 'axios'
-import { Context } from 'koa'
-import { UserModel, User, SubscriptionStatus } from '@/models/user'
-import { TodoModel } from '@/models/todo'
-import { Controller, Ctx, Flow, Post } from 'koa-ts-controllers'
 import Facebook = require('facebook-node-sdk')
 import { DocumentType } from '@typegoose/typegoose'
-import { errors } from '@/helpers/errors'
 import { authenticate } from '@/middlewares/authenticate'
+import { errors } from '@/helpers/errors'
 
 @Controller('/merge')
 export default class MergeController {
@@ -23,11 +23,10 @@ export default class MergeController {
     // Get fb profile
     const fbProfile: any = await getFBUser(ctx.request.body.accessToken)
     // Get existing user if exists
-    const existingUser:
-      | DocumentType<User>
-      | undefined = await UserModel.findOne({
-      facebookId: fbProfile.id,
-    })
+    const existingUser: DocumentType<User> | undefined =
+      await UserModel.findOne({
+        facebookId: fbProfile.id,
+      })
     // Add data if required
     originalUser.facebookId = fbProfile.id
     // Check if early adopter
@@ -69,9 +68,8 @@ export default class MergeController {
       return ctx.throw(errors.telegramAlreadyConnected)
     }
     // Get existing user if exists
-    const existingUser:
-      | DocumentType<User>
-      | undefined = await UserModel.findOne({ telegramId: data.id })
+    const existingUser: DocumentType<User> | undefined =
+      await UserModel.findOne({ telegramId: data.id })
     // Add data if required
     originalUser.telegramId = data.id
     // Check if early adopter
@@ -118,9 +116,8 @@ export default class MergeController {
       return ctx.throw(errors.googleAlreadyConnected)
     }
     // Get existing user if exists
-    const existingUser:
-      | DocumentType<User>
-      | undefined = await UserModel.findOne({ email: userData.email })
+    const existingUser: DocumentType<User> | undefined =
+      await UserModel.findOne({ email: userData.email })
     // Add data if required
     originalUser.email = userData.email
     // Check if early adopter

@@ -1,8 +1,8 @@
-import { Controller, Ctx, Flow, Post, Put } from 'koa-ts-controllers'
 import { Context } from 'koa'
+import { Controller, Ctx, Flow, Post, Put } from 'koa-ts-controllers'
 import { authenticate } from '@/middlewares/authenticate'
-import { requestSync } from '@/sockets/index'
 import { getGoogleCalendarApi } from '@/helpers/googleCalendar'
+import { requestSync } from '@/sockets/index'
 
 @Controller('/settings')
 export default class SettingsController {

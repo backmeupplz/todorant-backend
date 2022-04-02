@@ -1,5 +1,5 @@
-import { Context } from 'telegraf'
 import * as moment from 'moment'
+import { Context } from 'telegraf'
 
 export async function handleTimezone(ctx: Context) {
   // Get and check timezone

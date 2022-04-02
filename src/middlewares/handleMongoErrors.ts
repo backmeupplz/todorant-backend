@@ -1,4 +1,4 @@
-import { badRequest, Boom } from '@hapi/boom'
+import { Boom, badRequest } from '@hapi/boom'
 import { mongoose } from '@typegoose/typegoose'
 
 export const handleMongoErrors = async (ctx, next) => {

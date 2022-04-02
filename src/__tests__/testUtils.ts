@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import * as mongoose from "mongoose";
 import * as Koa from "koa";
 import { Server } from "http";
@@ -19,6 +20,30 @@ export const verifyTelegramPayloadSpy = jest.spyOn(
 );
 const AppleAuth = require("apple-auth");
 export const accessTokenSpy = jest.spyOn(AppleAuth.prototype, "accessToken");
+=======
+import * as Koa from 'koa'
+import * as mongoose from 'mongoose'
+import { Server } from 'http'
+import { SubscriptionStatus, User } from '@/models/user/User'
+import { Todo } from '@/models/todo/Todo'
+import Facebook = require('facebook-node-sdk')
+export const facebookApiSpy = jest.spyOn(Facebook.prototype, 'api')
+import * as decode from 'jsonwebtoken'
+export const decodeSpy = jest.spyOn(decode, 'decode')
+import * as AppleToken from '@/helpers/jwt'
+export const verifyAppleTokenSpy = jest.spyOn(AppleToken, 'verifyAppleToken')
+import { bot } from '@/helpers/telegram'
+export const botGetChatSpy = jest.spyOn(bot.telegram, 'getChat')
+export const botSendMessageSpy = jest.spyOn(bot.telegram, 'sendMessage')
+import * as telegramPayloadHelper from '@/helpers/verifyTelegramPayload'
+export const verifyTelegramPayloadSpy = jest.spyOn(
+  telegramPayloadHelper,
+  'verifyTelegramPayload'
+)
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const AppleAuth = require('apple-auth')
+export const accessTokenSpy = jest.spyOn(AppleAuth.prototype, 'accessToken')
+>>>>>>> ea1be3d8d755ebdce8ac78dd4e4a99f5c5c269ec
 
 export function dropMongo() {
   return Promise.all(

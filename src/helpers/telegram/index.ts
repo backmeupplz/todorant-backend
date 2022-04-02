@@ -1,31 +1,31 @@
-import Telegraf from 'telegraf'
-import { checkIfPrivate } from '@/helpers/telegram/middlewares/checkIfPrivate'
-import { checkTime } from '@/helpers/telegram/middlewares/checkTime'
-import { checkAndAttachUser } from '@/helpers/telegram/middlewares/checkAndAttachUser'
-import { sendHelp } from '@/helpers/telegram/commands/help'
-import { setupI18N } from '@/helpers/telegram/helpers/i18n'
-import {
-  localesFiles,
-  handleLanguage,
-  sendLanguage,
-} from '@/helpers/telegram/commands/language'
-import { checkLanguage } from '@/helpers/telegram/middlewares/checkLanguage'
-import { sendLogin } from '@/helpers/telegram/commands/login'
 import { addTodo } from '@/helpers/telegram/commands/todo'
-import { handleText } from '@/helpers/telegram/helpers/handleText'
-import { handleVoice } from '@/helpers/telegram/helpers/handleVoice'
-import { handleZen } from '@/helpers/telegram/commands/zen'
-import { handleTimezone } from '@/helpers/telegram/commands/timezone'
+import { checkAndAttachUser } from '@/helpers/telegram/middlewares/checkAndAttachUser'
+import { checkIfPrivate } from '@/helpers/telegram/middlewares/checkIfPrivate'
+import { checkLanguage } from '@/helpers/telegram/middlewares/checkLanguage'
+import { checkSuperAdmin } from '@/helpers/telegram/middlewares/checkSuperAdmin'
+import { checkTime } from '@/helpers/telegram/middlewares/checkTime'
 import {
   handleCurrent,
   handleDone,
-  handleSkip,
   handleRefresh,
+  handleSkip,
 } from '@/helpers/telegram/commands/current'
 import { handleId } from '@/helpers/telegram/commands/id'
+import {
+  handleLanguage,
+  localesFiles,
+  sendLanguage,
+} from '@/helpers/telegram/commands/language'
+import { handleText } from '@/helpers/telegram/helpers/handleText'
+import { handleTimezone } from '@/helpers/telegram/commands/timezone'
+import { handleVoice } from '@/helpers/telegram/helpers/handleVoice'
+import { handleZen } from '@/helpers/telegram/commands/zen'
+import { sendHelp } from '@/helpers/telegram/commands/help'
+import { sendLogin } from '@/helpers/telegram/commands/login'
 import { sendQR } from '@/helpers/telegram/commands/qr'
-import { checkSuperAdmin } from '@/helpers/telegram/middlewares/checkSuperAdmin'
 import { sendSubscriptions } from '@/helpers/telegram/commands/subscriptions'
+import { setupI18N } from '@/helpers/telegram/helpers/i18n'
+import Telegraf from 'telegraf'
 
 // Create bot
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)

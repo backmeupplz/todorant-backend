@@ -1,12 +1,12 @@
-import { Controller, Ctx, Flow, Get } from 'koa-ts-controllers'
-import { Context } from 'koa'
-import { authenticate } from '@/middlewares/authenticate'
-import { User } from '@/models/user'
-import { TodoModel } from '@/models/todo'
-import { DocumentType } from '@typegoose/typegoose'
 import * as randToken from 'rand-token'
-import { _d } from '@/helpers/encryption'
+import { Context } from 'koa'
+import { Controller, Ctx, Flow, Get } from 'koa-ts-controllers'
+import { DocumentType } from '@typegoose/typegoose'
 import { ReportModel } from '@/models/report'
+import { TodoModel } from '@/models/todo'
+import { User } from '@/models/user'
+import { _d } from '@/helpers/encryption'
+import { authenticate } from '@/middlewares/authenticate'
 
 @Controller('/report')
 export default class ReportController {

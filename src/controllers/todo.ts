@@ -2,29 +2,30 @@ import { Context } from 'koa'
 import {
   Controller,
   Ctx,
-  Post,
   Delete,
   Flow,
-  Put,
   Get,
+  Post,
+  Put,
 } from 'koa-ts-controllers'
-import { Todo, TodoModel, getTitle } from '@/models/todo'
-import { authenticate } from '@/middlewares/authenticate'
-import { errors } from '@/helpers/errors'
-import { UserModel, User } from '@/models/user'
-import { addTags, TagModel } from '@/models/tag'
-import { HeroModel } from '@/models/hero'
 import { DocumentType } from '@typegoose/typegoose'
-import { isTodoOld } from '@/helpers/isTodoOld'
-import { checkSubscription } from '@/middlewares/checkSubscription'
-import { requestSync } from '@/sockets/index'
-import { fixOrder } from '@/helpers/fixOrder'
-import { getStateBody } from '@/controllers/state'
-import { getTagsBody } from '@/controllers/tag'
-import { getPoints } from '@/controllers/hero'
-import { updateTodos } from '@/helpers/googleCalendar'
+import { HeroModel } from '@/models/hero'
+import { TagModel, addTags } from '@/models/tag'
+import { Todo, TodoModel, getTitle } from '@/models/todo'
+import { User, UserModel } from '@/models/user'
 import { _d } from '@/helpers/encryption'
+import { authenticate } from '@/middlewares/authenticate'
+import { checkSubscription } from '@/middlewares/checkSubscription'
+import { errors } from '@/helpers/errors'
+import { fixOrder } from '@/helpers/fixOrder'
+import { getPoints } from '@/controllers/hero'
+import { getStateBody } from '@/controllers/state'
 import { getTags } from '@/helpers/getTags'
+import { getTagsBody } from '@/controllers/tag'
+import { isTodoOld } from '@/helpers/isTodoOld'
+import { requestSync } from '@/sockets/index'
+import { updateTodos } from '@/helpers/googleCalendar'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuzzysort = require('fuzzysort')
 
 @Controller('/todo')
@@ -636,7 +637,7 @@ export default class TodoController {
       }
       const newTodos = todos.filter((t) => !!newTodoIdsMap[t._id])
       const oldTodos = todos.filter((t) => !newTodoIdsMap[t._id])
-      let i = newTodos.length
+      const i = newTodos.length
       for (const todo of oldTodos) {
         if (todo.order !== i) {
           todo.order = i
@@ -646,9 +647,9 @@ export default class TodoController {
     }
     // Save
     const todosToSave = Array.from(modifiedTodos.values())
-    const savedTodos = ((await TodoModel.create(
+    const savedTodos = (await TodoModel.create(
       todosToSave
-    )) as any) as DocumentType<Todo>[] // weird bug in the mongoose types forces us to do this casting
+    )) as any as DocumentType<Todo>[] // weird bug in the mongoose types forces us to do this casting
     // Reorder if required
     if (ctx.state.user.settings.preserveOrderByTime) {
       fixOrder(ctx.state.user, Array.from(titlesToReorder))
@@ -668,7 +669,7 @@ export default class TodoController {
 
 export async function getTodos(
   user: DocumentType<User>,
-  completed: Boolean,
+  completed: boolean,
   hash: string,
   queryString?: string,
   password?: string
@@ -731,7 +732,7 @@ export async function getTodos(
   }
 }
 
-export function compareTodos(completed: Boolean) {
+export function compareTodos(completed: boolean) {
   return (a: DocumentType<Todo>, b: DocumentType<Todo>) => {
     if (a.date === b.date && a.monthAndYear === b.monthAndYear) {
       if (a.frog && b.frog) {
@@ -747,7 +748,7 @@ export function compareTodos(completed: Boolean) {
     } else {
       if (!a.date && b.date && a.monthAndYear === b.monthAndYear) {
         return -1
-      } else if (!a.date && b.date && a.monthAndYear === b.monthAndYear) {
+      } else if (a.date && !b.date && a.monthAndYear === b.monthAndYear) {
         return 1
       } else if (!a.date || !b.date) {
         if (a.monthAndYear < b.monthAndYear) {

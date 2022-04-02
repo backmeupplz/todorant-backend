@@ -1,8 +1,8 @@
-import { User, SubscriptionStatus } from '@/models/user/User'
-import { sign } from '@/helpers/jwt'
-import { DocumentType, getModelForClass } from '@typegoose/typegoose'
 import * as randToken from 'rand-token'
-import { Todo } from '../todo'
+import { DocumentType, getModelForClass } from '@typegoose/typegoose'
+import { SubscriptionStatus, User } from '@/models/user/User'
+import { Todo } from '@/models/todo'
+import { sign } from '@/helpers/jwt'
 
 export const UserModel = getModelForClass(User, {
   schemaOptions: { timestamps: true },

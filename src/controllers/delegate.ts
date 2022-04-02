@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { errors } from '@/helpers/errors';
 import { TodoModel, getTitle } from '@/models/todo';
 import { User, UserModel } from '@/models/user';
@@ -9,6 +10,19 @@ import { DocumentType } from '@typegoose/typegoose';
 import { fixOrder } from '@/helpers/fixOrder';
 import { requestSync } from '@/sockets/index';
 import { updateTodos } from '@/helpers/googleCalendar';
+=======
+import * as randToken from 'rand-token'
+import { Context } from 'koa'
+import { Controller, Ctx, Delete, Flow, Get, Post } from 'koa-ts-controllers'
+import { DocumentType } from '@typegoose/typegoose'
+import { TodoModel, getTitle } from '@/models/todo'
+import { User, UserModel } from '@/models/user'
+import { authenticate } from '@/middlewares/authenticate'
+import { errors } from '@/helpers/errors'
+import { fixOrder } from '@/helpers/fixOrder'
+import { requestSync } from '@/sockets/index'
+import { updateTodos } from '@/helpers/googleCalendar'
+>>>>>>> ea1be3d8d755ebdce8ac78dd4e4a99f5c5c269ec
 
 @Controller('/delegate')
 export default class DelegateController {

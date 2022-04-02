@@ -16,7 +16,9 @@
     "upload-translations": "node scripts/upload.js",
     "download-translations": "node scripts/download.js && yarn prettier --single-quote --no-semi --write ./locales/errors.js",
     "kill-server": "lsof -ti:1337 | xargs kill && lsof -ti:3000 | xargs kill",
-    "test": "yarn jest --forceExit"
+    "test": "yarn jest --forceExit",
+    "pretty": "prettier --check src",
+    "lint": "yarn pretty && eslint --max-warnings 0 --ext ts,tsx,json src"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.0.1",
@@ -33,11 +35,20 @@
     "@types/nodemailer": "^6.4.0",
     "@types/socket.io": "^2.1.11",
     "@types/temp": "^0.8.34",
+    "@typescript-eslint/eslint-plugin": "^5.17.0",
+    "@typescript-eslint/parser": "^5.17.0",
     "axios-mock-adapter": "^1.19.0",
     "concurrently": "^5.3.0",
+    "eslint": "^7.12.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-no-relative-import-paths": "^1.2.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
     "flat": "^5.0.2",
     "nodemon": "^2.0.6",
-    "prettier": "^2.1.2"
+    "prettier": "^2.6.1"
   },
   "dependencies": {
     "@hapi/boom": "^9.1.4",

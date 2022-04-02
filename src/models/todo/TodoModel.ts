@@ -1,9 +1,9 @@
-import { fromSqlToObject, WMDBTables, WMDBTodo } from '@/helpers/wmdb'
-import { Todo } from '@/models/todo/Todo'
-import { getModelForClass, Ref } from '@typegoose/typegoose'
-import { omit, update } from 'lodash'
 import { Document } from 'mongoose'
-import { sanitizeDelegation, User } from '../user'
+import { Ref, getModelForClass } from '@typegoose/typegoose'
+import { Todo } from '@/models/todo/Todo'
+import { User, sanitizeDelegation } from '@/models/user'
+import { WMDBTables, WMDBTodo, fromSqlToObject } from '@/helpers/wmdb'
+import { omit } from 'lodash'
 
 export const TodoModel = getModelForClass(Todo, {
   schemaOptions: { timestamps: true },
@@ -53,7 +53,7 @@ export async function createWMDBTodo(
     ...todoFromSql,
     ...(mongoTodo as Document & { _doc: any })._doc,
   })
-  savedTodos.push((mongoTodo as unknown) as Todo)
+  savedTodos.push(mongoTodo as unknown as Todo)
 }
 
 export async function updateWMDBTodo(

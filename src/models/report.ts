@@ -1,6 +1,15 @@
-import { prop, Ref, getModelForClass } from '@typegoose/typegoose'
-import { omit } from 'lodash'
+import { Ref, getModelForClass, prop } from '@typegoose/typegoose'
 import { User, UserModel } from '@/models/user'
+import { omit } from 'lodash'
+
+interface ReportMeta {
+  completedTodosMap: {
+    [index: string]: number
+  }
+  completedFrogsMap: {
+    [index: string]: number
+  }
+}
 
 export class Report {
   @prop({ required: true, index: true, unique: true })
@@ -9,7 +18,7 @@ export class Report {
   @prop({ required: true, ref: User })
   user: Ref<User>
   @prop({ required: true })
-  meta: object
+  meta: ReportMeta
   @prop()
   hash?: string
 

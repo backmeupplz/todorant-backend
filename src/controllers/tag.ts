@@ -1,18 +1,18 @@
-import { errors } from '@/helpers/errors'
-import { Tag, TagModel } from '@/models/tag'
 import { Context } from 'koa'
 import {
   Controller,
   Ctx,
   Delete,
   Flow,
-  Put,
   Get,
   Post,
+  Put,
 } from 'koa-ts-controllers'
+import { Tag, TagModel } from '@/models/tag'
 import { authenticate } from '@/middlewares/authenticate'
-import { requestSync } from '@/sockets/index'
 import { changeTagInTodos } from '@/helpers/changeTagInTodos'
+import { errors } from '@/helpers/errors'
+import { requestSync } from '@/sockets/index'
 
 @Controller('/tag')
 export default class TagController {
@@ -66,14 +66,8 @@ export default class TagController {
   async put(@Ctx() ctx: Context) {
     // Parameters
     const id = ctx.params.id
-    const {
-      color,
-      epic,
-      epicCompleted,
-      epicGoal,
-      newName,
-      epicOrder,
-    } = ctx.request.body
+    const { color, epic, epicCompleted, epicGoal, newName, epicOrder } =
+      ctx.request.body
     // Find tag
     const tag = await TagModel.findById(id)
     // Check ownership

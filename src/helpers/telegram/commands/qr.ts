@@ -1,7 +1,7 @@
-import { report } from '@/helpers/report'
 import { Context } from 'telegraf'
-import { getSvg } from 'cnf-qrcode'
 import { convert } from 'convert-svg-to-png'
+import { getSvg } from 'cnf-qrcode'
+import { report } from '@/helpers/report'
 
 export function sendQR(ctx: Context) {
   getSvg(ctx.dbuser.token, undefined, async (err: any, svg: string) => {

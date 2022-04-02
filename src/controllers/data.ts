@@ -1,12 +1,12 @@
-import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { Context } from 'koa'
-import { authenticate } from '@/middlewares/authenticate'
-import { path } from 'temp'
-import { writeFileSync, unlinkSync } from 'fs'
-import { bot, report } from '@/helpers/report'
+import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { _d } from '@/helpers/encryption'
-import { getTodos } from '@/controllers/todo'
 import { admins } from '@/helpers/telegram/admins'
+import { authenticate } from '@/middlewares/authenticate'
+import { bot, report } from '@/helpers/report'
+import { getTodos } from '@/controllers/todo'
+import { path } from 'temp'
+import { unlinkSync, writeFileSync } from 'fs'
 
 @Controller('/data')
 export default class DataController {

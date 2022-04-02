@@ -1,6 +1,6 @@
+import * as SocketIO from 'socket.io'
 import { DocumentType } from '@typegoose/typegoose'
 import { User } from '@/models/user'
-import * as SocketIO from 'socket.io'
 
 export function setupSync<T>(
   socket: SocketIO.Socket,

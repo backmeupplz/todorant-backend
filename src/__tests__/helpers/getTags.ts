@@ -1,8 +1,8 @@
-import { getTags } from '@/helpers/getTags'
-import { completeTodo } from '../testUtils'
-import { v4 } from 'uuid'
-import { _e } from '@/helpers/encryption'
 import { Todo } from '@/models/todo'
+import { _e } from '@/helpers/encryption'
+import { completeTodo } from '@/__tests__/testUtils'
+import { getTags } from '@/helpers/getTags'
+import { v4 } from 'uuid'
 
 const firstText = `#test ${v4()} #test1`
 const secondText = `${v4()} #test2 ${v4()} #test3`

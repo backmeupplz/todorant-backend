@@ -1,9 +1,10 @@
-import { report } from '@/helpers/report'
-import { getText } from '@/helpers/telegram/helpers/speechApi'
-import { tryDeletingFile } from '@/helpers/telegram/helpers/deleteFile'
+import * as fs from 'fs'
+import * as temp from 'temp'
 import { getDuration } from '@/helpers/telegram/helpers/flac'
-const temp = require('temp')
-const fs = require('fs')
+import { getText } from '@/helpers/telegram/helpers/speechApi'
+import { report } from '@/helpers/report'
+import { tryDeletingFile } from '@/helpers/telegram/helpers/deleteFile'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const download = require('download')
 
 export async function urlToText(url, witLanguage) {

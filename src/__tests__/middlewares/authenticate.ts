@@ -1,11 +1,11 @@
-import { sign } from '@/helpers/jwt'
-import { app } from '@/app'
-import { authenticate } from '@/middlewares/authenticate'
-import { runMongo, stopMongo } from '@/models/index'
-import { UserModel } from '@/models/user'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import { Server } from 'http'
+import { UserModel } from '@/models/user'
+import { app } from '@/app'
+import { authenticate } from '@/middlewares/authenticate'
 import { dropMongo, startKoa, stopServer } from '@/__tests__/testUtils'
+import { runMongo, stopMongo } from '@/models/index'
+import { sign } from '@/helpers/jwt'
 
 describe('Authenticate', () => {
   let server: Server

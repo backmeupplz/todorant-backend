@@ -1,9 +1,9 @@
-import { report } from '@/helpers/report'
 import { Context } from 'telegraf'
-import { urlToText } from '@/helpers/telegram/helpers/urlToText'
 import { addTodoWithText } from '@/helpers/telegram/commands/todo'
-import { languageForCode } from '@/helpers/telegram/helpers/witLanguage'
 import { capitalizeSentence } from '@/helpers/capitalizeSentence'
+import { languageForCode } from '@/helpers/telegram/helpers/witLanguage'
+import { report } from '@/helpers/report'
+import { urlToText } from '@/helpers/telegram/helpers/urlToText'
 
 export async function handleMessage(ctx: Context) {
   try {
@@ -48,7 +48,7 @@ async function sendTranscription(ctx, url, witLanguage) {
 async function updateMessagewithError(ctx, msg) {
   try {
     // Get text
-    let text = ctx.i18n.t('error_recognition')
+    const text = ctx.i18n.t('error_recognition')
 
     // Edit message
     await ctx.telegram.editMessageText(
