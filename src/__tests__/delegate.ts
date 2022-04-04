@@ -81,7 +81,9 @@ describe('Testing delegate controller', () => {
       .set('Accept', 'application/json')
       .send({ token: userDelegator.delegateInviteToken })
       .expect(204)
+  })
 
+  it('/useToken should to throw 404 error', async () => {
     const invalidToken = 'n65666666d95ptH2'
     await request(server)
       .post('/delegate/useToken')
@@ -122,13 +124,9 @@ describe('Testing delegate controller', () => {
       .set('token', userDelegator.token)
       .set('Accept', 'application/json')
       .expect(204)
-
-    const invalidId = '11146f6bbf253308c415f039'
-    await request(server)
-      .delete('/delegate/delegate/' + invalidId)
-      .set('token', userDelegator.token)
-      .set('Accept', 'application/json')
-      .expect(204)
+    const userTest = await UserModel.findById(userDelegator.id)
+    userTest.delegates.filter((id) => id.toString() == user.id)
+    expect(Boolean(userTest.delegates[0])).toBe(false)
   })
 
   it('should to delete delegator', async () => {
@@ -143,6 +141,9 @@ describe('Testing delegate controller', () => {
       .set('token', user.token)
       .set('Accept', 'application/json')
       .expect(204)
+    const userTest = await UserModel.findById(userDelegator.id)
+    userTest.delegates.filter((id) => id.toString() == user.id)
+    expect(Boolean(userTest.delegates[0])).toBe(false)
   })
 
   it('should to return unaccepted todos', async () => {
@@ -162,7 +163,9 @@ describe('Testing delegate controller', () => {
       .set('token', user.token)
       .set('Accept', 'application/json')
       .expect(204)
+  })
 
+  it('should to throw 404 error due to invalidId', async () => {
     const invalidId = '11111e6f0bce1d133c55568d'
     await request(server)
       .post('/delegate/accept/' + invalidId)
