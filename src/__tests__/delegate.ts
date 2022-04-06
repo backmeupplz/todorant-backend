@@ -2,8 +2,7 @@ import { app } from '@/app'
 import { sign } from '@/helpers/jwt'
 import { runMongo, stopMongo } from '@/models/index'
 import { UserModel } from '@/models/user'
-import * as randToken from 'rand-token'
-import { Todo, TodoModel } from '@/models/todo'
+import { TodoModel } from '@/models/todo'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import { MongoMemoryServer } from 'mongodb-memory-server'
@@ -16,13 +15,9 @@ import {
   stopServer,
 } from '@/__tests__/testUtils'
 import { Server } from 'http'
-import {
-  isConstructorDeclaration,
-  isConstructSignatureDeclaration,
-} from 'typescript'
 
 describe('Testing delegate controller', () => {
-  const axiosMock = new MockAdapter(axios)
+  new MockAdapter(axios)
   let server: Server
   let userDelegator
   let user
