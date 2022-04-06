@@ -1,20 +1,20 @@
-import { app } from '@/app'
-import { sign } from '@/helpers/jwt'
-import { runMongo, stopMongo } from '@/models/index'
-import { UserModel } from '@/models/user'
-import { TodoModel } from '@/models/todo'
-import axios from 'axios'
-import MockAdapter from 'axios-mock-adapter'
-import { MongoMemoryServer } from 'mongodb-memory-server'
 import * as request from 'supertest'
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import { Server } from 'http'
+import { TodoModel } from '@/models/todo'
+import { UserModel } from '@/models/user'
+import { app } from '@/app'
 import {
-  completeUser,
   completeTodo,
+  completeUser,
   dropMongo,
   startKoa,
   stopServer,
 } from '@/__tests__/testUtils'
-import { Server } from 'http'
+import { runMongo, stopMongo } from '@/models/index'
+import { sign } from '@/helpers/jwt'
+import MockAdapter from 'axios-mock-adapter'
+import axios from 'axios'
 
 describe('Testing delegate controller', () => {
   new MockAdapter(axios)
