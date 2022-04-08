@@ -120,8 +120,10 @@ describe('Testing delegate controller', () => {
       .set('Accept', 'application/json')
       .expect(204)
     const userTest = await UserModel.findById(userDelegator.id)
-    userTest.delegates.filter((id) => id.toString() == user.id)
-    expect(Boolean(userTest.delegates[0])).toBe(false)
+    const checkingArray = userTest.delegates.filter(
+      (id) => id.toString() == user.id
+    )
+    expect(Boolean(checkingArray[0])).toBe(false)
   })
 
   it('should to delete delegator', async () => {
@@ -137,8 +139,10 @@ describe('Testing delegate controller', () => {
       .set('Accept', 'application/json')
       .expect(204)
     const userTest = await UserModel.findById(userDelegator.id)
-    userTest.delegates.filter((id) => id.toString() == user.id)
-    expect(Boolean(userTest.delegates[0])).toBe(false)
+    const checkingArray = userTest.delegates.filter(
+      (id) => id.toString() == user.id
+    )
+    expect(Boolean(checkingArray[0])).toBe(false)
   })
 
   it('should to return unaccepted todos', async () => {
