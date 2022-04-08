@@ -58,14 +58,11 @@ export const createdCompleteUser = {
 } as Omit<User, 'token'>
 
 export const completeTodo = {
-  _id: 'testTodoId',
-  _doc: {
-    createdAt: new Date(),
-  },
   user: createdCompleteUser,
   text: 'Do this',
   completed: false,
   frog: false,
+  repetitive: false,
   frogFails: 0,
   skipped: false,
   order: 0,
@@ -73,9 +70,8 @@ export const completeTodo = {
   encrypted: false,
   monthAndYear: '10-2020',
   date: '21',
-  time: null,
-  stripped: new Todo().stripped,
-  updatedAt: new Date(),
+  time: '01:01',
+  delegateAccepted: false,
 } as Todo
 
 export function startKoa(

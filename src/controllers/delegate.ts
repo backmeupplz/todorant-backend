@@ -48,7 +48,6 @@ export default class DelegateController {
     )
     requestSync(user._id)
     requestSync(delegator._id)
-    ctx.status = 200
   }
 
   @Get('/')
@@ -87,7 +86,6 @@ export default class DelegateController {
     )
     requestSync(user._id)
     requestSync(ctx.params.id)
-    ctx.status = 200
   }
 
   @Delete('/delegator/:id')
@@ -108,7 +106,6 @@ export default class DelegateController {
       { delegatesUpdatedAt: new Date() }
     )
     requestSync(user._id)
-    ctx.status = 200
   }
 
   @Get('/unaccepted')
@@ -141,8 +138,6 @@ export default class DelegateController {
     await todo.save()
     // Fix order
     await fixOrder(ctx.state.user, [getTitle(todo)])
-    // Respond
-    ctx.status = 200
     // Trigger sync
     requestSync(ctx.state.user._id)
     // Update calendar
