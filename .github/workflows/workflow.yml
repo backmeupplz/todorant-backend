@@ -19,7 +19,7 @@ jobs:
       - name: create testing google credentials
         run: |
           mkdir assets
-          touch assets/api-4987639842126744234-562450-fa8629fc9dbd.json
+          touch assets/api-4987639842126744234-562450-67105810381f.json
           echo "{\"client_email\": \"test\", \"private_key\": \"test\"}" >> assets/api-4987639842126744234-562450-fa8629fc9dbd.json
       - name: Run tests
         run: yarn test
