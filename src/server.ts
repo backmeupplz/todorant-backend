@@ -26,10 +26,10 @@ app.listen(1337).on('listening', () => {
 socketServer.listen(3000).on('listening', () => {
   console.log('Sockets are listening on 3000')
 })
-// Start telegram bot
-bot.launch().then(() => {
-  console.log('@todorant_bot launched')
-})
+// // Start telegram bot
+// bot.launch().then(() => {
+//   console.log('@todorant_bot launched')
+// })
 
 // Shutdown gracefully
 GracefulShutdown(app, {

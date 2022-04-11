@@ -74,6 +74,7 @@
     "googleapis": "^61.0.0",
     "http": "^0.0.1-security",
     "http-graceful-shutdown": "^2.3.2",
+    "in-app-purchase": "^1.11.4",
     "jest": "^26.6.1",
     "js-yaml": "^3.14.0",
     "jsonwebtoken": "^8.5.1",
