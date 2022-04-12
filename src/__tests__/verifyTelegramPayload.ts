@@ -43,7 +43,7 @@ describe('Testing delegate controller', () => {
 
   it('should to return TelegramLoginPayload', async () => {
     TelegramPayload.hash =
-      '3bcbf02d81b29777a34c18526af3c611dbf963b5b9ea88187003a3a4c760ee25'
+      'a6ffdc7b30edc0f808ccbf78f6b7fe9aaaf4ffeff51a1038011a35789c9602e6'
     const checkPayload = verifyTelegramPayload(TelegramPayload)
     expect(checkPayload).toBe(TelegramPayload)
   })
