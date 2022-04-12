@@ -383,14 +383,15 @@ export default class LoginController {
 
   @Post('/token')
   async token(@Ctx() ctx: Context) {
-    const user = await getOrCreateUser({
-      email: 'te22313123st',
-      name: 'testdjhfkjsdfkjsdhfkjsdhkjfshjk',
-    })
-    // if (ctx.request.body.appleReceipt) {
-    //   await tryPurchasingApple(user, ctx.request.body.appleReceipt)
-    // }
-    return user.user
+    const token = ctx.request.body.token
+    if (!token) {
+      return ctx.throw(403)
+    }
+    const user = await getUserFromToken(token)
+    if (ctx.request.body.appleReceipt) {
+      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
+    }
+    return user.stripped(true)
   }
 
   @Post('/apple_login_result')
