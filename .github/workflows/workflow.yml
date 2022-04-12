@@ -16,6 +16,7 @@ jobs:
         run: |
           touch .env
           echo JWT=TEST >> .env
+          echo TELEGRAM_LOGIN_TOKEN=718666629:AAFrYAFjJqTaJCy512e1tCGUPdKT3qhY55c >> .env
       - name: create testing google credentials
         run: |
           mkdir assets
