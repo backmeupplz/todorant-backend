@@ -51,6 +51,7 @@
     "prettier": "^2.6.1"
   },
   "dependencies": {
+    "@borodutch-labs/in-app-purchase": "^1.13.2",
     "@hapi/boom": "^9.1.4",
     "@koa/cors": "^3.1.0",
     "@typegoose/typegoose": "^7.4.1",
@@ -74,7 +75,6 @@
     "googleapis": "^61.0.0",
     "http": "^0.0.1-security",
     "http-graceful-shutdown": "^2.3.2",
-    "in-app-purchase": "^1.11.4",
     "jest": "^26.6.1",
     "js-yaml": "^3.14.0",
     "jsonwebtoken": "^8.5.1",
