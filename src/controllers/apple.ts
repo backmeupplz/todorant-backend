@@ -3,10 +3,7 @@ import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { SubscriptionStatus } from '@/models/user'
 import { authenticate } from '@/middlewares/authenticate'
 import { bot, report } from '@/helpers/report'
-import axios, { AxiosResponse } from 'axios'
-
-const stagingReceiptVerificationURL =
-  'https://sandbox.itunes.apple.com/verifyReceipt'
+import { subscriptionVerifier } from '@/helpers/subscriptionVerifier'
 
 @Controller('/apple')
 export default class AppleController {
@@ -19,25 +16,12 @@ export default class AppleController {
   @Post('/subscription')
   @Flow(authenticate)
   async subscription(@Ctx() ctx: Context) {
-    let response: AxiosResponse<any>
     try {
-      const appleUrl =
-        process.env.ENVIRONMENT === 'staging'
-          ? stagingReceiptVerificationURL
-          : 'https://buy.itunes.apple.com/verifyReceipt'
-      const password = process.env.APPLE_SECRET
-      response = await axios.post(appleUrl, {
-        'receipt-data': ctx.request.body.receipt,
-        password,
-      })
-      if (!!response.data.status && +response.data.status === 21007) {
-        response = await axios.post(stagingReceiptVerificationURL, {
-          'receipt-data': ctx.request.body.receipt,
-          password,
-        })
-      }
-      const latestReceipt = response.data.latest_receipt
-      const latestReceiptInfo = response.data.latest_receipt_info
+      const response = await subscriptionVerifier.validateApple(
+        ctx.request.body.receipt
+      )
+      const latestReceipt = response.latest_receipt
+      const latestReceiptInfo = response.latest_receipt_info
       // Get latest
       let latestSubscription = 0
       let hasPerpetualPurchase = false
@@ -64,12 +48,7 @@ export default class AppleController {
       await ctx.state.user.save()
       ctx.status = 200
     } catch (err) {
-      report(
-        err,
-        `${JSON.stringify(ctx.body)}${
-          response ? JSON.stringify(response.data) : ''
-        }`
-      )
+      report(err, `${JSON.stringify(ctx.body)}${JSON.stringify(err)}`)
       throw err
     }
   }

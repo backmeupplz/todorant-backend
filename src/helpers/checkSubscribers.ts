@@ -4,7 +4,7 @@ import { bot, report } from '@/helpers/report'
 import { googleSubscriptionValidator } from '@/helpers/googleSubscriptionValidator'
 import { requestSync } from '@/sockets/index'
 import { stripe } from '@/helpers/stripe'
-import axios from 'axios'
+import { subscriptionVerifier } from '@/helpers/subscriptionVerifier'
 
 async function checkSubscribers() {
   if (process.env.DEBUG || process.env.NODE_ENV === 'test') return
@@ -76,14 +76,9 @@ async function checkAppleReceipt(subscriber: DocumentType<User>) {
     if (!receipt) {
       return false
     }
-    const appleUrl = 'https://buy.itunes.apple.com/verifyReceipt'
-    const password = process.env.APPLE_SECRET
-    const response = await axios.post(appleUrl, {
-      'receipt-data': receipt,
-      password,
-    })
-    const latestReceipt = response.data.latest_receipt
-    const latestReceiptInfo = response.data.latest_receipt_info
+    const response = await subscriptionVerifier.validateApple(receipt)
+    const latestReceipt = response.latest_receipt
+    const latestReceiptInfo = response.latest_receipt_info
     // Get latest
     let latestSubscription = 0
     for (const info of latestReceiptInfo) {
