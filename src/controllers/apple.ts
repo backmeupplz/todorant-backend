@@ -48,10 +48,7 @@ export default class AppleController {
       await ctx.state.user.save()
       ctx.status = 200
     } catch (err) {
-      report(
-        err,
-        `${JSON.stringify(ctx.body)}${test ? JSON.stringify(test) : ''}`
-      )
+      report(err, `${JSON.stringify(ctx.body)}${JSON.stringify(err)}`)
       throw err
     }
   }
