@@ -25,3 +25,5 @@ jobs:
         run: yarn test
       - name: Lint
         run: yarn lint
+    env:
+      TELEGRAM_LOGIN_TOKEN: 718666629:AAFrYAFjJqTaJCy512e1tCGUPdKT3qhY55c
