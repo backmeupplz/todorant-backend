@@ -30,8 +30,8 @@ export async function report(err: Error, extra?: string) {
         return
       }
     }
-    if (admins[0] && process.env.TELEGRAM_LOGIN_TOKEN) {
-      await bot.telegram.sendMessage(admins[0], text)
+    if (process.env.CHAT_ID && process.env.TELEGRAM_LOGIN_TOKEN) {
+      await bot.telegram.sendMessage(process.env.CHAT_ID, text)
     }
   } catch (error) {
     console.error(err)
