@@ -1,4 +1,3 @@
-import { admins } from '@/helpers/telegram/admins'
 import Telegraf from 'telegraf'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
@@ -6,10 +5,13 @@ export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 export const errorSenderBot = new Telegraf(
   process.env.TELEGRAM_ERROR_SENDER_TOKEN
 )
-
-errorSenderBot.launch().then(() => {
-  console.log('error sender bot launched')
-})
+;(() => {
+  if (process.env.NODE_ENV !== 'test') {
+    errorSenderBot.launch().then(() => {
+      console.log('error sender bot launched')
+    })
+  }
+})()
 
 export async function tryReport<T>(fun: (() => T) | Promise<T>) {
   try {
