@@ -3,6 +3,14 @@ import Telegraf from 'telegraf'
 
 export const bot = new Telegraf(process.env.TELEGRAM_LOGIN_TOKEN)
 
+export const errorSenderBot = new Telegraf(
+  process.env.TELEGRAM_ERROR_SENDER_TOKEN
+)
+
+errorSenderBot.launch().then(() => {
+  console.log('error sender bot launched')
+})
+
 export async function tryReport<T>(fun: (() => T) | Promise<T>) {
   try {
     const result = await (fun instanceof Function ? fun() : fun)
@@ -31,7 +39,7 @@ export async function report(err: Error, extra?: string) {
       }
     }
     if (process.env.CHAT_ID && process.env.TELEGRAM_LOGIN_TOKEN) {
-      await bot.telegram.sendMessage(process.env.CHAT_ID, text)
+      await errorSenderBot.telegram.sendMessage(process.env.CHAT_ID, text)
     }
   } catch (error) {
     console.error(err)
