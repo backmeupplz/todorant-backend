@@ -149,7 +149,7 @@ jest.mock('@/helpers/stripe', () => {
       checkout: {
         sessions: {
           create: jest.fn(() => {
-            return new Promise((res, rej) =>
+            return new Promise((res) =>
               res({
                 id: 'cs_test_a1r0BDAr6ti7PEU61HJjihSVRvSqDllJtCEWkW28TFNINJ28e4N63N211Q',
                 object: 'checkout.session',
@@ -172,7 +172,7 @@ jest.mock('@/helpers/stripe', () => {
           })
         }),
         retrieve: jest.fn(() => {
-          return new Promise((res, rej) => {
+          return new Promise((res) => {
             const customer = '32f42v53y53ht453gh'
             res({ customer })
           })
@@ -181,7 +181,7 @@ jest.mock('@/helpers/stripe', () => {
       billingPortal: {
         sessions: {
           create: jest.fn(() => {
-            return new Promise((res, rej) => {
+            return new Promise((res) => {
               const url = 'https://newurl.com'
               res({ url })
             })
