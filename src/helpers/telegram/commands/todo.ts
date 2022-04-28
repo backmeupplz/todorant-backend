@@ -4,7 +4,6 @@ import { Message } from 'telegraf/typings/telegram-types'
 import { Todo, TodoModel, getTitle } from '@/models/todo'
 import { addTags } from '@/models/tag'
 import { fixOrder } from '@/helpers/fixOrder'
-import { isUserSubscribed } from '@/helpers/isUserSubscribed'
 import { linkify } from '@/helpers/linkify'
 import { requestSync } from '@/sockets/index'
 import dehumanize from 'dehumanize-date'
@@ -73,17 +72,6 @@ export async function addTodoWithText(
   }
   // Get user
   const user = ctx.dbuser
-  // Check subscription
-  if (!isUserSubscribed(user) && !voice) {
-    return ctx.reply(ctx.i18n.t('subscribe_error'))
-  } else if (!isUserSubscribed(user) && voice) {
-    return await ctx.telegram.editMessageText(
-      sentMessage.chat.id,
-      sentMessage.message_id,
-      null,
-      ctx.i18n.t('subscribe_error')
-    )
-  }
   // Add todo to user
   try {
     // Get todo date
