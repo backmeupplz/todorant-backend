@@ -10,8 +10,6 @@ import * as dotenv from 'dotenv'
 dotenv.config({ path: `${process.cwd()}/.env` })
 // The rest of dependencies
 import '@/helpers/bouncersMessage'
-import '@/helpers/checkSubscribers'
-import '@/helpers/checkTrials'
 import '@/helpers/googleCalendarChannel'
 import '@/helpers/powerUsersMessage'
 import '@/helpers/threeWeekUserMessage'

@@ -15,7 +15,6 @@ import { Todo, TodoModel, getTitle } from '@/models/todo'
 import { User, UserModel } from '@/models/user'
 import { _d } from '@/helpers/encryption'
 import { authenticate } from '@/middlewares/authenticate'
-import { checkSubscription } from '@/middlewares/checkSubscription'
 import { errors } from '@/helpers/errors'
 import { fixOrder } from '@/helpers/fixOrder'
 import { getPoints } from '@/controllers/hero'
@@ -32,7 +31,6 @@ const fuzzysort = require('fuzzysort')
 export default class TodoController {
   @Post('/')
   @Flow(authenticate)
-  @Flow(checkSubscription)
   async create(@Ctx() ctx: Context) {
     if (ctx.request.body.todos) {
       ctx.request.body = ctx.request.body.todos
