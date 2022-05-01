@@ -15,11 +15,12 @@ import { sign } from '@/helpers/jwt'
 import MockAdapter from 'axios-mock-adapter'
 import axios from 'axios'
 
+// let to test all varients in /webhook:
+//customer.subscription.deleted and checkout.session.completed
 export const webhookEvents = ['deleted', 'completed']
+
+// Help to use userId for new user for in mock of the stripe
 let userId
-export function getUserId() {
-  return userId
-}
 
 describe('Testing delegate controller', () => {
   new MockAdapter(axios)
@@ -147,7 +148,8 @@ describe('Testing delegate controller', () => {
   })
 
   it('webhook should to return 400 error', async () => {
-    user.subscriptionId = '3f32t3rt3r3gefg4ej4km5m'
+    const wrongId = '3f32t3rt3r3gefg4ej4km5m'
+    user.subscriptionId = wrongId
     await user.save()
     await request(server)
       .post('/subscription/webhook/')
@@ -161,4 +163,77 @@ describe('Testing delegate controller', () => {
       .set('Accept', 'application/json')
       .expect(400)
   })
+})
+
+jest.mock('@/helpers/stripe', () => {
+  return {
+    __esModule: true,
+    stripe: {
+      checkout: {
+        sessions: {
+          create: jest.fn(() => {
+            return new Promise((res) =>
+              res({
+                id: 'cs_test_a1r0BDAr6ti7PEU61HJjihSVRvSqDllJtCEWkW28TFNINJ28e4N63N211Q',
+                object: 'checkout.session',
+                after_expiration: null,
+                allow_promotion_codes: null,
+              })
+            )
+          }),
+        },
+      },
+      subscriptions: {
+        del: jest.fn((subscriptionId) => {
+          return new Promise((res, rej) => {
+            const testId = '3f32t2eg3r3gefg4ej4km5m'
+            if (subscriptionId == testId) {
+              res(true)
+            } else {
+              rej(new Error('Id is undefind'))
+            }
+          })
+        }),
+        retrieve: jest.fn(() => {
+          return new Promise((res) => {
+            const customer = '32f42v53y53ht453gh'
+            res({ customer })
+          })
+        }),
+      },
+      billingPortal: {
+        sessions: {
+          create: jest.fn(() => {
+            return new Promise((res) => {
+              const url = 'https://newurl.com'
+              res({ url })
+            })
+          }),
+        },
+      },
+      webhooks: {
+        constructEvent: jest.fn(() => {
+          if (webhookEvents[0] == 'deleted') {
+            const eventDataForDeleted = {
+              type: 'customer.subscription.deleted',
+              data: { object: { id: '3f32t2eg3r3gefg4ej4km5m' } },
+            }
+            webhookEvents.shift()
+            return eventDataForDeleted
+          } else if (webhookEvents[0] == 'completed') {
+            const eventDataForCompleted = {
+              type: 'checkout.session.completed',
+              data: {
+                object: {
+                  client_reference_id: userId,
+                  subscription: '3f32t2eg3r5jyfg4ej4km5m',
+                },
+              },
+            }
+            return eventDataForCompleted
+          }
+        }),
+      },
+    },
+  }
 })

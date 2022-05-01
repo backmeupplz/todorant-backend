@@ -3,7 +3,6 @@ import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { SubscriptionStatus, UserModel } from '@/models/user'
 import { User } from '@/models/user'
 import { authenticate } from '@/middlewares/authenticate'
-import { getUserId, webhookEvents } from '@/__tests__/subscription'
 import { stripe } from '@/helpers/stripe'
 
 @Controller('/subscription')
@@ -93,7 +92,6 @@ export default class SubscriptionController {
         ctx.headers['stripe-signature'],
         process.env.STRIPE_SIGNING_SECRET
       )
-      console.log(2.1, event)
       // Handle event
       if (event.type === 'customer.subscription.deleted') {
         const anyData = event.data.object as any
@@ -140,78 +138,3 @@ export default class SubscriptionController {
     }
   }
 }
-
-// Testing mock
-jest.mock('@/helpers/stripe', () => {
-  return {
-    __esModule: true,
-    stripe: {
-      checkout: {
-        sessions: {
-          create: jest.fn(() => {
-            return new Promise((res) =>
-              res({
-                id: 'cs_test_a1r0BDAr6ti7PEU61HJjihSVRvSqDllJtCEWkW28TFNINJ28e4N63N211Q',
-                object: 'checkout.session',
-                after_expiration: null,
-                allow_promotion_codes: null,
-              })
-            )
-          }),
-        },
-      },
-      subscriptions: {
-        del: jest.fn((subscriptionId) => {
-          return new Promise((res, rej) => {
-            const testId = '3f32t2eg3r3gefg4ej4km5m'
-            if (subscriptionId == testId) {
-              res(true)
-            } else {
-              rej(new Error('Id is undefind'))
-            }
-          })
-        }),
-        retrieve: jest.fn(() => {
-          return new Promise((res) => {
-            const customer = '32f42v53y53ht453gh'
-            res({ customer })
-          })
-        }),
-      },
-      billingPortal: {
-        sessions: {
-          create: jest.fn(() => {
-            return new Promise((res) => {
-              const url = 'https://newurl.com'
-              res({ url })
-            })
-          }),
-        },
-      },
-      webhooks: {
-        constructEvent: jest.fn(() => {
-          if (webhookEvents[0] == 'deleted') {
-            const eventDataForDeleted = {
-              type: 'customer.subscription.deleted',
-              data: { object: { id: '3f32t2eg3r3gefg4ej4km5m' } },
-            }
-            webhookEvents.shift()
-            return eventDataForDeleted
-          } else if (webhookEvents[0] == 'completed') {
-            const userId = getUserId()
-            const eventDataForCompleted = {
-              type: 'checkout.session.completed',
-              data: {
-                object: {
-                  client_reference_id: userId,
-                  subscription: '3f32t2eg3r5jyfg4ej4km5m',
-                },
-              },
-            }
-            return eventDataForCompleted
-          }
-        }),
-      },
-    },
-  }
-})
