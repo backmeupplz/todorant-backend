@@ -32,10 +32,6 @@ module.exports = {
     en: 'Telegram is already connected',
     ru: 'Телеграм уже подключен',
   },
-  subscription: {
-    en: 'You have to buy the subscription',
-    ru: 'Вам нужно приобрести подписку',
-  },
   noTag: {
     en: 'No hashtag found',
     ru: 'Хештег не найден',

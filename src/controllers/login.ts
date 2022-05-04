@@ -2,12 +2,7 @@ import * as randToken from 'rand-token'
 import { Context } from 'koa'
 import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
 import { DocumentType } from '@typegoose/typegoose'
-import {
-  SubscriptionStatus,
-  User,
-  UserModel,
-  getOrCreateUser,
-} from '@/models/user'
+import { User, UserModel, getOrCreateUser } from '@/models/user'
 import { authenticate, getUserFromToken } from '@/middlewares/authenticate'
 import { bot } from '@/helpers/telegram'
 import { decode } from 'jsonwebtoken'
@@ -29,62 +24,17 @@ export const telegramLoginRequests = {} as {
   }
 }
 
-async function tryPurchasingApple(user: DocumentType<User>, receipt: string) {
-  const appleUrl =
-    process.env.ENVIRONMENT === 'staging'
-      ? 'https://sandbox.itunes.apple.com/verifyReceipt'
-      : 'https://buy.itunes.apple.com/verifyReceipt'
-  const password = process.env.APPLE_SECRET
-  const response = await axios.post(appleUrl, {
-    'receipt-data': receipt,
-    password,
-  })
-  const latestReceipt = response.data.latest_receipt
-  const latestReceiptInfo = response.data.latest_receipt_info
-  // Get latest
-  let latestSubscription = 0
-  let hasPerpetualPurchase = false
-  for (const info of latestReceiptInfo) {
-    if (info.product_id === 'perpetual') {
-      hasPerpetualPurchase = true
-      break
-    }
-    if (+info.expires_date_ms > latestSubscription) {
-      latestSubscription = +info.expires_date_ms
-    }
-  }
-  // Check status
-  if (hasPerpetualPurchase) {
-    user.subscriptionStatus = SubscriptionStatus.active
-    user.isPerpetualLicense = true
-  } else {
-    const subscriptionIsActive = new Date().getTime() < latestSubscription
-    if (subscriptionIsActive) {
-      user.subscriptionStatus = SubscriptionStatus.active
-    }
-  }
-  user.appleReceipt = latestReceipt
-  await user.save()
-}
-
 @Controller('/login')
 export default class LoginController {
   @Post('/facebook')
   async facebook(@Ctx() ctx: Context) {
     const fbProfile: any = await getFBUser(ctx.request.body.accessToken)
-    const { created, user } = await getOrCreateUser({
+    const { user } = await getOrCreateUser({
       name: fbProfile.name,
 
       email: fbProfile.email,
       facebookId: fbProfile.id,
     })
-    if (created && ctx.request.body.fromApple) {
-      user.createdOnApple = true
-      await user.save()
-    }
-    if (ctx.request.body.appleReceipt) {
-      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
-    }
     return user.stripped(true)
   }
 
@@ -96,17 +46,10 @@ export default class LoginController {
       return ctx.throw(403)
     }
 
-    const { created, user } = await getOrCreateUser({
+    const { user } = await getOrCreateUser({
       name: `${data.first_name}${data.last_name ? ` ${data.last_name}` : ''}`,
       telegramId: data.id,
     })
-    if (created && ctx.request.body.fromApple) {
-      user.createdOnApple = true
-      await user.save()
-    }
-    if (ctx.request.body.appleReceipt) {
-      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
-    }
     return user.stripped(true)
   }
 
@@ -120,18 +63,11 @@ export default class LoginController {
       )
     ).data
 
-    const { created, user } = await getOrCreateUser({
+    const { user } = await getOrCreateUser({
       name: userData.name,
 
       email: userData.email,
     })
-    if (created && ctx.request.body.fromApple) {
-      user.createdOnApple = true
-      await user.save()
-    }
-    if (ctx.request.body.appleReceipt) {
-      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
-    }
     return user.stripped(true)
   }
 
@@ -147,34 +83,20 @@ export default class LoginController {
       })
     ).data
 
-    const { created, user } = await getOrCreateUser({
+    const { user } = await getOrCreateUser({
       name: userData.name,
 
       email: userData.email,
     })
-    if (created && ctx.request.body.fromApple) {
-      user.createdOnApple = true
-      await user.save()
-    }
-    if (ctx.request.body.appleReceipt) {
-      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
-    }
     return user.stripped(true)
   }
 
   @Post('/anonymous')
-  async anonymous(@Ctx() ctx: Context) {
-    const { created, user } = await getOrCreateUser({
+  async anonymous() {
+    const { user } = await getOrCreateUser({
       name: 'Anonymous user',
       anonymousToken: randToken.generate(16),
     })
-    if (created && ctx.request.body.fromApple) {
-      user.createdOnApple = true
-      await user.save()
-    }
-    if (ctx.request.body.appleReceipt) {
-      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
-    }
     return user.stripped(true)
   }
 
@@ -225,7 +147,6 @@ export default class LoginController {
       const params = {
         name: name || 'Unidentified Apple',
         appleSubId,
-        subscriptionStatus: SubscriptionStatus.trial,
         email,
         delegateInviteToken: randToken.generate(16),
       } as any
@@ -238,14 +159,6 @@ export default class LoginController {
         ...params,
         token: await sign(params),
       }).save()) as DocumentType<User>
-      const created = true
-      if (created && ctx.request.body.fromApple) {
-        user.createdOnApple = true
-        await user.save()
-      }
-      if (ctx.request.body.appleReceipt) {
-        await tryPurchasingApple(user, ctx.request.body.appleReceipt)
-      }
       return user.stripped(true)
     } else {
       let user = await UserModel.findOne({ appleSubId })
@@ -253,20 +166,11 @@ export default class LoginController {
         const params = {
           name: 'Unidentified Apple',
           appleSubId,
-          subscriptionStatus: SubscriptionStatus.trial,
         } as any
         user = (await new UserModel({
           ...params,
           token: await sign(params),
         }).save()) as DocumentType<User>
-        const created = true
-        if (created && ctx.request.body.fromApple) {
-          user.createdOnApple = true
-          await user.save()
-        }
-      }
-      if (ctx.request.body.appleReceipt) {
-        await tryPurchasingApple(user, ctx.request.body.appleReceipt)
       }
       return user.stripped(true)
     }
@@ -299,7 +203,6 @@ export default class LoginController {
       name,
       email,
       appleSubId,
-      subscriptionStatus: SubscriptionStatus.trial,
       delegateInviteToken: randToken.generate(16),
     } as any
     user = (await new UserModel({
@@ -388,9 +291,6 @@ export default class LoginController {
       return ctx.throw(403)
     }
     const user = await getUserFromToken(token)
-    if (ctx.request.body.appleReceipt) {
-      await tryPurchasingApple(user, ctx.request.body.appleReceipt)
-    }
     return user.stripped(true)
   }
 

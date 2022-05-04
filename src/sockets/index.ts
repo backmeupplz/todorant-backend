@@ -231,13 +231,8 @@ io.on('connection', (socket) => {
           '_id',
           'token',
           'anonymousToken',
-          'subscriptionStatus',
-          'subscriptionId',
-          'appleReceipt',
-          'googleReceipt',
           'createdAt',
           'updatedAt',
-          'isPerpetualLicense',
         ])
       )
       await dbuser.save()

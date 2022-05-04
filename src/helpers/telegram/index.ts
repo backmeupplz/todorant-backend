@@ -2,7 +2,6 @@ import { addTodo } from '@/helpers/telegram/commands/todo'
 import { checkAndAttachUser } from '@/helpers/telegram/middlewares/checkAndAttachUser'
 import { checkIfPrivate } from '@/helpers/telegram/middlewares/checkIfPrivate'
 import { checkLanguage } from '@/helpers/telegram/middlewares/checkLanguage'
-import { checkSuperAdmin } from '@/helpers/telegram/middlewares/checkSuperAdmin'
 import { checkTime } from '@/helpers/telegram/middlewares/checkTime'
 import {
   handleCurrent,
@@ -23,7 +22,6 @@ import { handleZen } from '@/helpers/telegram/commands/zen'
 import { sendHelp } from '@/helpers/telegram/commands/help'
 import { sendLogin } from '@/helpers/telegram/commands/login'
 import { sendQR } from '@/helpers/telegram/commands/qr'
-import { sendSubscriptions } from '@/helpers/telegram/commands/subscriptions'
 import { setupI18N } from '@/helpers/telegram/helpers/i18n'
 import Telegraf from 'telegraf'
 
@@ -51,7 +49,6 @@ bot.command('zen', handleZen)
 bot.command('timezone', handleTimezone)
 bot.command('current', handleCurrent)
 bot.command('id', handleId)
-bot.command('subscriptions', checkSuperAdmin, sendSubscriptions)
 bot.command('qr', sendQR)
 // Actions
 bot.action('done', handleDone)

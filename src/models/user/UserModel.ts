@@ -1,7 +1,7 @@
 import * as randToken from 'rand-token'
 import { DocumentType, getModelForClass } from '@typegoose/typegoose'
-import { SubscriptionStatus, User } from '@/models/user/User'
 import { Todo } from '@/models/todo'
+import { User } from '@/models/user/User'
 import { sign } from '@/helpers/jwt'
 
 export const UserModel = getModelForClass(User, {
@@ -60,7 +60,6 @@ export async function getOrCreateUser(loginOptions: LoginOptions) {
     }
     const params = {
       name: loginOptions.name,
-      subscriptionStatus: SubscriptionStatus.trial,
       delegateInviteToken: randToken.generate(16),
     } as any
     if (loginOptions.email) {

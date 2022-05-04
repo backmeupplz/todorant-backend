@@ -3,13 +3,6 @@ import { GoogleCalendarCredentials } from '@/helpers/googleCalendar'
 import { Ref, prop } from '@typegoose/typegoose'
 import { omit } from 'lodash'
 
-export enum SubscriptionStatus {
-  earlyAdopter = 'earlyAdopter',
-  active = 'active',
-  trial = 'trial',
-  inactive = 'inactive',
-}
-
 export interface Settings {
   removeCompletedFromCalendar?: boolean
   showTodayOnAddTodo?: boolean
@@ -61,31 +54,6 @@ export class User {
   @prop({ enum: TelegramLanguage, index: true })
   telegramLanguage?: TelegramLanguage
 
-  @prop({
-    index: true,
-    required: true,
-    enum: SubscriptionStatus,
-    default: 'earlyAdopter',
-  })
-  subscriptionStatus: SubscriptionStatus
-  @prop({ index: true })
-  subscriptionId?: string
-  @prop()
-  appleReceipt?: string
-  @prop()
-  googleReceipt?: string
-  @prop({ index: true, required: true, default: false })
-  isPerpetualLicense: boolean
-
-  @prop({ index: true, required: true, default: false })
-  bouncerNotified: boolean
-  @prop({ index: true, required: true, default: false })
-  powerUserNotified: boolean
-  @prop({ index: true, required: true, default: false })
-  threeWeekUserNotified: boolean
-  @prop({ required: true, default: false })
-  createdOnApple: boolean
-
   @prop({ index: true, unique: true, default: randToken.generate(16) })
   delegateInviteToken?: string
   @prop({ ref: User, required: true, default: [], index: true })
@@ -100,9 +68,6 @@ export class User {
     const stripFields = [
       '__v',
       'todos',
-      'bouncerNotified',
-      'powerUserNotified',
-      'threeWeekUserNotified',
       'delegates',
       'googleCalendarResourceId',
     ]
@@ -112,12 +77,6 @@ export class User {
       stripFields.push('facebookId')
       stripFields.push('telegramId')
       stripFields.push('appleSubId')
-      stripFields.push('createdOnApple')
-      stripFields.push('subscriptionStatus')
-      stripFields.push('subscriptionId')
-      stripFields.push('appleReceipt')
-      stripFields.push('googleReceipt')
-      stripFields.push('isPerpetualLicense')
       stripFields.push('timezone')
       stripFields.push('settings')
       stripFields.push('createdAt')

@@ -1,8 +1,8 @@
 import * as Koa from 'koa'
 import * as mongoose from 'mongoose'
 import { Server } from 'http'
-import { SubscriptionStatus, User } from '@/models/user/User'
 import { Todo } from '@/models/todo/Todo'
+import { User } from '@/models/user/User'
 import Facebook = require('facebook-node-sdk')
 export const facebookApiSpy = jest.spyOn(Facebook.prototype, 'api')
 import * as decode from 'jsonwebtoken'
@@ -45,7 +45,6 @@ export const createdCompleteUser = {
   createdAtts: '',
   timezone: 0,
   telegramZen: false,
-  subscriptionStatus: SubscriptionStatus.earlyAdopter,
   bouncerNotified: false,
   powerUserNotified: false,
   threeWeekUserNotified: false,

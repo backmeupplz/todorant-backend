@@ -1,7 +1,7 @@
 import { Context } from 'koa'
 import { Controller, Ctx, Flow, Post } from 'koa-ts-controllers'
-import { SubscriptionStatus, User, UserModel } from '@/models/user'
 import { TodoModel } from '@/models/todo'
+import { User, UserModel } from '@/models/user'
 import { verifyTelegramPayload } from '@/helpers/verifyTelegramPayload'
 import axios from 'axios'
 import Facebook = require('facebook-node-sdk')
@@ -29,13 +29,6 @@ export default class MergeController {
       })
     // Add data if required
     originalUser.facebookId = fbProfile.id
-    // Check if early adopter
-    if (
-      existingUser &&
-      existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter
-    ) {
-      originalUser.subscriptionStatus = SubscriptionStatus.earlyAdopter
-    }
     // Delete the existing user if it exists
     if (existingUser) {
       // Transition tasks
@@ -72,13 +65,6 @@ export default class MergeController {
       await UserModel.findOne({ telegramId: data.id })
     // Add data if required
     originalUser.telegramId = data.id
-    // Check if early adopter
-    if (
-      existingUser &&
-      existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter
-    ) {
-      originalUser.subscriptionStatus = SubscriptionStatus.earlyAdopter
-    }
     // Delete the existing user if it exists
     if (existingUser) {
       // Transition tasks
@@ -120,13 +106,6 @@ export default class MergeController {
       await UserModel.findOne({ email: userData.email })
     // Add data if required
     originalUser.email = userData.email
-    // Check if early adopter
-    if (
-      existingUser &&
-      existingUser.subscriptionStatus === SubscriptionStatus.earlyAdopter
-    ) {
-      originalUser.subscriptionStatus = SubscriptionStatus.earlyAdopter
-    }
     // Delete the existing user if it exists
     if (existingUser) {
       // Transition tasks

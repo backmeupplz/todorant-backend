@@ -1,8 +1,8 @@
 import { Context } from 'koa'
 import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
-import { SubscriptionStatus, UserModel } from '@/models/user'
 import { Todo } from '@/models/todo'
 import { TodoModel, getTitle } from '@/models/todo'
+import { UserModel } from '@/models/user'
 import { authenticate } from '@/middlewares/authenticate'
 import { fixOrder } from '@/helpers/fixOrder'
 import {
@@ -12,40 +12,11 @@ import {
   getGoogleEvents,
   getTodorantCalendar,
 } from '@/helpers/googleCalendar'
-import { googleSubscriptionValidator } from '@/helpers/googleSubscriptionValidator'
-import { report } from '@/helpers/report'
 import { requestSync } from '@/sockets/index'
 import { startWatch } from '@/helpers/googleCalendarChannel'
 
 @Controller('/google')
 export default class GoogleController {
-  @Post('/subscription')
-  @Flow(authenticate)
-  async subscription(@Ctx() ctx: Context) {
-    try {
-      if (ctx.request.body.productId === 'todorant.perpetual') {
-        await googleSubscriptionValidator.verifyINAPP(ctx.request.body)
-      } else {
-        const subscription = await googleSubscriptionValidator.verifySub(
-          ctx.request.body
-        )
-        if (+subscription.payload.expiryTimeMillis < Date.now()) {
-          throw new Error('Invalid purchase')
-        }
-      }
-      ctx.state.user.subscriptionStatus = SubscriptionStatus.active
-      ctx.state.user.googleReceipt = ctx.request.body.purchaseToken
-      if (ctx.request.body.productId === 'todorant.perpetual') {
-        ctx.state.user.isPerpetualLicense = true
-      }
-      await ctx.state.user.save()
-      ctx.status = 200
-    } catch (err) {
-      report(err)
-      throw err
-    }
-  }
-
   @Get('/calendarAuthenticationURL')
   @Flow(authenticate)
   async calendarAuthenticationURL(@Ctx() ctx: Context) {
