@@ -1,0 +1,54 @@
+name: English
+help: |
+  Hi there! You can use this bot to quickly add new todos to todorant.com.
+
+  /help — this message
+  /todo — add a todo like <code>/todo Buy milk</code>
+  /frog — add a frog like <code>/frog Buy milk</code>
+  /done — log a task that is done like <code>/done Buy milk</code>
+  /timezone — set up timezone like <code>/timezone -8</code>
+  /current — see the current task
+  /zen — turn on zen mode
+  /login — login to todorant.com
+  /language — change language
+  /qr — generate a QR code to login on mobile
+
+  Find the commands examples at the end of this message. Cheers!
+
+  /frog Answer the gym membership email
+  /todo Buy milk
+  /todo 2025-01 Celebrate New Year on my private island
+  /todo 2020-04-20 Buy cookies
+  /todo tomorrow: Get magicians together
+  /todo this wednesday: Fill in Todorant
+  /done Procrastinate for 20 minutes
+  /timezone +3
+  /timezone -8
+  /timezone 0
+language: 'Please, select the language.'
+language_selected: '@todorant_bot now speaks English.'
+login: 'Please, login to todorant.com using the button below.'
+zen_on: 'Welcome to the zen mode! Anything you send me will be handled as if you had <code>/todo</code> command prepended. So do not bother sending <code>/todo Clean fridge</code> or <code>/todo 2020 Watch all of the House MD</code>, just do <code>Clean fridge</code> and <code>2020 Watch all of the House MD</code>. Use /zen to turn this mode off.'
+zen_off: You turned off zen mode.
+timezone_help: |
+  Please, use this command like shown below. Thank you!
+
+  /timezone +3
+  /timezone -8
+  /timezone 0
+timezone_success: |
+  Your timezone was set to UTC${timezone}. Please, check if the time below is your current time.
+
+  ${time}
+all_done: "\U0001F44D You did it! All the tasks for today are done, go get rest or maybe dance a little \U0001F483"
+no_todo_text: |
+  Please, provide text for this todo as shown below.
+
+  /todo Buy milk
+subscribe_error: 'Please, subscribe at todorant.com to keep using the service.'
+past_date_error: Date cannot be in the past.
+add_todo_error: 'Oopsie, something went wrong! Make sure to tell us at @todorant_feedback about it!'
+error_twenty: "_\U0001F46E I can't recognize voice messages larger than 20 megabytes_"
+initiated: "_\U0001F984 Voice recognition is initiated..._"
+error_recognition: "_\U0001F46E I couldn't recognize that_"
+text_too_long: 'Text must be shorter than 1500 characters.'

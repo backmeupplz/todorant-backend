@@ -1,0 +1,7 @@
+.env
+node_modules
+*.log
+dist
+.yarn
+assets/
+!assets/.gitkeep

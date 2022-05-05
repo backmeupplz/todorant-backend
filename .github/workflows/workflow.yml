@@ -1,0 +1,28 @@
+name: Todorant Workflows
+on:
+  pull_request:
+    types: [synchronize, opened]
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install modules
+        run: yarn
+      - name: Compile code
+        run: yarn tsc --skipLibCheck
+      - name: create env file
+        run: |
+          touch .env
+          echo JWT=TEST >> .env
+          echo TELEGRAM_LOGIN_TOKEN=718666629:AAFrYAFjJqTaJCy512e1tCGUPdKT3qhY55c >> .env
+      - name: create testing google credentials
+        run: |
+          mkdir assets
+          touch assets/api-4987639842126744234-562450-696121ef8828.json
+          echo "{\"client_email\": \"test\", \"private_key\": \"test\"}" >> assets/api-4987639842126744234-562450-696121ef8828.json
+      - name: Run tests
+        run: yarn test
+      - name: Lint
+        run: yarn lint

@@ -1,0 +1,50 @@
+name: Italiano
+help: |
+  Ciao! Puoi usare queto bot per aggiungere velocemente attività a todorant.com.
+
+  /help — questo messaggio
+  /todo — aggiunge un'attività, ad esempio <code>/todo Compra il latte</code>
+  /frog — aggiunge una rana, ad esempio <code>/frog Compra il latte</code>
+  /done — registra un'attività già eseguita, ad esempio <code>/done Compra il latte</code>
+  /timezone — imposta un fuso orario, ad esempio <code>/timezone -8</code>
+  /current — visualizza l'attività corrente
+  /zen — attiva la modalità zen
+  /login — login su todorant.com
+  /language — cambia lingua
+  /qr — genera un QR per fare il login da telefono
+
+  Trovate gli esempi di comandi alla fine di questo messaggio. Auguri!
+
+  /frog Rispondi all'e-mail di iscrizione alla palestra
+  /todo Compra il latte
+  /todo 2025-01 Celebrate New Year on my private island
+  /todo 2020-04-20 Compra dei biscotti
+  /todo domani: Raduna i maghi
+  /todo questo lunedì: Riempi Todorant
+  /done Procrastina per 20 minuti
+  /timezone +3
+  /timezone -8
+  /timezone 0
+language: Seleziona la lingua.
+language_selected: '@todorant_bot ora parla italiano.'
+login: 'Per favore, effettua il login su todorant.com utilizzando il pulsante qui sotto.'
+zen_on: 'Benvenuti nella modalità Zen! Tutto ciò che mi invierete sarà gestito come se aveste il comando <code>/todo</code> già pronto. Quindi non preoccuparti di inviare <code>/todo Pulisci il frigo</code> o <code>/todo 2020 Guarda tutto Dr. House</code>, basta fare <code>Pulisci il frigo</code> e <code>2020 Guarda tutto Dr. House</code>. Usa /zen per disattivare questa modalità.'
+zen_off: Hai disattivato la modalità Zen.
+timezone_help: |
+  Si prega di utilizzare questo comando come mostrato di seguito. Grazie!
+
+  /timezone +3
+  /timezone -8
+  /timezone 0
+timezone_success: |
+  Il tuo fuso orario è stato impostato su UTC${timezone}. Controlla che l'orario sia corretto.
+
+  ${time}
+all_done: "\U0001F44D Ce l'hai fatta! Hai completato tutte le attività di oggi, riposati o balla per un po' \U0001F483"
+no_todo_text: |
+  Inserisci l'attività in questo modo.
+
+  /todo Compra il latte
+subscribe_error: Iscriviti su todorant.com per continuare a usare questo servizio.
+past_date_error: Non puoi inserire una data passata.
+add_todo_error: 'Oopsie, qualcosa è andato storto! Avvertici su @todorant_feedback!'

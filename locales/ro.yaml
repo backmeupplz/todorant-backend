@@ -1,0 +1,14 @@
+name: Română
+help: 'Salut! Folosiți acest bot pentru adăugarea rapidă a task-urilor în todorant.com.\n\n/help — acest mesaj\n/todo — adaugă un task în formatul <code>/todo Cumpără lapte</code>\n/frog — adaugă o broască în formatul <code>/frog Cumpără lapte</code>\n/done — adaugă task-ul realizat în formatul <code>/done Cumpără lapte</code>\n/timezone — setarea fusului orar în formatul <code>/timezone -8</code>\n/current — vizualizarea task-ului curent\n/zen — activează regimul dzen\n/login — intră în todorant.com\n/language — schimbarea limbii\n/qr — generarea unui cod QR pentru logarea pe telefoane\n\nLa sfârșitul acestui mesaj sunt exemple de folosire a comenzilor. Succes!\n\n/frog Rîspunde la mail-ul legat de antrenare\n/todo Cumpără lapte\n/todo 2025-01 Sărbătorirea Anului Nou pe propria insulă\n/todo 2020-04-20 Cumpără prăjituri\n/todo mâine: De strâns magicienii împreună\n/todo această vineri: De completat Todorant\n/done De procrastinat 20 minute\n/timezone +3\n/timezone -8\n/timezone 0\n'
+language: 'Vă rog, alegeți limba'
+language_selected: '@todorant_bot acum vorbește în română'
+login: 'Vă rog, intrați pe todorant.com, folosind butonul de mai jos.'
+zen_on: 'Bine ați venit în regimul-dzen! Tot ce veți trimite, va fi prelucrat de parcă dvs. ați scrie înainte de text <code>/todo</code>. Nu trebuie să trimiteți <code>/todo De curățit frigiderul</code> sau <code>/todo 2020 De privit tot serialul Doctor House</code>, trebuie doar să trimiteți <code>De curățit frigiderul</code> sau <code>2020 De privit tot serialul Doctor House</code>. Folosiți comanda /zen, pentru a dezactiva acest regim.'
+zen_off: Ați activat regimul-dzen
+timezone_help: 'Vă rog, folosiți comanda așa cum e indicat mai jos. Mulțumesc!\n\n/timezone +3\n/timezone -8\n/timezone 0\n'
+timezone_success: 'Fusul orar a fost setat la UTC${timezone}. Vă rog, verificați dacă timpul de mai jos — coincide cu timpul dvs. curent.\n\n${time}\n'
+all_done: "\U0001F44D Ați reușit! Toate task-urile pentru azi sunt finalizate, vă puteți odihni — fie un pic să dansați \U0001F483"
+no_todo_text: 'Vă rog, adăugați textul la acest task, așa cum e arătat mai jos.\n\n/todo De cumpărat lapte\n'
+subscribe_error: 'Vă rog să vă abonați la todorant.com, pentru a continua să utilizați serviciul'
+past_date_error: Data nu poate fi în trecut.
+add_todo_error: Ups! Ceva n-a mers bine. Numaidecât contactați-ne la @todorant_feedback despre asta!
