@@ -82,7 +82,7 @@ export default class DataController {
     })
     const delegatedTodos = await TodoModel.find({
       delegator: user.id,
-      delegateAccepted: { $not: true },
+      delegateAccepted: { $ne: true },
     })
     // Find delegates
     const delegates = await UserModel.find({ delegates: user.delegates })
