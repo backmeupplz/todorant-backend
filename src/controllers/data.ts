@@ -71,7 +71,7 @@ export default class DataController {
     return string
   }
 
-  @Delete('/account/:id')
+  @Delete('/account')
   @Flow(authenticate)
   async deleteUser(@Ctx() ctx: Context) {
     // Find user
