@@ -8,7 +8,7 @@
   "license": "MPL-2.0",
   "private": true,
   "scripts": {
-    "distribute": "yarn build-ts && node dist/server.js",
+    "distribute": "yarn build-ts && yarn generate-docs && node dist/server.js",
     "develop": "concurrently -i -k -p \"[{name}]\" -n \"Node, TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\"",
     "build-ts": "tsc --skipLibCheck || true",
     "watch-ts": "tsc -w --skipLibCheck",
@@ -18,7 +18,8 @@
     "kill-server": "lsof -ti:1337 | xargs kill && lsof -ti:3000 | xargs kill",
     "test": "yarn jest --forceExit",
     "pretty": "prettier --check src",
-    "lint": "yarn pretty && eslint --max-warnings 0 --ext ts,tsx,json src"
+    "lint": "yarn pretty && eslint --max-warnings 0 --ext ts,tsx,json ",
+    "generate-docs": "cd docs && python -m mkdocs build"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.0.1",
@@ -53,6 +54,8 @@
     "@hapi/boom": "^9.1.4",
     "@koa/cors": "^3.1.0",
     "@typegoose/typegoose": "^7.4.1",
+    "@types/koa-mount": "^4.0.1",
+    "@types/koa-static": "^4.0.2",
     "apple-auth": "^1.0.6",
     "axios": "^0.20.0",
     "chart.js": "^2.9.4",
@@ -77,7 +80,9 @@
     "koa": "^2.13.0",
     "koa-bodyparser": "^4.3.0",
     "koa-logger": "^3.2.1",
+    "koa-mount": "^4.0.0",
     "koa-router": "^9.4.0",
+    "koa-static": "^5.0.0",
     "koa-ts-controllers": "^2.3.0",
     "linkify-it": "^3.0.2",
     "lodash": "^4.17.20",

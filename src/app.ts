@@ -13,6 +13,8 @@ import '@/helpers/googleCalendarChannel'
 import '@/sockets'
 import 'reflect-metadata'
 import * as Koa from 'koa'
+import * as serve from 'koa-static'
+import * as mount from 'koa-mount'
 import * as Router from 'koa-router'
 import * as bodyParser from 'koa-bodyparser'
 import * as cors from '@koa/cors'
@@ -38,6 +40,7 @@ export const app = new Koa()
     app.use(bodyParser({ jsonLimit: '100mb' }))
     app.use(router.routes())
     app.use(router.allowedMethods())
+    app.use(mount('/docs', serve('./docs/site')))
   } catch (err) {
     console.log('Koa app starting error: ', err)
   }
