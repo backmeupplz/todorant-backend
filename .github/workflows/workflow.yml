@@ -22,7 +22,5 @@ jobs:
           mkdir assets
           touch assets/api-4987639842126744234-562450-696121ef8828.json
           echo "{\"client_email\": \"test\", \"private_key\": \"test\"}" >> assets/api-4987639842126744234-562450-696121ef8828.json
-      - name: Run tests
-        run: yarn test
       - name: Lint
         run: yarn lint
