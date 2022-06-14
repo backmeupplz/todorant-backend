@@ -7,9 +7,9 @@ Signs up with facebook.
 
 Body Parameters
 
-|Field|Type|Required|Description|
-|-----|----|--------|-----------|
-|accessToken|string|True|Access token obatined from Facebook|
+| Field       | Type   | Required | Description                         |
+| ----------- | ------ | -------- | ----------------------------------- |
+| accessToken | string | True     | Access token obatined from Facebook |
 
 `Return:` [User](/models/user)
 
@@ -18,9 +18,9 @@ Signs up with google.
 
 Body Parameters
 
-|Field|Type|Required|Description|
-|-----|----|--------|-----------|
-|accessToken|string|True|Access token obatined from Google|
+| Field       | Type   | Required | Description                       |
+| ----------- | ------ | -------- | --------------------------------- |
+| accessToken | string | True     | Access token obatined from Google |
 
 `Return:` [User](/models/user)
 
@@ -29,9 +29,9 @@ Signs up with telegram.
 
 Body Parameters
 
-|Field|Type|Required|Description|
-|-----|----|--------|-----------|
-|userData|object|True|User data obatined from Telegram|
+| Field    | Type   | Required | Description                      |
+| -------- | ------ | -------- | -------------------------------- |
+| userData | object | True     | User data obatined from Telegram |
 
 `Return:` [User](/models/user)
 
@@ -40,9 +40,9 @@ Signs up with apple.
 
 Body Parameters
 
-|Field|Type|Required|Description|
-|-----|----|--------|-----------|
-|code|object|True|Access code from Apple|
+| Field | Type   | Required | Description            |
+| ----- | ------ | -------- | ---------------------- |
+| code  | object | True     | Access code from Apple |
 
 `Return:` [User](/models/user)
 
@@ -51,10 +51,10 @@ Sends the request to user to authorize by Telegram (through [@todorant_bot](http
 
 Body Parameters
 
-|Field|Type|Required|Description|
-|-----|----|--------|-----------|
-|uuid|string|True|ID of the request|
-|id|string|True|Telegram ID of the user|
+| Field | Type   | Required | Description             |
+| ----- | ------ | -------- | ----------------------- |
+| uuid  | string | True     | ID of the request       |
+| id    | string | True     | Telegram ID of the user |
 
 `Return:` [User](/models/user)
 
@@ -63,9 +63,9 @@ Checks the status of request to user to authorize by Telegram (through [@todoran
 
 Body Parameters
 
-|Field|Type|Required|Description|
-|-----|----|--------|-----------|
-|uuid|string|True|ID of the request|
+| Field | Type   | Required | Description       |
+| ----- | ------ | -------- | ----------------- |
+| uuid  | string | True     | ID of the request |
 
 `Return:` [User](/models/user) | bool
 
@@ -74,9 +74,9 @@ Signs up with token.
 
 Body Parameters
 
-|Field|Type|Required|Description|
-|-----|----|--------|-----------|
-|token|string|True|Access code from Todorant|
+| Field | Type   | Required | Description               |
+| ----- | ------ | -------- | ------------------------- |
+| token | string | True     | Access code from Todorant |
 
 `Return:` [User](/models/user)
 
@@ -88,6 +88,6 @@ Public method to see shared report.
 
 Query Parameters
 
-|Field|Type|Required|Description|
-|-----|----|--------|-----------|
-|uuid|string|True|ID of the report|
+| Field | Type   | Required | Description      |
+| ----- | ------ | -------- | ---------------- |
+| uuid  | string | True     | ID of the report |
