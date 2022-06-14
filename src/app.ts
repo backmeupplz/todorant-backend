@@ -13,8 +13,8 @@ import '@/helpers/googleCalendarChannel'
 import '@/sockets'
 import 'reflect-metadata'
 import * as Koa from 'koa'
-import serve = require('koa-static')
-import mount = require('koa-mount')
+import * as serve from 'koa-static'
+import * as mount from 'koa-mount'
 import * as Router from 'koa-router'
 import * as bodyParser from 'koa-bodyparser'
 import * as cors from '@koa/cors'
