@@ -3,6 +3,7 @@
 ## /apple
 
 ### `POST` /apple/subscription
+
 Verifies Apple purchase.
 
 Body Parameters
@@ -11,17 +12,18 @@ Body Parameters
 | ------- | ------ | -------- | --------------- |
 | receipt | string | True     | Apple's receipt |
 
-
-
 ## /google
 
 ### `POST` /google/subscription
+
 Verifies Google purchase. Send all data Google gives you as body.
 
 ### `GET` /google/calendarAuthenticationURL
+
 Gives google calendar OAuth URL.
 
 ### `POST` /google/calendarAuthorize
+
 Verifies Apple purchase.
 
 Body Parameters
@@ -50,7 +52,6 @@ Query Parameters
 - If subscription ID exists
 - Subscription type [`none`, `apple`, `web`, `google`]
 - User settings
-
 
 ## /merge
 
@@ -84,7 +85,6 @@ Body Parameters
 | -------- | ------ | -------- | -------------------------------- |
 | userData | object | True     | User data obatined from Telegram |
 
-
 ## /todo
 
 ### `POST` /todo/
@@ -106,7 +106,6 @@ Query Parameters
 | completed   | bool   | Optional | Whether to return a list of completed or upcoming todos, defaults to `false` |
 | hash        | string | Optional | Search over the list                                                         |
 | queryString | string | Optional | Search over the list                                                         |
-
 
 `Return:` list of [Todos](/models/todo).
 
@@ -171,7 +170,6 @@ Body Parameters
 | todos | string: [Todo](/models/todo)[]] | Yes      | rearranged todo map                     |
 | today | string                          | Yes      | today's date in the format `2020-12-17` |
 
-
 ## /subscription
 
 ### `GET` /subscription/session/:plan
@@ -201,7 +199,6 @@ Body Parameters
 | showTodayOnAddTodo | bool | False    | Whether to show today date as default on the todo screen or not |
 | firstDayOfWeek     | int  | False    | First day of the week where Sunday is 0                         |
 | showTodayOnAddTodo | bool | False    | Whether to put new todos on top of the list or on the bottom    |
-
 
 ## /report
 

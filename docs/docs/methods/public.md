@@ -3,6 +3,7 @@
 ## /login
 
 ### `POST` /login/facebook
+
 Signs up with facebook.
 
 Body Parameters
@@ -14,6 +15,7 @@ Body Parameters
 `Return:` [User](/models/user)
 
 ### `POST` /login/google
+
 Signs up with google.
 
 Body Parameters
@@ -25,6 +27,7 @@ Body Parameters
 `Return:` [User](/models/user)
 
 ### `POST` /login/telegram
+
 Signs up with telegram.
 
 Body Parameters
@@ -36,6 +39,7 @@ Body Parameters
 `Return:` [User](/models/user)
 
 ### `POST` /login/apple
+
 Signs up with apple.
 
 Body Parameters
@@ -47,6 +51,7 @@ Body Parameters
 `Return:` [User](/models/user)
 
 ### `POST` /login/telegram_mobile
+
 Sends the request to user to authorize by Telegram (through [@todorant_bot](https://t.me/todorant_bot)).
 
 Body Parameters
@@ -59,6 +64,7 @@ Body Parameters
 `Return:` [User](/models/user)
 
 ### `POST` /login/telegram_mobile_check
+
 Checks the status of request to user to authorize by Telegram (through [@todorant_bot](https://t.me/todorant_bot))
 
 Body Parameters
@@ -70,6 +76,7 @@ Body Parameters
 `Return:` [User](/models/user) | bool
 
 ### `POST` /login/token
+
 Signs up with token.
 
 Body Parameters
