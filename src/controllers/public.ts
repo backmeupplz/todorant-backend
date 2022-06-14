@@ -10,7 +10,7 @@ export default class PublicController {
   docs(@Ctx() ctx: Context) {
     try {
       ctx.redirect("docs/")
-      return 200
+      return 308
     } catch (err) {
       ctx.throw(500)
     }
