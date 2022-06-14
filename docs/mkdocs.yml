@@ -1,0 +1,16 @@
+site_name: Todorant Backend Docs
+site_url: https://backend.todorant.com/docs
+
+theme:
+    name: material
+    palette:
+        scheme: slate
+
+nav:
+    - Home: index.md
+    - 'API Methods':
+        - Public: methods/public.md
+        - Private: methods/private.md
+    - Models:
+        - User: models/user.md
+        - Todo: models/todo.md
