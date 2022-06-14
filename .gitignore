@@ -5,3 +5,4 @@ dist
 .yarn
 assets/
 !assets/.gitkeep
+docs/site
