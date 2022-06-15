@@ -129,7 +129,7 @@ Body Parameters
 | ----- | -------- | -------- | --------------------------- |
 | id    | ObjectId | True     | ID of the todo to mark done |
 
-### `POST` /todo/:id/undone
+### `PUT` /todo/:id/undone
 
 Marks todo as not done
 
@@ -149,7 +149,7 @@ Body Parameters
 | ----- | -------- | -------- | ------------------------ |
 | id    | ObjectId | True     | ID of the todo to delete |
 
-### `POST` /todo/:id/skip
+### `PUT` /todo/:id/skip
 
 Skips todo.
 
