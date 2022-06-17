@@ -76,41 +76,21 @@ export default class DataController {
   async deleteUser(@Ctx() ctx: Context) {
     // Find user
     const user = ctx.state.user as DocumentType<User>
-    // Find all todos
-    const todos = await TodoModel.find({
-      user: user.id,
-    })
-    const delegatedTodos = await TodoModel.find({
-      delegator: user.id,
-      delegateAccepted: { $ne: true },
-    })
     // Find delegates
     const delegates = await UserModel.find({ delegates: user.delegates })
     // Find delegators
     const delegators = await UserModel.find({
-      delegates: user.id,
+      delegates: user,
     })
-    // Find tags
-    const tags = await TagModel.find({ user: user.id })
     try {
       // Delete todos
-      for (const todo of todos) {
-        todo.deleted = true
-        todo.markModified('deleted')
-        await todo.save()
-      }
+      await TodoModel.deleteMany({ user })
       // Delete delegated todos
-      for (const todo of delegatedTodos) {
-        todo.deleted = true
-        todo.markModified('deleted')
-        await todo.save()
-      }
+      await TodoModel.deleteMany({
+        delegator: user,
+      })
       // Delete tags
-      for (const tag of tags) {
-        tag.deleted = true
-        tag.markModified('deleted')
-        await tag.save()
-      }
+      await TagModel.deleteMany({ user })
       // Delete delegates
       await UserModel.updateOne(
         { _id: user.id },
@@ -123,7 +103,7 @@ export default class DataController {
       )
       // Delete delegators
       await UserModel.updateMany(
-        { delegates: user.id },
+        { delegates: user },
         {
           $pull: {
             delegates: { $in: user.id },
@@ -131,7 +111,6 @@ export default class DataController {
           delegatesUpdatedAt: new Date(),
         }
       )
-      requestSync(user.id)
       for (const delegate of delegates) {
         requestSync(delegate.toString())
       }
@@ -139,7 +118,7 @@ export default class DataController {
         requestSync(delegator._id)
       }
       // Delete user
-      await UserModel.deleteOne({ _id: user.id })
+      await UserModel.findByIdAndDelete(user.id)
     } catch (err) {
       report(err)
       console.error(err)
