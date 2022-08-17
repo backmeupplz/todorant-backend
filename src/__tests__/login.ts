@@ -299,7 +299,7 @@ describe('Login endpoint', () => {
       .post('/login/apple_login_result')
       .send({ id_token: 'honey', user: 'Default Name' })
     expect(response.header.location).toBe(
-      'https://todorant.com/apple_login_result#?id_token=honey&user=%22Default%20Name%22'
+      'https://todorant.com/#/apple_login_result#?id_token=honey&user=%22Default%20Name%22'
     )
     expect(response.text).toBe('Success!')
   })

@@ -299,7 +299,7 @@ export default class LoginController {
     const { id_token, user } = ctx.request.body
     const userArg = user ? `&user=${JSON.stringify(user)}` : ''
     ctx.redirect(
-      `https://todorant.com/apple_login_result#?id_token=${id_token}${userArg}`
+      `https://todorant.com/#/apple_login_result#?id_token=${id_token}${userArg}`
     )
     return 'Success!'
   }
