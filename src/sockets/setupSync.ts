@@ -17,12 +17,20 @@ export function setupSync<T>(
   socket.on(
     `sync_${name}`,
     async (lastSyncDate: Date | undefined, syncId: string) => {
-      const user = socket.user
-      if (!socket.authorized || !user) {
-        socket.emit(`${name}_sync_error`, 'Not authorized', syncId)
-        return
+      try {
+        const user = socket.user
+        if (!socket.authorized || !user) {
+          socket.emit(`${name}_sync_error`, 'Not authorized', syncId)
+          return
+        }
+        socket.emit(name, await getObjects(user, lastSyncDate), syncId)
+      } catch (err) {
+        socket.emit(
+          `${name}_sync_error`,
+          typeof err === 'string' ? err : err.message,
+          syncId
+        )
       }
-      socket.emit(name, await getObjects(user, lastSyncDate), syncId)
     }
   )
   socket.on(

@@ -14,6 +14,7 @@ export function setupAuthorization(socket: SocketIO.Socket) {
       }
       const user = await getUserFromToken(token)
       if (!user) {
+        socket.emit('user_deleted')
         throw new Error('Unauthorized')
       }
       socket.join(user._id)

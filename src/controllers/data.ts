@@ -1,11 +1,16 @@
 import { Context } from 'koa'
-import { Controller, Ctx, Flow, Get, Post } from 'koa-ts-controllers'
+import { Controller, Ctx, Delete, Flow, Get, Post } from 'koa-ts-controllers'
+import { DocumentType } from '@typegoose/typegoose'
+import { TagModel } from '@/models/tag'
+import { TodoModel } from '@/models/todo'
+import { User, UserModel } from '@/models/user'
 import { _d } from '@/helpers/encryption'
 import { admins } from '@/helpers/telegram/admins'
 import { authenticate } from '@/middlewares/authenticate'
 import { bot, report } from '@/helpers/report'
 import { getTodos } from '@/controllers/todo'
 import { path } from 'temp'
+import { requestSync } from '@/sockets'
 import { unlinkSync, writeFileSync } from 'fs'
 
 @Controller('/data')
@@ -64,5 +69,59 @@ export default class DataController {
 
     ctx.status = 200
     return string
+  }
+
+  @Delete('/account')
+  @Flow(authenticate)
+  async deleteUser(@Ctx() ctx: Context) {
+    // Find user
+    const user = ctx.state.user as DocumentType<User>
+    // Find delegates
+    const delegates = await UserModel.find({ delegates: user.delegates })
+    // Find delegators
+    const delegators = await UserModel.find({
+      delegates: user,
+    })
+    try {
+      // Delete todos
+      await TodoModel.deleteMany({ user })
+      // Delete delegated todos
+      await TodoModel.deleteMany({
+        delegator: user,
+      })
+      // Delete tags
+      await TagModel.deleteMany({ user })
+      // Delete delegates
+      await UserModel.updateOne(
+        { _id: user.id },
+        {
+          $pull: {
+            delegates: { $in: [...user.delegates] },
+          },
+          delegatesUpdatedAt: new Date(),
+        }
+      )
+      // Delete delegators
+      await UserModel.updateMany(
+        { delegates: user },
+        {
+          $pull: {
+            delegates: { $in: user.id },
+          },
+          delegatesUpdatedAt: new Date(),
+        }
+      )
+      for (const delegate of delegates) {
+        requestSync(delegate.toString())
+      }
+      for (const delegator of delegators) {
+        requestSync(delegator._id)
+      }
+      // Delete user
+      await UserModel.findByIdAndDelete(user.id)
+    } catch (err) {
+      report(err)
+      console.error(err)
+    }
   }
 }

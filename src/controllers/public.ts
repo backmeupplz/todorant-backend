@@ -9,7 +9,7 @@ export default class PublicController {
   @Get('/')
   docs(@Ctx() ctx: Context) {
     try {
-      ctx.redirect("docs/")
+      ctx.redirect('docs/')
       return 308
     } catch (err) {
       ctx.throw(500)
